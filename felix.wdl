@@ -80,3 +80,110 @@ task pedToParam {
 		requested_memory_mb_per_core: "${memoryByThreads}"
 	}
 }
+
+
+task checksum {
+	meta {
+		author: "Felix Vandermeeren"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-01-10"
+	}
+
+	input {
+		String outputPath
+
+		# Bed input
+		File TargetBed
+		File? BaitBed
+		File? Genemap2File
+		File WindowsBed
+		File? WindowsBedNoCHR
+
+		# Genome input
+		File refFasta
+		File refDict
+		File refFai
+		File refAmb
+		File refAnn
+		File refBwt
+		File refPac
+		File refSa
+
+		# Known sites (/!\ Except flattenned arrays)
+		Array[File?]+ knownSites
+		Array[File?]+ knownSitesIdx
+		# dbSNP
+		File dbsnp
+		File dbsnpIdx
+
+		## experiment inputs
+		File? GenesOfInterest
+		File? CustomVCF
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+
+	String path_exe = "sha256sum"
+	String outputFile = "~{outputPath}/Checksums.txt"
+
+	# Handle optional support files:
+	String cmd_BaitBed = if defined(BaitBed) then "~{path_exe} ~{BaitBed}" else ""
+	String cmd_Genemap2File = if defined(Genemap2File) then "~{path_exe} ~{Genemap2File}" else ""
+	String cmd_WindowsBedNoCHR = if defined(WindowsBedNoCHR) then "~{path_exe} ~{WindowsBedNoCHR}" else ""
+	String cmd_GenesOfInterest = if defined(GenesOfInterest) then "~{path_exe} ~{GenesOfInterest}" else ""
+	String cmd_CustomVCF = if defined(CustomVCF) then "~{path_exe} ~{CustomVCF}" else ""
+	# WARN: knownSites is an array -> use 'sep' bellow
+	String cmd_knownSites = if defined(knownSites) then "~{path_exe} ~{sep=' ' knownSites}" else ""
+	String cmd_knownSitesIdx = if defined(knownSitesIdx) then "~{path_exe} ~{sep=' ' knownSitesIdx}" else ""
+	# WARN: Input path of each file became internal one (copied by WDL) -> basename with awk
+
+	command <<<
+		set exo pipefail
+
+		if [[ ! -d "~{outputPath}" ]]; then
+			mkdir --parents "~{outputPath}"
+		fi
+		echo ~{cmd_knownSitesIdx}
+
+		{
+			"~{path_exe}" \
+				"~{TargetBed}" \
+				"~{WindowsBed}"
+			~{cmd_BaitBed}
+			~{cmd_Genemap2File}
+			~{cmd_WindowsBedNoCHR}
+			"~{path_exe}" \
+				"~{refFasta}" \
+				"~{refDict}" \
+				"~{refFai}" \
+				"~{refAmb}" \
+				"~{refAnn}" \
+				"~{refBwt}" \
+				"~{refPac}" \
+				"~{refSa}"
+			# ~{cmd_knownSites}
+			# ~{cmd_knownSitesIdx}
+			~{cmd_GenesOfInterest}
+			~{cmd_CustomVCF}
+		} | sed 's/  /\t/' | awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print $1,a[n]}' > "~{outputFile}"
+	>>>
+
+	output {
+		File outputFile = outputFile
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreads}"
+	}
+}
