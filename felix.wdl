@@ -86,7 +86,7 @@ task checksum {
 	meta {
 		author: "Felix Vandermeeren"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.1"
+		version: "0.0.2"
 		date: "2024-01-10"
 	}
 
@@ -111,8 +111,10 @@ task checksum {
 		File refSa
 
 		# Known sites (/!\ Except flattenned arrays)
-		Array[File?]+ knownSites
-		Array[File?]+ knownSitesIdx
+		# WARN: CANNOT be of type 'Array[File?]' (= type specified in workflow inputs)
+		#       Otherwise bellow "{sep=' ' var}" raise 'Placeholder error'
+		Array[File]+ knownSites
+		Array[File]+ knownSitesIdx
 		# dbSNP
 		File dbsnp
 		File dbsnpIdx
@@ -132,20 +134,22 @@ task checksum {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-
 	String path_exe = "sha256sum"
 	String outputFile = "~{outputPath}/Checksums.txt"
 
-	# Handle optional support files:
-	String cmd_BaitBed = if defined(BaitBed) then "~{path_exe} ~{BaitBed}" else ""
-	String cmd_Genemap2File = if defined(Genemap2File) then "~{path_exe} ~{Genemap2File}" else ""
-	String cmd_WindowsBedNoCHR = if defined(WindowsBedNoCHR) then "~{path_exe} ~{WindowsBedNoCHR}" else ""
-	String cmd_GenesOfInterest = if defined(GenesOfInterest) then "~{path_exe} ~{GenesOfInterest}" else ""
-	String cmd_CustomVCF = if defined(CustomVCF) then "~{path_exe} ~{CustomVCF}" else ""
-	# WARN: knownSites is an array -> use 'sep' bellow
-	String cmd_knownSites = if defined(knownSites) then "~{path_exe} ~{sep=' ' knownSites}" else ""
-	String cmd_knownSitesIdx = if defined(knownSitesIdx) then "~{path_exe} ~{sep=' ' knownSitesIdx}" else ""
+	# MEMO: Optional support files are handled with "~{'' + optionalParam}"
+	#       See: https://github.com/openwdl/wdl/blob/main/versions/development/SPEC.md#concatenation-of-optional-values
+	#       DO NOT quote these variables (otherwise if file not provided, interpreted as ' sha256 "" ' --> 'no such file')
+	#
+	# WARN: 'knownSites{,Idx}' is an array -> use 'sep' bellow
+	#       DO NOT quote theses variables
+	#       (otherwise interpreted as ' sha256 "file1 file2" ' --> 'no such file')
+	#
 	# WARN: Input path of each file became internal one (copied by WDL) -> basename with awk
+	#
+	# ENH: Find a way to quote optional variables correctly ?
+	# ENH: Parallelize over each checked file ?
+	# ENH: Add varName to output file ?
 
 	command <<<
 		set exo pipefail
@@ -153,15 +157,15 @@ task checksum {
 		if [[ ! -d "~{outputPath}" ]]; then
 			mkdir --parents "~{outputPath}"
 		fi
-		echo ~{cmd_knownSitesIdx}
 
 		{
 			"~{path_exe}" \
 				"~{TargetBed}" \
-				"~{WindowsBed}"
-			~{cmd_BaitBed}
-			~{cmd_Genemap2File}
-			~{cmd_WindowsBedNoCHR}
+				~{'' + BaitBed} \
+				~{'' + Genemap2File} \
+				"~{WindowsBed}" \
+				~{'' + WindowsBedNoCHR}
+
 			"~{path_exe}" \
 				"~{refFasta}" \
 				"~{refDict}" \
@@ -170,12 +174,20 @@ task checksum {
 				"~{refAnn}" \
 				"~{refBwt}" \
 				"~{refPac}" \
-				"~{refSa}"
-			# ~{cmd_knownSites}
-			# ~{cmd_knownSitesIdx}
-			~{cmd_GenesOfInterest}
-			~{cmd_CustomVCF}
-		} | sed 's/  /\t/' | awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print $1,a[n]}' > "~{outputFile}"
+				"~{refSa}" \
+				"~{dbsnp}" \
+				"~{dbsnpIdx}"
+
+			"~{path_exe}" \
+				~{sep=' ' knownSites} \
+				~{sep=' ' knownSitesIdx}
+
+			"~{path_exe}" \
+				~{'' + GenesOfInterest} \
+				~{'' + CustomVCF}
+		} | sed 's/  /\t/' |
+			awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print $1,a[n]}' |
+			sort -k2,2 > "~{outputFile}"
 	>>>
 
 	output {
