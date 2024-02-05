@@ -70,9 +70,9 @@ task pedToParam {
 	>>>
 
 	output {
-		File propositusJson = propositusJson
-		File parentsJson = parentsJson
-		File siblingsJson = siblingsJson
+		Array[Array[String]] propositus = read_json(propositusJson)
+		Array[Array[String]] siblings = read_json(siblingsJson)
+		Array[String] parents = read_json(parentsJson)
 	}
 
 	runtime {
