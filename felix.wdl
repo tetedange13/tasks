@@ -86,7 +86,7 @@ task checksum {
 	meta {
 		author: "Felix Vandermeeren"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.2"
+		version: "0.0.3"
 		date: "2024-01-10"
 	}
 
@@ -135,7 +135,7 @@ task checksum {
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String path_exe = "sha256sum"
-	String outputFile = "~{outputPath}/Checksums.txt"
+	String OutputFile = "~{outputPath}/Checksums.txt"
 
 	# MEMO: Optional support files are handled with "~{'' + optionalParam}"
 	#       See: https://github.com/openwdl/wdl/blob/main/versions/development/SPEC.md#concatenation-of-optional-values
@@ -187,11 +187,11 @@ task checksum {
 				~{'' + CustomVCF}
 		} | sed 's/  /\t/' |
 			awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print $1,a[n]}' |
-			sort -k2,2 > "~{outputFile}"
+			sort -k2,2 > "~{OutputFile}"
 	>>>
 
 	output {
-		File outputFile = outputFile
+		File outputFile = OutputFile
 	}
 
 	runtime {
