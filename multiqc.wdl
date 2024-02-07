@@ -106,7 +106,7 @@ task multiqc {
 	String comm = if defined(comment) then "--comment \"~{comment}\" " else ""
 	String FileName = if defined(name) then "--filename ~{name}_multiqc_report " else "--filename multiqc_report"
 
-	String outputFile = if defined(name) then "~{outputPath}/~{name}_multiqc_report.html" else "~{outputPath}/multiqc_report.html"
+	String OutputFile = if defined(name) then "~{outputPath}/~{name}_multiqc_report.html" else "~{outputPath}/multiqc_report.html"
 
 	command <<<
 		set exo pipefail
@@ -119,12 +119,12 @@ task multiqc {
 	>>>
 
 	output {
-		File outputFile = outputFile
+		File outputFile = OutputFile
 	}
 
 	runtime {
 		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: "~{memoryByThreadsMb}"
 	}
 
 	parameter_meta {
