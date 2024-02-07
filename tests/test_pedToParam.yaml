@@ -7,3 +7,13 @@
     - path: ./outputs.json
       should_exist: true
       md5sum: ccc18f6cb3fc72db3364d15bf792c7ee
+
+- name: PedFile trio with 2 siblings
+  tags:
+    - task_level
+  command: miniwdl run -d ./ --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task pedToParam felix.wdl PedFile="tests/pedToParam/trio-2-siblings-json.txt"
+  exit_code: 0
+  files:
+    - path: ./outputs.json
+      should_exist: true
+      md5sum: 817d77724652e7c75cc4c32f854d7a2d

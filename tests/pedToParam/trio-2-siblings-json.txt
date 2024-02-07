@@ -1,0 +1,4 @@
+Cas index	Mère	Père	Autre
+A150372	pool40mum		pool40mix1,pool40mix3,
+CSG223524		pool40mix3	pool40mix1,pool40mix2,
+CSG224122	pool40mum	pool40mix2	
