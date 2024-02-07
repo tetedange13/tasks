@@ -28,6 +28,7 @@ git submodule update --remote tasks
 
 - [Pytest-workflow](https://github.com/LUMC/pytest-workflow)
 - [Miniwdl](https://github.com/chanzuckerberg/miniwdl) (allow to precisely run a given task)
+- [Miniwdl-slurm](https://github.com/miniwdl-ext/miniwdl-slurm) (only if run on cluster with SLURM+Singularity = `slurm.cfg`)
 
 
 ### Run tests
@@ -47,7 +48,7 @@ A config file is passed to Miniwdl, it allows at least:
 
 Multiple config files possible:
 - `sing.cfg` = Default one, to simply run through Singularity (tested on Linux_PC and cluster)
-- `slurm.cfg` = To run on cluster using Slurm+Singularity (= 'prod' case)
+- `slurm.cfg` = To run on cluster using SLURM+Singularity (= 'prod' case)
 
 ### Dir organization
 
