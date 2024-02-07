@@ -1,0 +1,9 @@
+- name: PedFile solo
+  tags:
+    - task_level
+  command: miniwdl run -d ./ --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task pedToParam /home/felix/Exome/tasks/felix.wdl PedFile="/mnt/chu-ngs/Labos/UMAI/NGS/Json/solo-01-json.txt"
+  exit_code: 0
+  files:
+    - path: ./outputs.json
+      should_exist: true
+      md5sum: ccc18f6cb3fc72db3364d15bf792c7ee
