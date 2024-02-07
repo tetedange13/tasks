@@ -40,9 +40,14 @@ pytest --symlink --tag task_level --git-aware
 
 ### Details
 
-A config file is passed to Miniwdl (= `sing.cfg`), it allows :
+A config file is passed to Miniwdl, it allows at least:
 - To run it through a Singularity image (= Ubuntu 20.04)
 - To ensure Singularity instance can access softs installed inside `Exome_prod` conda env (passing `PREPEND_PATH` special var)
+<br>
+
+Multiple config files possible:
+- `sing.cfg` = Default one, to simply run through Singularity (tested on Linux_PC and cluster)
+- `slurm.cfg` = To run on cluster using Slurm+Singularity (= 'prod' case)
 
 ### Dir organization
 
