@@ -1,9 +1,9 @@
 - name: MultiQC global
   tags:
     - do_not_work_with_miniwdl
-  command: miniwdl run -d ./ --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="tests/multiqc/a_run" name="global" outputPath="tests/multiqc/a_run"
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="tests/multiqc/a_run" name="global" outputPath="tests/multiqc/a_run"
   exit_code: 0
   files:
-    - path: ./outputs.json
+    - path: out-miniwdl/outputs.json
       should_exist: true
       md5sum: ccc18f6cb3fc72db3364d15bf792c7ee
