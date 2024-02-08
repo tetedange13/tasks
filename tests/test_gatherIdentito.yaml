@@ -1,0 +1,10 @@
+- name: Gather all identito files
+  tags:
+    - task_level
+  # With Miniwdl, inputs arrays are specified as 'my_array=value_1 my_array=value_2'
+  # -> Use an intermediate input JSON to shorten cmd ?
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl analysisDir=tests/gatherIdentito filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
+      should_exist: true
+      md5sum: cd29eb97415a722a27137ba385004fc1

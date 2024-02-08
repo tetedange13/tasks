@@ -199,3 +199,55 @@ task checksum {
 		requested_memory_mb_per_core: "${memoryByThreads}"
 	}
 }
+
+
+task gatherIdentito {
+	meta {
+		author: "Felix Vandermeeren"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-01-22"
+	}
+
+	input {
+		String analysisDir
+		Array[File] filesToGather
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String csvtkExe = "csvtk"  # TESTING: "/home/felix/.conda/envs/felix/bin/csvtk"
+	String OutFile = "~{analysisDir}/" + "all_casIndex_identito.tsv"
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem, "M|G", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+	# ENH: Handle run with single trio ('csvtk join' will fail for now)
+
+	command <<<
+		set -eou pipefail
+
+		# First keep only 1st col of casIndex:
+		# WARN: What if casIndex is in 1st col ?
+		# ENH: Use a
+		for a_file in ~{sep=' ' filesToGather}; do echo $a_file ; done |
+			awk -F"/" '{print "cut -f1,2",$0,">",$NF}' |
+			bash
+
+		# Then join intermediate files:
+		"~{csvtkExe}" join --tabs -o "~{OutFile}" ./*.Identito.tsv
+	>>>
+
+	output {
+		File outFile = OutFile
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreads}"
+	}
+}
