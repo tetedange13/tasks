@@ -1,0 +1,17 @@
+- name: Md5sum multiple files
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task checksum felix.wdl filesToCheck=tests/checksum/casIndex1.Identito.tsv filesToCheck=tests/checksum/casIndex2.Identito.tsv filesToCheck=tests/checksum/casIndex3.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/Checksums.txt
+      should_exist: true
+      md5sum: ed8de010e93b92e8bf90b890a1cea522
+
+- name: Md5sum single file
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task checksum felix.wdl filesToCheck=tests/checksum/casIndex1.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/Checksums.txt
+      should_exist: true
+      md5sum: 999b1d4049fde9a7f1bf84894f794cc7

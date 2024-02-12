@@ -86,42 +86,14 @@ task checksum {
 	meta {
 		author: "Felix Vandermeeren"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.3"
+		version: "0.0.4"
 		date: "2024-01-10"
 	}
 
 	input {
-		String outputPath
-
-		# Bed input
-		File TargetBed
-		File? BaitBed
-		File? Genemap2File
-		File WindowsBed
-		File? WindowsBedNoCHR
-
-		# Genome input
-		File refFasta
-		File refDict
-		File refFai
-		File refAmb
-		File refAnn
-		File refBwt
-		File refPac
-		File refSa
-
-		# Known sites (/!\ Except flattenned arrays)
-		# WARN: CANNOT be of type 'Array[File?]' (= type specified in workflow inputs)
-		#       Otherwise bellow "{sep=' ' var}" raise 'Placeholder error'
-		Array[File]+ knownSites
-		Array[File]+ knownSitesIdx
-		# dbSNP
-		File dbsnp
-		File dbsnpIdx
-
-		## experiment inputs
-		File? GenesOfInterest
-		File? CustomVCF
+		Array[File]+ filesToCheck
+		String path_exe = "md5sum"
+		String outputPath = "./"
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -134,64 +106,28 @@ task checksum {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String path_exe = "sha256sum"
-	String OutputFile = "~{outputPath}/Checksums.txt"
+	String OutFile = "~{outputPath}/Checksums.txt"
 
-	# MEMO: Optional support files are handled with "~{'' + optionalParam}"
-	#       See: https://github.com/openwdl/wdl/blob/main/versions/development/SPEC.md#concatenation-of-optional-values
-	#       DO NOT quote these variables (otherwise if file not provided, interpreted as ' sha256 "" ' --> 'no such file')
-	#
-	# WARN: 'knownSites{,Idx}' is an array -> use 'sep' bellow
-	#       DO NOT quote theses variables
-	#       (otherwise interpreted as ' sha256 "file1 file2" ' --> 'no such file')
-	#
-	# WARN: Input path of each file became internal one (copied by WDL) -> basename with awk
-	#
 	# ENH: Find a way to quote optional variables correctly ?
 	# ENH: Parallelize over each checked file ?
 	# ENH: Add varName to output file ?
 
 	command <<<
-		set exo pipefail
+		set -eou pipefail
 
 		if [[ ! -d "~{outputPath}" ]]; then
 			mkdir --parents "~{outputPath}"
 		fi
 
-		{
-			"~{path_exe}" \
-				"~{TargetBed}" \
-				~{'' + BaitBed} \
-				~{'' + Genemap2File} \
-				"~{WindowsBed}" \
-				~{'' + WindowsBedNoCHR}
-
-			"~{path_exe}" \
-				"~{refFasta}" \
-				"~{refDict}" \
-				"~{refFai}" \
-				"~{refAmb}" \
-				"~{refAnn}" \
-				"~{refBwt}" \
-				"~{refPac}" \
-				"~{refSa}" \
-				"~{dbsnp}" \
-				"~{dbsnpIdx}"
-
-			"~{path_exe}" \
-				~{sep=' ' knownSites} \
-				~{sep=' ' knownSitesIdx}
-
-			"~{path_exe}" \
-				~{'' + GenesOfInterest} \
-				~{'' + CustomVCF}
-		} | sed 's/  /\t/' |
+		echo ~{sep=" " filesToCheck} |
+			xargs "~{path_exe}" |
+			sed 's/  /\t/' |
 			awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print $1,a[n]}' |
-			sort -k2,2 > "~{OutputFile}"
+			sort -k2,2 > "~{OutFile}"
 	>>>
 
 	output {
-		File outputFile = OutputFile
+		File outFile = OutFile
 	}
 
 	runtime {
