@@ -9,6 +9,15 @@
       should_exist: true
       md5sum: cd29eb97415a722a27137ba385004fc1
 
+- name: Gather all identito files to outputPath
+  tags:
+    - task_level2
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl outputPath=tests/gatherIdentito filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv
+  files:
+    - path: out-miniwdl/work/tests/gatherIdentito/all_casIndex_identito.tsv
+      should_exist: true
+      md5sum: cd29eb97415a722a27137ba385004fc1
+
 - name: Gather single identito
   tags:
     - task_level

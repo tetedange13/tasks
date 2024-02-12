@@ -146,7 +146,7 @@ task gatherIdentito {
 	}
 
 	input {
-		String analysisDir = "./"
+		String outputPath = "./"
 		Array[File]+ filesToGather
 
 		Int threads = 1
@@ -155,7 +155,7 @@ task gatherIdentito {
 	}
 
 	String csvtkExe = "csvtk"  # TESTING: "/home/felix/.conda/envs/felix/bin/csvtk"
-	String OutFile = "~{analysisDir}/" + "all_casIndex_identito.tsv"
+	String OutFile = "~{outputPath}/" + "all_casIndex_identito.tsv"
 	String nb_files = length(filesToGather)
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
@@ -166,6 +166,11 @@ task gatherIdentito {
 
 	command <<<
 		set -eou pipefail
+
+		if [[ ! -d "~{outputPath}" ]]; then
+			mkdir --parents "~{outputPath}"
+		fi
+
 		if [ ~{nb_files} -eq 1 ] ; then
 			cut --fields 1,2 ~{filesToGather[0]} > "~{OutFile}"
 
