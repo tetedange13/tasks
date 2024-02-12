@@ -120,7 +120,7 @@ task checksum {
 		fi
 
 		echo ~{sep=" " filesToCheck} |
-			xargs "~{path_exe}" |
+			xargs --max-args=1 --max-procs "~{threads}" "~{path_exe}" |
 			sed 's/  /\t/' |
 			awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print $1,a[n]}' |
 			sort -k2,2 > "~{OutFile}"
