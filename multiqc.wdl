@@ -81,7 +81,7 @@ task multiqc {
 
 	input {
 		String path_exe = "multiqc"
-		String path_to_check
+		File path_to_check
 
 		String outputPath = "./"
 		String? name
