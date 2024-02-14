@@ -148,9 +148,9 @@ task pedToParam_ALT {
 	>>>
 
 	output {
-		File propositusJson = propositusJson
-		File siblingsJson = siblingsJson
-		File parentsJson = parentsJson
+		File PropositusJson = propositusJson
+		File SiblingsJson = siblingsJson
+		File ParentsJson = parentsJson
 	}
 
 	runtime {
