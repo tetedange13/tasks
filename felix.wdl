@@ -82,6 +82,84 @@ task pedToParam {
 }
 
 
+task pedToParam_ALT {
+	meta {
+		author: "Felix Vandermeeren"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.2"
+		date: "2024-01-22"
+	}
+
+	input {
+		String PedFile
+		Array[Array[String]] propositus
+		Array[Array[String]] siblings
+		Array[String] parents
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String pythonExe = "python3"
+	# WARN: Have to be a 'String' here (and not a 'File')
+	String propositusJson = "propositus.json"
+	String parentsJson = "parents.json"
+	String siblingsJson = "siblings.json"
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem, "M|G", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+	# Create tmp JSON and load them as variable
+	# See: https://bioinformatics.stackexchange.com/a/19073
+
+	command <<<
+		set -exo pipefail
+
+		# If PedFile is still 'empty str' (= its default value)
+		# -> Write user defined vars 'Parents', 'Propositus' etc to a (tmp) JSON
+		# WARN: write_json produce a temp file -> rename it 'var_name.json'
+		if [ -z "~{PedFile}" ] ; then
+			mv ~{write_json(propositus)} "~{propositusJson}"
+			mv ~{write_json(siblings)} "~{siblingsJson}"
+			mv ~{write_json(parents)} "~{parentsJson}"
+
+		else  # Otherwise use PedFile to define vars 'Parents', 'Propositus' etc
+			# 'Propositus' var:
+			{
+				echo "with open('~{PedFile}', 'r', encoding='latin') as my_file: common = [x.rstrip(',').replace(',','\t') for x in my_file.read().splitlines() if x != '\t\t\t']"
+				echo "print(list(map(lambda x: list(filter(''.__ne__, x.split('\t')[0:3])), common))[1:])"
+			} | "~{pythonExe}" | tr "'" '"' > "~{propositusJson}"
+
+			# 'Parents' var:
+			{
+				echo "with open('~{PedFile}', 'r', encoding='latin') as my_file: common = [x.rstrip(',').replace(',','\t') for x in my_file.read().splitlines() if x != '\t\t\t']"
+				echo "print(list(dict.fromkeys(sum(map(lambda x: list(filter(''.__ne__, x.split('\t')[1:])), common[1:]), []))))"
+			} | "~{pythonExe}" | tr "'" '"' > "~{parentsJson}"
+
+			# 'Siblings' var:
+			{
+				echo "with open('~{PedFile}', 'r', encoding='latin') as my_file: common = [x.rstrip(',').replace(',','\t') for x in my_file.read().splitlines() if x != '\t\t\t']"
+				echo "print([ [x.split('\t')[1], x.split('\t')[3]] for x in common[1:] if x.split('\t')[3] ])"
+			} | "~{pythonExe}" | tr "'" '"' > "~{siblingsJson}"
+		fi
+	>>>
+
+	output {
+		File propositusJson = propositusJson
+		File siblingsJson = siblingsJson
+		File parentsJson = parentsJson
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreads}"
+	}
+}
+
+
 task checksum {
 	meta {
 		author: "Felix Vandermeeren"
