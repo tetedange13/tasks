@@ -226,13 +226,13 @@ task gatherIdentito {
 	input {
 		String outputPath = "./"
 		Array[File]+ filesToGather
+		String csvtkExe = "csvtk"
 
 		Int threads = 1
 		Int memoryByThreads = 768
 		String? memory
 	}
 
-	String csvtkExe = "csvtk"  # TESTING: "/home/felix/.conda/envs/felix/bin/csvtk"
 	String OutFile = "~{outputPath}/" + "all_casIndex_identito.tsv"
 	String nb_files = length(filesToGather)
 

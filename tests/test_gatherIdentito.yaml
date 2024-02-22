@@ -3,7 +3,7 @@
     - task_level
   # With Miniwdl, inputs arrays are specified as 'my_array=value_1 my_array=value_2'
   # -> Use an intermediate input JSON to shorten cmd ?
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv csvtkExe=/mnt/Bioinfo/Softs/bin/csvtk
   files:
     - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
       should_exist: true
@@ -12,7 +12,7 @@
 - name: Gather all identito files to outputPath
   tags:
     - task_level2
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl outputPath=tests/gatherIdentito filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl outputPath=tests/gatherIdentito filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv csvtkExe=/mnt/Bioinfo/Softs/bin/csvtk
   files:
     - path: out-miniwdl/work/tests/gatherIdentito/all_casIndex_identito.tsv
       should_exist: true
@@ -21,7 +21,7 @@
 - name: Gather single identito
   tags:
     - task_level
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv csvtkExe=/mnt/Bioinfo/Softs/bin/csvtk
   files:
     - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
       should_exist: true
