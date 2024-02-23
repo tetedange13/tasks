@@ -1,0 +1,9 @@
+- name: Check Cromwell syntax of felix
+  tags:
+    - syntax
+  command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate felix.wdl
+  exit_code: 0
+  stdout:
+    contains:
+      - "Success!"
+
