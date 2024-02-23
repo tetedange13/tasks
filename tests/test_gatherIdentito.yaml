@@ -26,3 +26,13 @@
     - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
       should_exist: true
       md5sum: 2d504fbbd1abe3474ed1a76c8a6b41bf
+
+- name: Gather NO identito
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --input tests/gatherIdentito/empty_inputs.json --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl
+  files:
+    - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
+      should_exist: true
+      # Checksum of an EMPTY file (expected)
+      md5sum: d41d8cd98f00b204e9800998ecf8427e

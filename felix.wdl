@@ -62,7 +62,7 @@ task pedToParam {
 			echo "print(list(dict.fromkeys(sum(map(lambda x: list(filter(''.__ne__, x.split('\t')[1:])), common[1:]), []))))"
 		} | "~{pythonExe}" | tr "'" '"' > "~{parentsJson}"
 
-		# 'Siblings' var: 
+		# 'Siblings' var:
 		{
 			echo "with open('~{PedFile}', 'r', encoding='latin') as my_file: common = [x.rstrip(',').replace(',','\t') for x in my_file.read().splitlines() if x != '\t\t\t']"
 			echo "print([ [x.split('\t')[1], x.split('\t')[3]] for x in common[1:] if x.split('\t')[3] ])"
@@ -225,7 +225,7 @@ task gatherIdentito {
 
 	input {
 		String outputPath = "./"
-		Array[File]+ filesToGather
+		Array[File] filesToGather
 		String csvtkExe = "csvtk"
 
 		Int threads = 1
@@ -245,12 +245,18 @@ task gatherIdentito {
 	command <<<
 		set -eou pipefail
 
+		# If no 'Identito' files -> Simply create empty file and exit without error
+		if [ ~{nb_files} -eq 0 ] ; then
+			touch "~{OutFile}"
+			exit
+		fi
+
 		if [[ ! -d "~{outputPath}" ]]; then
 			mkdir --parents "~{outputPath}"
 		fi
 
 		if [ ~{nb_files} -eq 1 ] ; then
-			cut --fields 1,2 ~{filesToGather[0]} > "~{OutFile}"
+			cut --fields 1,2 ~{sep='' filesToGather} > "~{OutFile}"
 
 		else
 			# First keep only 1st col of casIndex:
