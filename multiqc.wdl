@@ -88,6 +88,7 @@ task multiqc {
 		String? comment
 		Array[File]? MetrixFiles
 		Array[Array[File]]? MetrixParentFiles
+		String? modulesList
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -115,7 +116,14 @@ task multiqc {
 			mkdir -p ~{outputPath}
 		fi
 
-		~{path_exe} ~{path_to_check} ~{FileName} ~{title} ~{comm} ~{outdir} -q
+		~{path_exe} \
+			~{FileName} \
+			~{title} \
+			~{comm} \
+			~{outdir} \
+			~{modulesList} \
+			--quiet \
+			~{path_to_check}
 	>>>
 
 	output {
