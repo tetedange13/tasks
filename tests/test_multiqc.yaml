@@ -1,4 +1,4 @@
-# /!\ Before running tests: sed --in-place "s|PWD|$PWD|g" tests/test_multiqc.yaml
+# /!\ Before running tests: replace bellow 'PWD' placeholder by actual 'pwd' var
 
 - name: MultiQC global
   tags:
