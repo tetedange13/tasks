@@ -2,10 +2,18 @@
 
 - name: MultiQC global
   tags:
-    - do_not_work_with_miniwdl
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="PWD/tests/multiqc/a_run" name="global" outputPath="PWD/tests/multiqc/a_run"
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="PWD/tasks/tests/multiqc/a_run" name="global"
   exit_code: 0
   files:
-    - path: out-miniwdl/outputs.json
+    # Report file is defined as 'output' of the task (-> check in 'out/')
+    - path: out-miniwdl/out/outputFile/global_multiqc_report.html
       should_exist: true
-      md5sum: ccc18f6cb3fc72db3364d15bf792c7ee
+      #md5sum: Cannot checksum it directly as date present in file
+    # But 'global_multiqc_report_data' dir is not (-> check in 'work/')
+    - path: out-miniwdl/work/global_multiqc_report_data/multiqc_picard_HsMetrics.txt
+      should_exist: true
+      md5sum: 046dc0adf2790bf50cab3d1b7d3fdc81
+    - path: out-miniwdl/work/global_multiqc_report_data/multiqc_sources.txt
+      should_exist: true
+      md5sum: 92f5a08eee48de70d96ff57b059f19c0
