@@ -1,7 +1,9 @@
+# /!\ Before running tests: sed --in-place "s|PWD|$PWD|g" tests/test_multiqc.yaml
+
 - name: MultiQC global
   tags:
     - do_not_work_with_miniwdl
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="tests/multiqc/a_run" name="global" outputPath="tests/multiqc/a_run"
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="PWD/tests/multiqc/a_run" name="global" outputPath="PWD/tests/multiqc/a_run"
   exit_code: 0
   files:
     - path: out-miniwdl/outputs.json
