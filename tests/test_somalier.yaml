@@ -1,0 +1,9 @@
+- name: Somalier extract
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/extract_inputs.json --task extract somalier.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/A161161.somalier
+      should_exist: true
+      md5sum: 00c32b4f5b011e3829934636cc624602
