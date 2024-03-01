@@ -1,4 +1,4 @@
-- name: Check Cromwell syntax of felix
+- name: Cromwell syntax of felix
   tags:
     - syntax
   command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate felix.wdl
@@ -7,3 +7,11 @@
     contains:
       - "Success!"
 
+- name: Cromwell syntax of somalier
+  tags:
+    - syntax
+  command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate somalier.wdl
+  exit_code: 0
+  stdout:
+    contains:
+      - "Success!"

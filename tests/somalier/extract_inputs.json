@@ -1,0 +1,6 @@
+{
+"bamFile": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/A161161/Alignement/A161161.bam",
+"bamIdx": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/A161161/Alignement/A161161.bam.bai",
+"refFasta": "/mnt/chu-ngs/refData/genome/hg19/hg19.fa",
+"path_exe": "/mnt/Bioinfo/Softs/bin/somalier"
+}
