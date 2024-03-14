@@ -1,9 +1,27 @@
 - name: Somalier extract
   tags:
     - task_level
+    - extract
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/extract_inputs.json --task extract somalier.wdl
   exit_code: 0
   files:
     - path: out-miniwdl/work/A161161.somalier
       should_exist: true
       md5sum: 00c32b4f5b011e3829934636cc624602
+
+- name: Somalier relate
+  tags:
+    - task_level
+    - relate
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/run_name.pairs.tsv
+      should_exist: true
+      md5sum: d0493333673f742ac16cd5fd8ac1e1df
+    - path: out-miniwdl/work/run_name.samples.tsv
+      should_exist: true
+      md5sum: b35083bd6be6a4332b089175de0d030e
+    - path: out-miniwdl/work/run_name.html
+      should_exist: true
+      md5sum: 6c33ea334936aab72ced5e4629017e4d

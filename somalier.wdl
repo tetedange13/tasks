@@ -164,3 +164,83 @@ task extract {
 		}
 	}
 }
+
+
+task relate {
+	meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version: "0.0.1"
+    date: "2024-03-14"
+  }
+
+	input {
+		String path_exe = "somalier"
+		Array[File]+ somalier_extracted_files
+		File? ped
+		String outputPath = "./run_name"
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem, "M|G", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	String ped_or_infer = if defined(ped) then "--ped=~{ped}" else "--infer"
+	# ENH: Define Outfile correctly (sample.bam -> sample.somalier)
+	#      And define it in 'output' section
+
+	command <<<
+		set -eou pipefail
+
+		if [[ ! -d ~{outputPath} ]]; then
+			mkdir --parents ~{outputPath}
+		fi
+		
+		"~{path_exe}" relate \
+			~{ped_or_infer} \
+			--output-prefix="~{outputPath}" \
+			~{sep=" " somalier_extracted_files}
+	>>>
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "~{memoryByThreadsMb}"
+	}
+
+	parameter_meta {
+		path_exe: {
+			description: 'Path used as executable [default: "somalier"]',
+			category: 'System'
+		}
+		outputPath: {
+			description: 'Output path where files were generated. [default: pwd()]',
+			category: 'Output path/name option'
+		}
+		somalier_extracted_files: {
+			description: 'Array of "/path/to/sample.somalier" files (obtained with "somalier extract" cmd)',
+			category: 'Required'
+		}
+		ped: {
+			description: 'Optional PED file (without it, familial structure is inferred)',
+			category: 'Output path/name option'
+		}
+		threads: {
+			description: 'Sets the number of threads [default: 1]',
+			category: 'System'
+		}
+		memory: {
+			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			category: 'System'
+		}
+		memoryByThreads: {
+			description: 'Sets the total memory to use (in M) [default: 768]',
+			category: 'System'
+		}
+	}
+}
