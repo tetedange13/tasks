@@ -1,6 +1,7 @@
 - name: Cromwell syntax of felix
   tags:
     - syntax
+    - felix
   command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate felix.wdl
   exit_code: 0
   stdout:
@@ -10,7 +11,18 @@
 - name: Cromwell syntax of somalier
   tags:
     - syntax
+    - somalier
   command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate somalier.wdl
+  exit_code: 0
+  stdout:
+    contains:
+      - "Success!"
+
+- name: Cromwell syntax of bwa2
+  tags:
+    - syntax
+    - bwa2
+  command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate bwa2.wdl
   exit_code: 0
   stdout:
     contains:
