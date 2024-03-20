@@ -27,3 +27,13 @@
   stdout:
     contains:
       - "Success!"
+
+- name: Cromwell syntax of GATK
+  tags:
+    - syntax
+    - gatk
+  command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate GATK4.wdl
+  exit_code: 0
+  stdout:
+    contains:
+      - "Success!"

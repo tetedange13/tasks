@@ -1891,6 +1891,7 @@ task haplotypeCaller {
 	runtime {
 		cpu: "~{threads}"
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		queue: "avx"
 	}
 
 	parameter_meta {
@@ -2114,6 +2115,7 @@ task haplotypeCallerMultiple {
 	runtime {
 		cpu: "~{threads}"
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		queue: "avx"
 	}
 
 	parameter_meta {
