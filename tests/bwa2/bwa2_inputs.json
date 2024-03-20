@@ -6,7 +6,7 @@
 "refFai" : "/mnt/chu-ngs/refData/genome/hg19/hg19.fa.fai",
 "refAmb" : "/mnt/chu-ngs/refData/genome/hg19/BWAmem2Index/hg19.fa.amb",
 "refAnn" : "/mnt/chu-ngs/refData/genome/hg19/BWAmem2Index/hg19.fa.ann",
-"refBwt" : "/mnt/chu-ngs/refData/genome/hg19/BWAmem2Index/hg19.fa.bwt.2bit.64",
+"refBwt" : "/mnt/chu-ngs/refData/genome/hg19/BWAmem2Index/hg19.fa",
 "refPac" : "/mnt/chu-ngs/refData/genome/hg19/BWAmem2Index/hg19.fa.pac",
 "refSa" : "/mnt/chu-ngs/refData/genome/hg19/BWAmem2Index/hg19.fa.0123",
 "threads" : 8,

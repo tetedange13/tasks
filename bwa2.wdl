@@ -95,13 +95,15 @@ task memnosort {
 		File fastqR1
 		File? fastqR2
 
+		# Kept for retro-comp, but are ignored:
 		File refFasta
 		File refFai
 		File refAmb
 		File refAnn
-		File refBwt
 		File refPac
 		File refSa
+		# Used param is bellow:
+		String refBwt  # Kept old name but it is rather a 'BWAindex prefix'
 
 		String platformReads = "ILLUMINA"
 
@@ -133,7 +135,7 @@ task memnosort {
 			-T ~{minScore} \
 			~{true="-M" false="" markShorter} \
 			-t ~{threads} \
-			~{refFasta} \
+			"~{refBwt}" \
 			~{fastqR1} ~{default="" fastqR2} \
 	>>>
 
@@ -172,8 +174,8 @@ task memnosort {
 			description: 'Input file with reads 2 (fastq, fastq.gz, fq, fq.gz).',
 			category: 'Tool option'
 		}
-		refFasta: {
-			description: 'Path to the reference file (format: fasta)',
+		refBwt: {
+			description: 'Prefix of BWA index (eg: /path/to/BWAindex/hg19.fa)',
 			category: 'Required'
 		}
 		platformReads: {
@@ -223,13 +225,15 @@ task mem {
 		File fastqR1
 		File? fastqR2
 
+		# Kept for retro-comp, but are ignored:
 		File refFasta
 		File refFai
 		File refAmb
 		File refAnn
-		File refBwt
 		File refPac
 		File refSa
+		# Used param is bellow:
+		String refBwt  # Kept old name but it is rather a 'BWAindex prefix'
 
 		String platformReads = "ILLUMINA"
 
@@ -261,7 +265,7 @@ task mem {
 			-T ~{minScore} \
 			~{true="-M" false="" markShorter} \
 			-t ~{threads} \
-			~{refFasta} \
+			"~{refBwt}" \
 			~{fastqR1} ~{default="" fastqR2} \
 			| ~{path_exe_samtools} sort -@ ~{threads-1} -m ~{memoryByThreadsMb}M -o ~{OutputFile}
 
@@ -310,8 +314,8 @@ task mem {
 			description: 'Input file with reads 2 (fastq, fastq.gz, fq, fq.gz).',
 			category: 'Tool option'
 		}
-		refFasta: {
-			description: 'Path to the reference file (format: fasta)',
+		refBwt: {
+			description: 'Prefix of BWA index (eg: /path/to/BWAindex/hg19.fa)',
 			category: 'Required'
 		}
 		platformReads: {
