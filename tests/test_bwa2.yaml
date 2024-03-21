@@ -17,7 +17,19 @@
   files:
     - path: out-miniwdl/out/outputFile/test_sample.bam
       should_exist: true
-      md5sum: aeefebacc83008a541263eb9a02e27b2
+      # md5sum:  Instead use 'bwa2 mem special' bellow
+
+- name: Bwa2 mem special files
+  # Checksum BAM without its header
+  tags:
+    - task_level
+    - mem
+    - special
+  command: nohup bash tests/bwa2/run_special.sh /mnt/chu-ngs2/Labos/UMAI/LancementAnalyseCluster/Bwa2_mem/out-miniwdl
+  files:
+    - path: out-test/bam.md5
+      should_exist: true
+      md5sum: 7bfd7ac1ba74c0af5463a4b6473dc05b
 
 - name: Bwa2 memnosort
   tags:

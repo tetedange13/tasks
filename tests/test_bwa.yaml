@@ -20,7 +20,19 @@
       should_exist: true
       # ENH: Better checksum 'BAM without header' (using 'special_files' functions)
       #      -> Should be identical to 'bwa2' one
-      md5sum: 1d6ca72113b303923598f85235473f05
+      # md5sum:  Instead use 'bwa mem special' bellow
+
+- name: Bwa mem special files
+  # Checksum BAM without its header
+  tags:
+    - task_level
+    - mem
+    - special
+  command: nohup bash tests/bwa/run_special.sh /mnt/chu-ngs2/Labos/UMAI/LancementAnalyseCluster/Bwa_mem/out-miniwdl
+  files:
+    - path: out-test/bam.md5
+      should_exist: true
+      md5sum: 7bfd7ac1ba74c0af5463a4b6473dc05b
 
 - name: Bwa memnosort
   tags:
