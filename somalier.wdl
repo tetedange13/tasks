@@ -82,11 +82,12 @@ task extract {
 
 	input {
 		String path_exe = "somalier"
-		# 'sites' file is very small -> can re-download it each time
 		# ENH: Download correct file depending on 'genome' variable
-		# WARN: Once extracted, '.somalier' files are genome-build-agnostic
+		# WARN: Download from URL not supported by cromwell on cluster ?
+		#       -> Use local file instead
+		# WARN2: Once extracted, '.somalier' files are genome-build-agnostic
 		#       See 'sites files' section of release
-		File sites = "https://github.com/brentp/somalier/files/3412453/sites.hg19.vcf.gz"
+		File sites = "/mnt/chu-ngs/refData/igenomes/Homo_sapiens/GATK/GRCh37/Annotation/Somalier/sites.hg19.vcf.gz"
 		String refFasta
 		File bamFile
 		File bamIdx  # Somalier requires BAM to be indexed
@@ -119,6 +120,10 @@ task extract {
 			--out-dir="~{outputPath}" \
 			"~{bamFile}"
 	>>>
+
+	output {
+		File file = "~{outputPath}/" + basename(bamFile, ".bam") + ".somalier"
+	}
 
 	runtime {
 		cpu: "~{threads}"
@@ -207,6 +212,10 @@ task relate {
 			--output-prefix="~{outputPath}" \
 			~{sep=" " somalier_extracted_files}
 	>>>
+
+	output {
+		File file = "~{outputPath}.samples.tsv"
+	}
 
 	runtime {
 		cpu: "~{threads}"
