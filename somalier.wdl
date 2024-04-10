@@ -203,10 +203,6 @@ task relate {
 	command <<<
 		set -eou pipefail
 
-		if [[ ! -d ~{outputPath} ]]; then
-			mkdir --parents ~{outputPath}
-		fi
-		
 		"~{path_exe}" relate \
 			~{ped_or_infer} \
 			--output-prefix="~{outputPath}" \
