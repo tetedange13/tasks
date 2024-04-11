@@ -146,7 +146,9 @@ task memnosort {
 	runtime {
 		cpu: "~{threads}"
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		queue: "avx"
+		# INFO: BWA2 can take advantage of AVX instructions
+		#       But too few AVX nodes to rely only on them for alignment of a complete run of exomes ?
+		# queue: "avx"
 	}
 
 	parameter_meta {
