@@ -90,6 +90,7 @@ task achab {
   String HideAcmg = if HideACMG then "--hideACMG " else ""
 
   String Dollar = "$"
+  String OutAchab = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.xlsx" else "~{OutDir}/~{SampleID}_achab_catch.xlsx"
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
@@ -161,7 +162,7 @@ task achab {
   >>>
 
   output {
-File outAchab = "~{OutDir}/~{SampleID}_achab_catch.xlsx"
+    File outAchab = OutAchab
   }
 
   runtime {
