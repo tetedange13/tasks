@@ -88,6 +88,7 @@ task multiqc {
 		String? comment
 		Array[File]? MetrixFiles
 		Array[Array[File]]? MetrixParentFiles
+		Array[String]? modulesList
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -96,7 +97,7 @@ task multiqc {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem, "M|G", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
@@ -105,8 +106,9 @@ task multiqc {
 	String title = if defined(name) then "--title ~{name} " else ""
 	String comm = if defined(comment) then "--comment \"~{comment}\" " else ""
 	String FileName = if defined(name) then "--filename ~{name}_multiqc_report " else "--filename multiqc_report"
+	String firstModulesArg = if defined(modulesList) then "--module" else ""
 
-	String outputFile = if defined(name) then "~{outputPath}/~{name}_multiqc_report.html" else "~{outputPath}/multiqc_report.html"
+	String OutputFile = if defined(name) then "~{outputPath}/~{name}_multiqc_report.html" else "~{outputPath}/multiqc_report.html"
 
 	command <<<
 		set exo pipefail
@@ -115,16 +117,23 @@ task multiqc {
 			mkdir -p ~{outputPath}
 		fi
 
-		~{path_exe} ~{path_to_check} ~{FileName} ~{title} ~{comm} ~{outdir} -q
+		~{path_exe} \
+			~{FileName} \
+			~{title} \
+			~{comm} \
+			~{outdir} \
+			~{firstModulesArg} ~{sep=" --module " modulesList} \
+			--quiet \
+			~{path_to_check}
 	>>>
 
 	output {
-		File outputFile = outputFile
+		File outputFile = OutputFile
 	}
 
 	runtime {
 		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: "~{memoryByThreadsMb}"
 	}
 
 	parameter_meta {
@@ -147,6 +156,10 @@ task multiqc {
 		path_to_check: {
 			description: 'Input Path for detect QC files',
 			category: 'Required'
+		}
+		modulesList: {
+			description: 'Optional list of multiQC modules to use ([gatk,picard] expanded such as: --module gatk --module picard)',
+			category: 'Output path/name option'
 		}
 		threads: {
 			description: 'Sets the number of threads [default: 1]',
