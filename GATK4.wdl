@@ -2060,6 +2060,7 @@ task haplotypeCallerMultiple {
 		## output
 		Boolean createVCFIdx = true
 		Boolean createVCFMD5 = true
+		Boolean outputAssembledBam = false
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -2102,6 +2103,7 @@ task haplotypeCallerMultiple {
 			--emit-ref-confidence ~{emitRefConfidence} \
 			~{true="--create-output-variant-index" false="" createVCFIdx} \
 			~{true="--create-output-variant-md5" false="" createVCFMD5} \
+			~{true="--bam-output assembled.bam" false="" outputAssembledBam} \
 			--output ~{outputFile}
 
 	>>>
