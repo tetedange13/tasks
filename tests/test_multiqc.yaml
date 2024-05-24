@@ -3,6 +3,7 @@
 - name: MultiQC global
   tags:
     - task_level
+    - global
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="PWD/tests/multiqc/a_run" name="global"
   exit_code: 0
   files:

@@ -89,6 +89,7 @@ task multiqc {
 		Array[File]? MetrixFiles
 		Array[Array[File]]? MetrixParentFiles
 		String? modulesList
+		File? configFile  # Optional custom multiQC config file
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -123,6 +124,7 @@ task multiqc {
 			~{outdir} \
 			~{modulesList} \
 			--quiet \
+			~{"--config " + configFile} \
 			~{path_to_check}
 	>>>
 
