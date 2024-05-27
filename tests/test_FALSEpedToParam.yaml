@@ -1,0 +1,19 @@
+- name: FALSE PedFile solo
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task FALSEpedToParam felix.wdl PedFile="tests/FALSEpedToParam/solo-01-json.txt"
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 0e31ee3ca6ade6869c4fb480684b817e
+
+- name: FALSE PedFile trio with 2 siblings
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task FALSEpedToParam felix.wdl PedFile="tests/FALSEpedToParam/trio-2-siblings-json.txt"
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: a5e5f9eaa3bf78c7644610afbc2e287b

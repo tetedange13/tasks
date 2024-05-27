@@ -17,7 +17,7 @@ version 1.0
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-task pedToParam {
+task FALSEpedToParam {
 	meta {
 		author: "Felix Vandermeeren"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
