@@ -164,7 +164,7 @@ task checksum {
 	meta {
 		author: "Felix Vandermeeren"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.4"
+		version: "0.0.5"
 		date: "2024-01-10"
 	}
 
@@ -187,8 +187,11 @@ task checksum {
 	String OutFile = "~{outputPath}/Checksums.txt"
 
 	# ENH: Find a way to quote optional variables correctly ?
-	# ENH: Parallelize over each checked file ?
 	# ENH: Add varName to output file ?
+	# Format of (tab-separated) outfile MUST be as follow:
+	# (otherwise corresponding section in 'custom multiQC' will be broken)
+	# - Header = fileName ; md5sum
+	# - Example_value = hg19.fa ; 7c1739fd43764bd5e3b9b76ce8635bf0
 
 	command <<<
 		set -eou pipefail
@@ -200,8 +203,9 @@ task checksum {
 		echo ~{sep=" " filesToCheck} |
 			xargs --max-args=1 --max-procs "~{threads}" "~{path_exe}" |
 			sed 's/  /\t/' |
-			awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print $1,a[n]}' |
-			sort -k2,2 > "~{OutFile}"
+			awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print a[n],$1}' |
+			sort -k1,1 |
+			sed '1i fileName\tmd5sum' > "~{OutFile}"
 	>>>
 
 	output {
