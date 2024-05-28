@@ -7,6 +7,15 @@
     - path: out-miniwdl/outputs.json
       should_exist: true
       md5sum: 0e31ee3ca6ade6869c4fb480684b817e
+    - path: out-miniwdl/work/propositus.json
+      should_exist: true
+      md5sum: a27ef4fe8b0b79277c4e39c61e61272c
+    - path: out-miniwdl/work/parents.json
+      should_exist: true
+      md5sum: 58e0494c51d30eb3494f7c9198986bb9
+    - path: out-miniwdl/work/siblings.json
+      should_exist: true
+      md5sum: 58e0494c51d30eb3494f7c9198986bb9
 
 - name: FALSE PedFile trio with 2 siblings
   tags:
@@ -17,3 +26,12 @@
     - path: out-miniwdl/outputs.json
       should_exist: true
       md5sum: a5e5f9eaa3bf78c7644610afbc2e287b
+    - path: out-miniwdl/work/propositus.json
+      should_exist: true
+      md5sum: fa069266fe41065335049cedf7226ba1
+    - path: out-miniwdl/work/parents.json
+      should_exist: true
+      md5sum: ffba7a68b53a2cd477ce55b62b57edc9
+    - path: out-miniwdl/work/siblings.json
+      should_exist: true
+      md5sum: f0af74874f9292cf7c56d3914592fe22
