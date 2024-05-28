@@ -1,0 +1,7 @@
+#FAMID	IndivID	PereID	MereID	Sex	Atteint
+93524	CSG242178	0	poolEX3mum	1	2
+93570	CSG242236	poolEX3dad	0	1	2
+fam1	granddaughter	0	0	2	2
+93524	poolEX3mum	0	0	2	1
+93570	poolEX3dad	0	0	1	2
+fam1	grandma	0	0	2	1

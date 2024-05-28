@@ -1,0 +1,4 @@
+Cas index	Mère	Père	Autre
+CSG242178	poolEX3mum		
+CSG242236		poolEX3dad	
+granddaughter			grandma

@@ -1,0 +1,5 @@
+{
+"scriptPed": "/home/felix/Exome/scripts/ped_to_params.py",
+"pythonExe": "/home/felix/.conda/envs/felix/bin/python3",
+"PedFile": "tests/pedToParam/duos-01.ped"
+}

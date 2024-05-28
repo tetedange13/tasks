@@ -37,3 +37,23 @@
     - path: out-miniwdl/work/siblings.json
       should_exist: true
       md5sum: c4382cc2267f6b3acca0eb698b436e63
+
+- name: PedFile some duos
+  tags:
+    - task_level
+    - duos
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/duos-01_inputs.json --task pedToParam felix.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: c799ff6733b7760fcb7a234189dd9af5
+    - path: out-miniwdl/work/propositus.json
+      should_exist: true
+      md5sum: 00a0132dea33c7b02c4ef0a9b59d48eb
+    - path: out-miniwdl/work/parents.json
+      should_exist: true
+      md5sum: d39a50e5a195f91cac01198e4d928eac
+    - path: out-miniwdl/work/siblings.json
+      should_exist: true
+      md5sum: ae704a013d7614b2de8a462426769d0d
