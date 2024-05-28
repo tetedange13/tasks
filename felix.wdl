@@ -17,6 +17,58 @@ version 1.0
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
+task pedToParam {
+	meta {
+		author: "Felix Vandermeeren"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-05-28"
+	}
+
+	input {
+		File scriptPed
+		File PedFile
+		String pythonExe = "python3"
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	# WARN: Have to be a 'String' here (and not a 'File')
+	String propositusJson = "propositus.json"
+	String parentsJson = "parents.json"
+	String siblingsJson = "siblings.json"
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem, "M|G", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+	# Create tmp JSON and load them as variable
+	# See: https://bioinformatics.stackexchange.com/a/19073
+
+	command <<<
+		set -exo pipefail
+
+		# Simply run dedicated script on input PED:
+		# (pythonExe should have 'peds' package installed)
+		"~{pythonExe}" "~{scriptPed}" "~{PedFile}"
+	>>>
+
+	output {
+		Array[Array[String]] propositus = read_json(propositusJson)
+		Array[Array[String]] siblings = read_json(siblingsJson)
+		Array[String] parents = read_json(parentsJson)
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreads}"
+	}
+}
+
+
 task FALSEpedToParam {
 	meta {
 		author: "Felix Vandermeeren"
