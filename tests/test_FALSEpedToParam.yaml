@@ -34,4 +34,4 @@
       md5sum: ffba7a68b53a2cd477ce55b62b57edc9
     - path: out-miniwdl/work/siblings.json
       should_exist: true
-      md5sum: f0af74874f9292cf7c56d3914592fe22
+      md5sum: c4382cc2267f6b3acca0eb698b436e63
