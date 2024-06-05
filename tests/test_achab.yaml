@@ -1,0 +1,39 @@
+- name: Achab newHope solo
+  tags:
+    - task_level
+    - solo
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo_inputs.json --task achab achab.wdl NewHope=true
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch_newHope.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch.xlsx
+      should_exist: false
+
+- name: Achab newHope child with parents
+  tags:
+    - task_level
+    - trio
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/trio_inputs.json --task achab achab.wdl NewHope=true
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch_newHope.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch.xlsx
+      should_exist: false
+
+- name: Achab catch child with parents
+  tags:
+    - task_level
+    - trio
+  # 'NewHope' param is at 'false' by default
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/trio_inputs.json --task achab achab.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch_newHope.xlsx
+      should_exist: false
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
