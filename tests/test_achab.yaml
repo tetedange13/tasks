@@ -10,6 +10,10 @@
       # md5sum: Cannot checksum Excel file directly
     - path: out-miniwdl/out/outAchab/A161161_achab_catch.xlsx
       should_exist: false
+    - path: out-miniwdl/out/outAchabHTML/A161161_newHope_achab.html
+      should_exist: true
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
+
 
 - name: Achab newHope child with parents
   tags:
@@ -23,6 +27,9 @@
       # md5sum: Cannot checksum Excel file directly
     - path: out-miniwdl/out/outAchab/CSG196372_achab_catch.xlsx
       should_exist: false
+    - path: out-miniwdl/out/outAchabHTML/CSG196372_newHope_achab.html
+      should_exist: true
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
 
 - name: Achab catch child with parents
   tags:
@@ -37,3 +44,6 @@
     - path: out-miniwdl/out/outAchab/CSG196372_achab_catch.xlsx
       should_exist: true
       # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchabHTML/CSG196372_achab.html
+      should_exist: true
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)

@@ -91,6 +91,8 @@ task achab {
 
   String Dollar = "$"
   String OutAchab = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.xlsx" else "~{OutDir}/~{SampleID}_achab_catch.xlsx"
+  String OutAchabHTML = if NewHope then "~{OutDir}/~{SampleID}_newHope_achab.html" else "~{OutDir}/~{SampleID}_achab.html"
+  String OutAchabPoorCov = "~{OutDir}/~{SampleID}_poorCoverage.xlsx"
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
@@ -163,6 +165,8 @@ task achab {
 
   output {
     File outAchab = OutAchab
+    File outAchabHTML = OutAchabHTML
+    File? outAchabPoorCov = OutAchabPoorCov
   }
 
   runtime {
