@@ -1,5 +1,6 @@
 {
     "AchabExe" : "/mnt/Bioinfo/Softs/src/Captain-ACHAB/wwwachab.pl",
+    "csvtkExe" : "/mnt/Bioinfo/Softs/bin/csvtk",
     "SampleID" : "CSG196372",
     "OutDir" : "./",
     "mpavcf" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/CSG196372/VCFs/CSG196372.mpa.vcf",

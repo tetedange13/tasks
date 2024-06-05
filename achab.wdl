@@ -60,6 +60,7 @@ task achab {
     ## sytem spécific
     String AchabExe = "wwwachab.pl"
     String PerlExe = "perl"
+    String csvtkExe = "csvtk"
     ## run time
     Int threads = 1
 		Int memoryByThreads = 768
@@ -93,6 +94,8 @@ task achab {
   String OutAchab = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.xlsx" else "~{OutDir}/~{SampleID}_achab_catch.xlsx"
   String OutAchabHTML = if NewHope then "~{OutDir}/~{SampleID}_newHope_achab.html" else "~{OutDir}/~{SampleID}_achab.html"
   String OutAchabPoorCov = "~{OutDir}/~{SampleID}_poorCoverage.xlsx"
+  String OutAchabMetrix = if NewHope then "~{OutDir}/~{SampleID}_newHope_achab.metrix.tsv" else "~{OutDir}/~{SampleID}_achab.metrix.tsv"
+  String basenameOutAchab = basename(OutAchabHTML, ".html")
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
@@ -161,12 +164,33 @@ task achab {
       ~{SkipCase} \
       ~{HideAcmg}
 
+    # Generate tabular metrix file from Achab outputs:
+    (
+      # Total variants:
+      # (cannot be parsed directly from HTML -> Recompute it from Excel output)
+      printf "ALL," ;
+      "~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" |
+        "~{csvtkExe}" nrows ;
+
+      # Total counts for other sheets:
+      # WARN: In HTML, colum order is also random..
+      # ENH: Use a dedicated HTML parser
+      #      Maybe the one used to write Achab HTML output
+      grep --only-matching 'value=".*([0-9]\+)"' "~{OutAchabHTML}" |
+        tr --delete '"' |
+        tr --delete '()' |
+        sed -e 's/^value=//' -e 's/ /,/' |
+        sort --field-separator="," --key=1,1
+    ) |
+      "~{csvtkExe}" add-header --names Sheet,"~{basenameOutAchab}" |
+      "~{csvtkExe}" transpose --out-tabs -o "~{OutAchabMetrix}"
   >>>
 
   output {
     File outAchab = OutAchab
     File outAchabHTML = OutAchabHTML
     File? outAchabPoorCov = OutAchabPoorCov
+    File outAchabMetrix = OutAchabMetrix
   }
 
   runtime {
