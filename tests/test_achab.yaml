@@ -15,7 +15,7 @@
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
     - path: out-miniwdl/out/outAchabMetrix/A161161_achab_catch_newHope.metrix.tsv
       should_exist: true
-      md5sum: 2505790e49eaa97f610a66e4d325d593
+      md5sum: d724df4ea0f7228ea7e8a9a78ecddf12
 
 - name: Achab newHope child with parents
   tags:
@@ -34,7 +34,7 @@
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
     - path: out-miniwdl/out/outAchabMetrix/CSG196372_achab_catch_newHope.metrix.tsv
       should_exist: true
-      md5sum: f6e54d882b9b19830878e9b36ea3e6e9
+      md5sum: 1ee652ce6303d4b14ea3d16cf594e74c
 
 - name: Achab catch child with parents
   tags:
@@ -54,4 +54,4 @@
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
     - path: out-miniwdl/out/outAchabMetrix/CSG196372_achab_catch.metrix.tsv
       should_exist: true
-      md5sum: d1c20b9b684a00fb8bd6261f49b2a4f7
+      md5sum: 3e476f0af56b76d104e9a35f67639a90
