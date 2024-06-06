@@ -170,7 +170,7 @@ task achab {
       # (cannot be parsed directly from HTML -> Recompute it from Excel output)
       printf "ALL," ;
       "~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" |
-        "~{csvtkExe}" nrows ;
+        "~{csvtkExe}" nrows
 
       # Total counts for other sheets:
       # WARN: In HTML, colum order is also random..
@@ -179,10 +179,35 @@ task achab {
       grep --only-matching 'value=".*([0-9]\+)"' "~{OutAchabHTML}" |
         tr --delete '"' |
         tr --delete '()' |
-        sed -e 's/^value=//' -e 's/ /,/' |
-        sort --field-separator="," --key=1,1
+        sed -e 's/^value=//' -e 's/ /,/'
     ) |
-      "~{csvtkExe}" add-header --names Sheet,"~{basenameOutAchab}" |
+      "~{csvtkExe}" add-header --names Sheet,"~{basenameOutAchab}" -o temp_achab_metrix.csv
+
+    # With MultiQC 'custom_content', reports are included ONLY if they have all columns defined in 'headers' config
+    # -> Add missing columns with default value 0:
+    # 1) Create file with all possible columns
+    (
+      echo "Sheet"
+      echo "ALL"
+      echo "AR"
+      echo "BabySeq"
+      echo "DENOVO"
+      echo "DI_Extended"
+      echo "DS_ACMG"
+      echo "HTZ_compo"
+      echo "HTZ"
+      echo "KAB"
+      echo "MAI"
+      echo "METADATA"
+      echo "OMIM_DOM"
+      echo "OMIM_REC"
+      echo "SNVdadVsCNVmum"
+      echo "SNVmumVsCNVdad"
+    ) > wanted_columns.csv
+    # 2) Outer-join with real metrix file:
+    # WARN: Joint output file rows order is random -> Sort to ensure consistent column order
+    "~{csvtkExe}" join --fields Sheet --outer-join --na '0' wanted_columns.csv temp_achab_metrix.csv |
+      "~{csvtkExe}" sort --keys Sheet |
       "~{csvtkExe}" transpose --out-tabs -o "~{OutAchabMetrix}"
   >>>
 
