@@ -94,7 +94,7 @@ task achab {
   String OutAchab = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.xlsx" else "~{OutDir}/~{SampleID}_achab_catch.xlsx"
   String OutAchabHTML = if NewHope then "~{OutDir}/~{SampleID}_newHope_achab.html" else "~{OutDir}/~{SampleID}_achab.html"
   String OutAchabPoorCov = "~{OutDir}/~{SampleID}_poorCoverage.xlsx"
-  String OutAchabMetrix = if NewHope then "~{OutDir}/~{SampleID}_newHope_achab.metrix.tsv" else "~{OutDir}/~{SampleID}_achab.metrix.tsv"
+  String OutAchabMetrix = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.metrix.tsv" else "~{OutDir}/~{SampleID}_achab_catch.metrix.tsv"
   String basenameOutAchab = basename(OutAchabHTML, ".html")
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
