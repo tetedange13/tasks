@@ -25,3 +25,32 @@
     - path: out-miniwdl/work/run_name.html
       should_exist: true
       md5sum: 6c33ea334936aab72ced5e4629017e4d
+
+- name: Somalier relate PED
+  tags:
+    - task_level
+    - relate
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl ped=tests/somalier/simple.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/run_name.pairs.tsv
+      should_exist: true
+      md5sum: d58270c0154f718e1faab92b3995d19e
+    - path: out-miniwdl/work/run_name.samples.tsv
+      should_exist: true
+      md5sum: 0db4c75080142f57c57f9d564f7550b8
+    - path: out-miniwdl/work/run_name.html
+      should_exist: true
+      md5sum: f99dd5d7e24f4fbfd57933ca302213a7
+
+- name: Somalier relate duplicated PED
+  tags:
+    - task_level
+    - relate
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl ped=tests/somalier/duplicated.ped
+  # 'somalier relate' does not allow duplicate sampleID in PED -> Expect fail
+  exit_code: 1
+  stderr:
+    contains:
+      - "Error: unhandled exception: relate.nim"
+      - "`s.id notin result.sample_table` error repeated sample id:"
