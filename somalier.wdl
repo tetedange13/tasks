@@ -184,6 +184,7 @@ task relate {
 		Array[File]+ somalier_extracted_files
 		File? ped
 		String outputPath = "./run_name"
+		String csvtkExe = "csvtk"
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -196,12 +197,24 @@ task relate {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String ped_or_infer = if defined(ped) then "--ped=~{ped}" else "--infer"
-	# ENH: Define Outfile correctly (sample.bam -> sample.somalier)
-	#      And define it in 'output' section
+	String ped_or_infer = if defined(ped) then "--ped=uniq_samplID.ped" else "--infer"
 
 	command <<<
 		set -eou pipefail
+
+		# Bellow condition should be:
+		# * Empty string, if 'ped' NOT defined -> if FALSE -> do NOT run 'csvtk uniq'
+		# * Not empty string, if 'ped' defined -> if TRUE -> RUN 'csvtk uniq'
+		if [ -n "~{'' + ped}" ] ; then
+			# 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
+			# -> Uniq by sampleID (= column #2)
+			"~{csvtkExe}" uniq \
+				--tabs \
+				--comment-char '$' \
+				--fields 2 \
+				-o uniq_samplID.ped \
+				"~{ped}"
+		fi
 
 		"~{path_exe}" relate \
 			~{ped_or_infer} \
