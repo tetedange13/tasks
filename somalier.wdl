@@ -199,6 +199,7 @@ task relate {
 
 	String ped_or_infer = if defined(ped) then "--ped=uniq_samplID.ped" else "--infer"
 	String relateSamplesFile = "~{outputPath}.samples.tsv"
+	String customSamplesFile = "~{outputPath}.custom.tsv"
 
 	command <<<
 		set -eou pipefail
@@ -240,15 +241,22 @@ task relate {
 			--output-prefix="~{outputPath}" \
 			~{sep=" " somalier_extracted_files}
 
-		# Add new column 'ratio of hom_alt' to '.samples.tsv' file produced by 'somalier relate':
-		"~{csvtkExe}" mutate2 \
-			--tabs --comment-char '$' \
-			--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
-			--name ratioHomAlt \
-			-o "~{relateSamplesFile}".tmp \
-			"~{relateSamplesFile}"
-		# Replace old 'samples.tsv' file:
-		mv --verbose "~{relateSamplesFile}".tmp "~{relateSamplesFile}"
+		# Create separate 'custom' 'relate.samples.tsv':
+		# ...With new column 'ratio of hom_alt' computed from different columns:
+		# (1st remove annoying '#' at beggining)
+		sed '1s/^#//' "~{relateSamplesFile}" |
+			"~{csvtkExe}" mutate2 \
+				--tabs \
+				--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
+				--name fraction_hom_alt \
+				-o "~{customSamplesFile}".tmp
+
+		# ...With 'sample_id' column moved at 1st position of column order (required for multiQC):
+		"~{csvtkExe}" cut \
+			--tabs \
+			-f sample_id,$("~{csvtkExe}" headers -t "~{customSamplesFile}".tmp | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
+			-o "~{customSamplesFile}" \
+			"~{customSamplesFile}".tmp
 	>>>
 
 	output {
