@@ -44,6 +44,9 @@
     - path: out-miniwdl/work/run_name.html
       should_exist: true
       md5sum: f99dd5d7e24f4fbfd57933ca302213a7
+    - path: out-miniwdl/work/FULL_augmented.ped
+      should_exist: true
+      md5sum: c89a1425cb36cdf488d895ad7551796c
 
 - name: Somalier relate duplicated PED
   tags:
@@ -62,3 +65,6 @@
     - path: out-miniwdl/work/run_name.html
       should_exist: true
       md5sum: f99dd5d7e24f4fbfd57933ca302213a7
+    - path: out-miniwdl/work/FULL_augmented.ped
+      should_exist: true
+      md5sum: 743ae563b4ceec25e917f5ae1ba6f48f
