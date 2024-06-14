@@ -198,6 +198,7 @@ task relate {
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String ped_or_infer = if defined(ped) then "--ped=uniq_samplID.ped" else "--infer"
+	String relateSamplesFile = "~{outputPath}.samples.tsv"
 
 	command <<<
 		set -eou pipefail
@@ -228,8 +229,7 @@ task relate {
 			# 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
 			# -> Uniq by sampleID (= column #2)
 			"~{csvtkExe}" uniq \
-				--tabs \
-				--comment-char '$' \
+				--tabs --comment-char '$' \
 				--fields 2 \
 				-o uniq_samplID.ped \
 				"~{ped}"
@@ -239,10 +239,20 @@ task relate {
 			~{ped_or_infer} \
 			--output-prefix="~{outputPath}" \
 			~{sep=" " somalier_extracted_files}
+
+		# Add new column 'ratio of hom_alt' to '.samples.tsv' file produced by 'somalier relate':
+		"~{csvtkExe}" mutate2 \
+			--tabs --comment-char '$' \
+			--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
+			--name ratioHomAlt \
+			-o "~{relateSamplesFile}".tmp \
+			"~{relateSamplesFile}"
+		# Replace old 'samples.tsv' file:
+		mv --verbose "~{relateSamplesFile}".tmp "~{relateSamplesFile}"
 	>>>
 
 	output {
-		File file = "~{outputPath}.samples.tsv"
+		File file = relateSamplesFile
 	}
 
 	runtime {
