@@ -17,13 +17,13 @@
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl
   exit_code: 0
   files:
-    - path: out-miniwdl/work/run_name.pairs.tsv
+    - path: out-miniwdl/work/somalier_relate.pairs.tsv
       should_exist: true
       md5sum: d0493333673f742ac16cd5fd8ac1e1df
-    - path: out-miniwdl/work/run_name.samples.tsv
+    - path: out-miniwdl/work/somalier_relate.samples.tsv
       should_exist: true
       md5sum: 988710a975b85483455f514075697f54
-    - path: out-miniwdl/work/run_name.html
+    - path: out-miniwdl/work/somalier_relate.html
       should_exist: true
       md5sum: 6c33ea334936aab72ced5e4629017e4d
 
@@ -35,13 +35,13 @@
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl ped=tests/somalier/simple.ped
   exit_code: 0
   files:
-    - path: out-miniwdl/work/run_name.pairs.tsv
+    - path: out-miniwdl/work/somalier_relate.pairs.tsv
       should_exist: true
       md5sum: d58270c0154f718e1faab92b3995d19e
-    - path: out-miniwdl/work/run_name.samples.tsv
+    - path: out-miniwdl/work/somalier_relate.samples.tsv
       should_exist: true
       md5sum: d369b9fbc11da07beba7ab21de6dacf1
-    - path: out-miniwdl/work/run_name.html
+    - path: out-miniwdl/work/somalier_relate.html
       should_exist: true
       md5sum: f99dd5d7e24f4fbfd57933ca302213a7
     - path: out-miniwdl/work/FULL_augmented.ped
@@ -56,13 +56,13 @@
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl ped=tests/somalier/duplicated.ped
   exit_code: 0
   files:
-    - path: out-miniwdl/work/run_name.pairs.tsv
+    - path: out-miniwdl/work/somalier_relate.pairs.tsv
       should_exist: true
       md5sum: d58270c0154f718e1faab92b3995d19e
-    - path: out-miniwdl/work/run_name.samples.tsv
+    - path: out-miniwdl/work/somalier_relate.samples.tsv
       should_exist: true
       md5sum: d369b9fbc11da07beba7ab21de6dacf1
-    - path: out-miniwdl/work/run_name.html
+    - path: out-miniwdl/work/somalier_relate.html
       should_exist: true
       md5sum: f99dd5d7e24f4fbfd57933ca302213a7
     - path: out-miniwdl/work/FULL_augmented.ped

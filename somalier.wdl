@@ -183,7 +183,7 @@ task relate {
 		String path_exe = "somalier"
 		Array[File]+ somalier_extracted_files
 		File? ped
-		String outputPath = "./run_name"
+		String outputPath = "./somalier_relate"
 		String csvtkExe = "csvtk"
 
 		Int threads = 1
