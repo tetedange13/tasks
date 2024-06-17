@@ -264,8 +264,26 @@ task relate {
 			--tabs \
 			--left-join --na '0' \
 			--fields 'sample_id;IndivID' \
-			-o "~{customSamplesFile}" \
+			-o "$temp_custom".fraction.reordered.ploidy \
 			"$temp_custom".fraction.reordered expected_ploidy.tsv
+
+		# ...With a column comparing 'pedigree_sex' with 'inferred_sex':
+		# ENH: Instead do this through 'modify' attribute of multiQC config ?
+		# ENH: 'inferred_sex' does not work very_well with pools -> use another metric ?
+		"~{csvtkExe}" replace \
+			--tabs \
+			--fields sex \
+			--pattern "1" --replacement "male" \
+			"$temp_custom".fraction.reordered.ploidy |
+				"~{csvtkExe}" replace \
+					--tabs \
+					--fields sex \
+					--pattern "2" --replacement "female" |
+						"~{csvtkExe}" mutate2 \
+							--tabs \
+							--name valid_sex \
+							--expression '($original_pedigree_sex != -9 && $original_pedigree_sex == $sex) ? "pass" : "fail"' \
+							-o "~{customSamplesFile}"
 
 		## Create 'filered' relate.pairs.tsv:
 		# Containing pairs with expected relatedness or high 'homozygous_concordance'

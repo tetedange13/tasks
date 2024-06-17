@@ -46,7 +46,7 @@
       md5sum: 7490c7034c511777914fd157365cb6fc
     - path: out-miniwdl/work/somalier_relate.custom.tsv
       should_exist: true
-      md5sum: ade330ef1f4a13724def51f39764bb1d
+      md5sum: c1751a546a24651fe8be9c873aec37e0
 
 - name: Somalier relate duplicated unexpected PED
   ## 'unexpected' has multiple particularities:
@@ -77,7 +77,7 @@
       md5sum: 7a159585ef2671b28a72e88c073f4527
     - path: out-miniwdl/work/somalier_relate.custom.tsv
       should_exist: true
-      md5sum: e2fc912e874018d40ebc01a298ca5b7e
+      md5sum: 1c2c1a665f2c193e385163b032c63e77
     - path: out-miniwdl/work/somalier_relate.filtered.tsv
       should_exist: true
       md5sum: 3e9ae2c271bd118836031a23c1d92b9b
