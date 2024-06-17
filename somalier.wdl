@@ -206,6 +206,7 @@ task relate {
 	command <<<
 		set -eou pipefail
 
+		ploidy_tmp=expected_ploidy.tsv
 		# Bellow condition should be:
 		# * Empty string, if 'ped' NOT defined -> if FALSE -> do NOT run 'csvtk uniq'
 		# * Not empty string, if 'ped' defined -> if TRUE -> RUN 'csvtk uniq'
@@ -218,15 +219,7 @@ task relate {
 				"~{csvtkExe}" rename \
 					--tabs \
 					--fields frequency --names ploidy_attendue \
-					-o expected_ploidy.tsv
-
-			# Join that with input PED:
-			"~{csvtkExe}" join \
-				--tabs --comment-char '$' \
-				--left-join --na '0' \
-				--fields IndivID \
-				-o FULL_augmented.ped \
-				"~{ped}" expected_ploidy.tsv
+					-o "$ploidy_tmp"
 
 			## 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
 			# -> Uniq by sampleID (= column #2)
@@ -235,6 +228,11 @@ task relate {
 				--fields 2 \
 				-o uniq_samplID.ped \
 				"~{ped}"
+
+		else
+			# Create dummy expected_ploidy, with only header + 1 empty row:
+			# (for later join to work even for 'somalier relate --infer')
+			echo -e "IndivID\tploidy_attendue\n\t" > "$ploidy_tmp"
 		fi
 
 		## Run 'somalier relate'
@@ -252,14 +250,22 @@ task relate {
 				--tabs \
 				--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
 				--name fraction_hom_alt \
-				-o "$temp_custom"
+				-o "$temp_custom".fraction
 
 		# ...With 'sample_id' column moved at 1st position of column order (required for multiQC):
 		"~{csvtkExe}" cut \
 			--tabs \
-			-f sample_id,$("~{csvtkExe}" headers -t "$temp_custom" | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
+			-f sample_id,$("~{csvtkExe}" headers -t "$temp_custom".fraction | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
+			-o "$temp_custom".fraction.reordered \
+			"$temp_custom".fraction
+
+		# ...With expected ploidy (if NO input PED provided, default value = 0):
+		"~{csvtkExe}" join \
+			--tabs \
+			--left-join --na '0' \
+			--fields 'sample_id;IndivID' \
 			-o "~{customSamplesFile}" \
-			"$temp_custom"
+			"$temp_custom".fraction.reordered expected_ploidy.tsv
 
 		## Create 'filered' relate.pairs.tsv:
 		# Containing pairs with expected relatedness or high 'homozygous_concordance'
