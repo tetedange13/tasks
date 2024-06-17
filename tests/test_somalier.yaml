@@ -14,18 +14,18 @@
     - task_level
     - relate
     - infer
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-unexpected_inputs.json --task relate somalier.wdl
   exit_code: 0
   files:
     - path: out-miniwdl/work/somalier_relate.pairs.tsv
       should_exist: true
-      md5sum: d0493333673f742ac16cd5fd8ac1e1df
+      md5sum: e1e01d4c6be81c2750f4d1443973bcb6
     - path: out-miniwdl/work/somalier_relate.samples.tsv
       should_exist: true
-      md5sum: b35083bd6be6a4332b089175de0d030e
+      md5sum: 5bdd8e36453f04feb13e124747103af4
     - path: out-miniwdl/work/somalier_relate.html
       should_exist: true
-      md5sum: 6c33ea334936aab72ced5e4629017e4d
+      md5sum: 4e75cb268f894ccf56729770ea0e4f1f
 
 - name: Somalier relate PED
   tags:
