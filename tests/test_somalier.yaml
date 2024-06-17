@@ -48,28 +48,7 @@
       should_exist: true
       md5sum: fe718e383abb0b92e492ce322d44e1a4
 
-- name: Somalier relate duplicated PED
-  tags:
-    - task_level
-    - relate
-    - ped
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-several_inputs.json --task relate somalier.wdl ped=tests/somalier/duplicated.ped
-  exit_code: 0
-  files:
-    - path: out-miniwdl/work/somalier_relate.pairs.tsv
-      should_exist: true
-      md5sum: d58270c0154f718e1faab92b3995d19e
-    - path: out-miniwdl/work/somalier_relate.samples.tsv
-      should_exist: true
-      md5sum: 0db4c75080142f57c57f9d564f7550b8
-    - path: out-miniwdl/work/somalier_relate.html
-      should_exist: true
-      md5sum: f99dd5d7e24f4fbfd57933ca302213a7
-    - path: out-miniwdl/work/somalier_relate.custom.tsv
-      should_exist: true
-      md5sum: fe718e383abb0b92e492ce322d44e1a4
-
-- name: Somalier relate unexpected PED
+- name: Somalier relate duplicated unexpected PED
   ## 'unexpected' has multiple particularities:
   ## * Both pools were inverted
   ##   -> sex and ploidy do not match expected
