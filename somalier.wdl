@@ -199,7 +199,9 @@ task relate {
 
 	String ped_or_infer = if defined(ped) then "--ped=uniq_samplID.ped" else "--infer"
 	String relateSamplesFile = "~{outputPath}.samples.tsv"
+	String relatePairsFile = "~{outputPath}.pairs.tsv"
 	String customSamplesFile = "~{outputPath}.custom.tsv"
+	String relateFilteredPairs = "~{outputPath}.filtered.tsv"
 
 	command <<<
 		set -eou pipefail
@@ -208,7 +210,7 @@ task relate {
 		# * Empty string, if 'ped' NOT defined -> if FALSE -> do NOT run 'csvtk uniq'
 		# * Not empty string, if 'ped' defined -> if TRUE -> RUN 'csvtk uniq'
 		if [ -n "~{'' + ped}" ] ; then
-			# Compute expected ploidy (+ rename 'frequency' column):
+			## Compute expected ploidy (+ rename 'frequency' column):
 			"~{csvtkExe}" freq \
 				--tabs --comment-char '$' \
 				--fields IndivID \
@@ -226,7 +228,7 @@ task relate {
 				-o FULL_augmented.ped \
 				"~{ped}" expected_ploidy.tsv
 
-			# 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
+			## 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
 			# -> Uniq by sampleID (= column #2)
 			"~{csvtkExe}" uniq \
 				--tabs --comment-char '$' \
@@ -235,12 +237,13 @@ task relate {
 				"~{ped}"
 		fi
 
+		## Run 'somalier relate'
 		"~{path_exe}" relate \
 			~{ped_or_infer} \
 			--output-prefix="~{outputPath}" \
 			~{sep=" " somalier_extracted_files}
 
-		# Create separate 'custom' 'relate.samples.tsv':
+		## Create separate 'custom' 'relate.samples.tsv':
 		# ...With new column 'ratio of hom_alt' computed from different columns:
 		# (1st remove annoying '#' at beggining)
 		temp_custom=somalier_relate.custom.tmp
@@ -257,6 +260,40 @@ task relate {
 			-f sample_id,$("~{csvtkExe}" headers -t "$temp_custom" | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
 			-o "~{customSamplesFile}" \
 			"$temp_custom"
+
+		## Create 'filered' relate.pairs.tsv:
+		# Containing pairs with expected relatedness or high 'homozygous_concordance'
+		# Can be used to highlight 'abnormal' relationships
+		# (= declared in PED but low 'hom_concord' or undeclared in PED but high 'hom_concord')
+		#
+		# Bellow use 'csvtk mutate2 + replace' to add 'pass/fail'
+		# ENH: Instead do this through 'modify' attribute of multiQC config ?
+		#
+		# WARN: With 'expected_relatedness != -1', we would catch 'child-parent' relationships (= 0.5)
+		#       But also 'sib-sib' relationships (= 0.490000...)
+		#       -> As 'sib-sib' have '0.55 < hom_concord < 0.6', exclude them using 'expected_relatedness == 0.5'
+		#
+		# ENH: Replace expected_relatedness value by 'child-parent' (and 'sib-sib' if supported)
+		# ENH: Add family_ID, when pair of well related samples
+		#
+		sed '1s/^#//' "~{relatePairsFile}" |
+			"~{csvtkExe}" filter2 \
+				--tabs \
+				--filter '$expected_relatedness == 0.5 || $hom_concordance > 0.6' \
+				--show-row-number |
+				"~{csvtkExe}" mutate2 \
+					--tabs \
+					--name valid_relationship \
+					--expression '$expected_relatedness == 0.5 && $hom_concordance > 0.6' |
+					"~{csvtkExe}" replace \
+						--tabs \
+						--fields valid_relationship \
+						--pattern 'false' --replacement 'fail' |
+						"~{csvtkExe}" replace \
+							--tabs \
+							--fields valid_relationship \
+							--pattern 'true' --replacement 'pass' \
+							-o "~{relateFilteredPairs}"
 	>>>
 
 	output {

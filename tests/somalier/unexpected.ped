@@ -1,0 +1,8 @@
+#FAMID	IndivID	PereID	MereID	Sex	Atteint
+fam0	CSG232745	poolMAI-EX5dad	CSG234115	1	2
+fam0	CSG234115	0	0	2	1
+fam0	poolMAI-EX5dad	0	0	1	2
+fam1	poolMAI-EX5mum	0	0	2	1
+fam2	poolMAI-EX5mum	0	0	2	1
+fam1	poolMAI-EX5dad	0	0	1	1
+fam2	poolMAI-EX5dad	0	0	1	1

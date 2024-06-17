@@ -1,0 +1,5 @@
+{
+"somalier_extracted_files": ["tests/somalier/CSG232745.somalier","tests/somalier/CSG234115.somalier","tests/somalier/poolMAI-EX5dad.somalier","tests/somalier/poolMAI-EX5mum.somalier"],
+"path_exe": "/mnt/Bioinfo/Softs/bin/somalier",
+"csvtkExe": "/mnt/Bioinfo/Softs/bin/csvtk"
+}

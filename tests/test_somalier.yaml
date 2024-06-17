@@ -68,3 +68,37 @@
     - path: out-miniwdl/work/somalier_relate.custom.tsv
       should_exist: true
       md5sum: fe718e383abb0b92e492ce322d44e1a4
+
+- name: Somalier relate unexpected PED
+  ## 'unexpected' has multiple particularities:
+  ## * Both pools were inverted
+  ##   -> sex and ploidy do not match expected
+  ##
+  ## * Undeclared relationship in PED, between CSG232745 & PoolMAI-EX5mum (high 'homozygous_concordance')
+  ##   Reciprocally: declared relationship between CSG232745 & PoolMAI-EX5dad, shows low 'homozygous_concordance'
+  ##   -> Both pairs should appear 'fail' in 'filtered pairs.tsv'
+  ##
+  ## * Correct relationship (= declared + high 'hom_concord') between CSG232745 & CSG234115
+  ##
+  tags:
+    - task_level
+    - relate
+    - ped
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-unexpected_inputs.json --task relate somalier.wdl ped=tests/somalier/unexpected.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/somalier_relate.pairs.tsv
+      should_exist: true
+      md5sum: f145bc421bd973dfcd4d25b37a9ba0c9
+    - path: out-miniwdl/work/somalier_relate.samples.tsv
+      should_exist: true
+      md5sum: b77076d4d5882b3bbf411126a5476e5f
+    - path: out-miniwdl/work/somalier_relate.html
+      should_exist: true
+      md5sum: 7a159585ef2671b28a72e88c073f4527
+    - path: out-miniwdl/work/somalier_relate.custom.tsv
+      should_exist: true
+      md5sum: d743bdfcd96686d0037df17f90b1fafb
+    - path: out-miniwdl/work/somalier_relate.filtered.tsv
+      should_exist: true
+      md5sum: 3e9ae2c271bd118836031a23c1d92b9b
