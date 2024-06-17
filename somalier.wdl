@@ -244,19 +244,20 @@ task relate {
 		# Create separate 'custom' 'relate.samples.tsv':
 		# ...With new column 'ratio of hom_alt' computed from different columns:
 		# (1st remove annoying '#' at beggining)
+		temp_custom=somalier_relate.custom.tmp
 		sed '1s/^#//' "~{relateSamplesFile}" |
 			"~{csvtkExe}" mutate2 \
 				--tabs \
 				--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
 				--name fraction_hom_alt \
-				-o "~{customSamplesFile}".tmp
+				-o "$temp_custom"
 
 		# ...With 'sample_id' column moved at 1st position of column order (required for multiQC):
 		"~{csvtkExe}" cut \
 			--tabs \
-			-f sample_id,$("~{csvtkExe}" headers -t "~{customSamplesFile}".tmp | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
+			-f sample_id,$("~{csvtkExe}" headers -t "$temp_custom" | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
 			-o "~{customSamplesFile}" \
-			"~{customSamplesFile}".tmp
+			"$temp_custom"
 	>>>
 
 	output {
