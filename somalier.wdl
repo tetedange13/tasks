@@ -208,24 +208,23 @@ task relate {
 		# * Empty string, if 'ped' NOT defined -> if FALSE -> do NOT run 'csvtk uniq'
 		# * Not empty string, if 'ped' defined -> if TRUE -> RUN 'csvtk uniq'
 		if [ -n "~{'' + ped}" ] ; then
-			# Compute expected ploidy:
+			# Compute expected ploidy (+ rename 'frequency' column):
 			"~{csvtkExe}" freq \
-				--tabs \
-				--comment-char '$' \
+				--tabs --comment-char '$' \
 				--fields IndivID \
-				-o expected_ploidy.tsv \
-				"~{ped}"
+				"~{ped}" |
+				"~{csvtkExe}" rename \
+					--tabs \
+					--fields frequency --names ploidy_attendue \
+					-o expected_ploidy.tsv
 
-			# Join that with input PED (+ rename 'frequency' column):
+			# Join that with input PED:
 			"~{csvtkExe}" join \
 				--tabs --comment-char '$' \
 				--left-join --na '0' \
 				--fields IndivID \
-				"~{ped}" expected_ploidy.tsv |
-				"~{csvtkExe}" rename \
-					--tabs --comment-char '$' \
-					--fields frequency --names ploidy_attendue \
-					-o FULL_augmented.ped
+				-o FULL_augmented.ped \
+				"~{ped}" expected_ploidy.tsv
 
 			# 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
 			# -> Uniq by sampleID (= column #2)
