@@ -242,46 +242,48 @@ task relate {
 			~{sep=" " somalier_extracted_files}
 
 		## Create separate 'custom' 'relate.samples.tsv':
-		# ...With new column 'estimated_ploidy' computed from different columns:
-		# ENH: Instead do this through 'modify' attribute of multiQC config ?
-		# (1st remove annoying '#' at beggining)
-		# Use awk to round estimated_ploidy (see: https://stackoverflow.com/a/2395601)
-		# MEMO: If no '-p/--pattern' provided, 'csvtk mutate' will copy column
-		temp_custom=somalier_relate.custom.tmp
-		sed '1s/^#//' "~{relateSamplesFile}" |
-			"~{csvtkExe}" mutate2 \
-				--tabs \
-				--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
-				--name fraction_hom_alt |
-					"~{csvtkExe}" mutate2 \
-						--tabs \
-						--name transform \
-						--expression '-12.5 * $fraction_hom_alt + 5.3' \
-						--at 2 |
-							"~{csvtkExe}" mutate \
-								--tabs \
-								--fields transform \
-								--name estimated_ploidy |
-									"~{csvtkExe}" round \
-										--tabs \
-										--fields estimated_ploidy \
-										--decimal-width 0 \
-										-o "$temp_custom".fraction
+		temp_custom=somalier_relate.custom.tmp  # Prefix of temporary file
 
 		# ...With 'sample_id' column moved at 1st position of column order (required for multiQC):
+		# (1st remove annoying '#' at beggining)
+		sed '1s/^#//' "~{relateSamplesFile}" > "$temp_custom"
 		"~{csvtkExe}" cut \
 			--tabs \
-			-f sample_id,$("~{csvtkExe}" headers -t "$temp_custom".fraction | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
-			-o "$temp_custom".fraction.reordered \
-			"$temp_custom".fraction
+			-f sample_id,$("~{csvtkExe}" headers -t "$temp_custom" | awk '$0 != "sample_id"' | "~{csvtkExe}" transpose) \
+			-o "$temp_custom".reordered \
+			"$temp_custom"
 
 		# ...With expected ploidy (if NO input PED provided, default value = -9):
 		"~{csvtkExe}" join \
 			--tabs \
 			--left-join --na '-9' \
 			--fields 'sample_id;IndivID' \
-			-o "$temp_custom".fraction.reordered.ploidy \
-			"$temp_custom".fraction.reordered expected_ploidy.tsv
+			-o "$temp_custom".reordered.ploidy \
+			"$temp_custom".reordered expected_ploidy.tsv
+
+		# ...With new column 'estimated_ploidy' computed from different columns:
+		# ENH: Instead do this through 'modify' attribute of multiQC config ?
+		# Use awk to round estimated_ploidy (see: https://stackoverflow.com/a/2395601)
+		# MEMO: If no '-p/--pattern' provided, 'csvtk mutate' will copy column
+		"~{csvtkExe}" mutate2 \
+			--tabs \
+			--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
+			--name fraction_hom_alt \
+			"$temp_custom".reordered.ploidy |
+				"~{csvtkExe}" mutate2 \
+					--tabs \
+					--name transform \
+					--expression '-12.5 * $fraction_hom_alt + 5.3' \
+					--at 2 |
+						"~{csvtkExe}" mutate \
+							--tabs \
+							--fields transform \
+							--name estimated_ploidy |
+								"~{csvtkExe}" round \
+									--tabs \
+									--fields estimated_ploidy \
+									--decimal-width 0 \
+									-o "$temp_custom".reordered.ploidy.fraction
 
 		# ...With a column comparing 'pedigree_sex' with 'inferred_sex':
 		# ENH: Instead do this through 'modify' attribute of multiQC config ?
@@ -290,7 +292,7 @@ task relate {
 			--tabs \
 			--fields sex \
 			--pattern "1" --replacement "male" \
-			"$temp_custom".fraction.reordered.ploidy |
+			"$temp_custom".reordered.ploidy.fraction |
 				"~{csvtkExe}" replace \
 					--tabs \
 					--fields sex \
