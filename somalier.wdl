@@ -282,8 +282,12 @@ task relate {
 								"~{csvtkExe}" round \
 									--tabs \
 									--fields estimated_ploidy \
-									--decimal-width 0 \
-									-o "$temp_custom".reordered.ploidy.fraction
+									--decimal-width 0 |
+										"~{csvtkExe}" mutate2 \
+											--tabs \
+											--name valid_ploidy \
+											--expression '($ploidy_attendue != -9 && $ploidy_attendue == $estimated_ploidy) ? "pass" : "fail"' \
+											-o "$temp_custom".reordered.ploidy.fraction
 
 		# ...With a column comparing 'pedigree_sex' with 'inferred_sex':
 		# ENH: Instead do this through 'modify' attribute of multiQC config ?
