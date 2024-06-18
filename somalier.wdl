@@ -259,10 +259,10 @@ task relate {
 			-o "$temp_custom".fraction.reordered \
 			"$temp_custom".fraction
 
-		# ...With expected ploidy (if NO input PED provided, default value = 0):
+		# ...With expected ploidy (if NO input PED provided, default value = -9):
 		"~{csvtkExe}" join \
 			--tabs \
-			--left-join --na '0' \
+			--left-join --na '-9' \
 			--fields 'sample_id;IndivID' \
 			-o "$temp_custom".fraction.reordered.ploidy \
 			"$temp_custom".fraction.reordered expected_ploidy.tsv
