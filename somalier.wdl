@@ -290,7 +290,7 @@ task relate {
 		# Can be used to highlight 'abnormal' relationships
 		# (= declared in PED but low 'hom_concord' or undeclared in PED but high 'hom_concord')
 		#
-		# Bellow use 'csvtk mutate2 + replace' to add 'pass/fail'
+		# Bellow use 'csvtk mutate2 with ternary operator' to add 'pass/fail'
 		# ENH: Instead do this through 'modify' attribute of multiQC config ?
 		#
 		# WARN: With 'expected_relatedness != -1', we would catch 'child-parent' relationships (= 0.5)
@@ -308,16 +308,8 @@ task relate {
 				"~{csvtkExe}" mutate2 \
 					--tabs \
 					--name valid_relationship \
-					--expression '$expected_relatedness == 0.5 && $hom_concordance > 0.6' |
-					"~{csvtkExe}" replace \
-						--tabs \
-						--fields valid_relationship \
-						--pattern 'false' --replacement 'fail' |
-						"~{csvtkExe}" replace \
-							--tabs \
-							--fields valid_relationship \
-							--pattern 'true' --replacement 'pass' \
-							-o "~{relateFilteredPairs}"
+					--expression '($expected_relatedness == 0.5 && $hom_concordance > 0.6) ? "pass" : "fail"' \
+					-o "~{relateFilteredPairs}"
 	>>>
 
 	output {
