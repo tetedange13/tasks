@@ -263,8 +263,8 @@ task relate {
 
 		# ...With new column 'estimated_ploidy' computed from different columns:
 		# ENH: Instead do this through 'modify' attribute of multiQC config ?
-		# Use awk to round estimated_ploidy (see: https://stackoverflow.com/a/2395601)
 		# MEMO: If no '-p/--pattern' provided, 'csvtk mutate' will copy column
+		# INFO: Use 'csvtk round' to have estimated_ploidy as integer
 		"~{csvtkExe}" mutate2 \
 			--tabs \
 			--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
@@ -273,7 +273,7 @@ task relate {
 				"~{csvtkExe}" mutate2 \
 					--tabs \
 					--name transform \
-					--expression '-12.5 * $fraction_hom_alt + 5.3' \
+					--expression '-13.8 * $fraction_hom_alt + 5.58' \
 					--at 2 |
 						"~{csvtkExe}" mutate \
 							--tabs \
