@@ -242,15 +242,31 @@ task relate {
 			~{sep=" " somalier_extracted_files}
 
 		## Create separate 'custom' 'relate.samples.tsv':
-		# ...With new column 'ratio of hom_alt' computed from different columns:
+		# ...With new column 'estimated_ploidy' computed from different columns:
+		# ENH: Instead do this through 'modify' attribute of multiQC config ?
 		# (1st remove annoying '#' at beggining)
+		# Use awk to round estimated_ploidy (see: https://stackoverflow.com/a/2395601)
+		# MEMO: If no '-p/--pattern' provided, 'csvtk mutate' will copy column
 		temp_custom=somalier_relate.custom.tmp
 		sed '1s/^#//' "~{relateSamplesFile}" |
 			"~{csvtkExe}" mutate2 \
 				--tabs \
 				--expression '$n_hom_alt / ($n_hom_alt + $n_het + $n_hom_ref)' \
-				--name fraction_hom_alt \
-				-o "$temp_custom".fraction
+				--name fraction_hom_alt |
+					"~{csvtkExe}" mutate2 \
+						--tabs \
+						--name transform \
+						--expression '-12.5 * $fraction_hom_alt + 5.3' \
+						--at 2 |
+							"~{csvtkExe}" mutate \
+								--tabs \
+								--fields transform \
+								--name estimated_ploidy |
+									"~{csvtkExe}" round \
+										--tabs \
+										--fields estimated_ploidy \
+										--decimal-width 0 \
+										-o "$temp_custom".fraction
 
 		# ...With 'sample_id' column moved at 1st position of column order (required for multiQC):
 		"~{csvtkExe}" cut \
