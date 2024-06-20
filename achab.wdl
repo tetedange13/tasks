@@ -201,7 +201,7 @@ task achab {
     ) > wanted_columns.csv
     # 2) Outer-join with real metrix file:
     # WARN: Joint output file rows order is random -> Sort to ensure consistent column order
-    "~{csvtkExe}" join --fields Sheet --outer-join --na '0' wanted_columns.csv temp_achab_metrix.csv |
+    "~{csvtkExe}" join --fields Sheet --outer-join --na 'NA' wanted_columns.csv temp_achab_metrix.csv |
       "~{csvtkExe}" sort --keys Sheet |
       "~{csvtkExe}" transpose --out-tabs -o "~{OutAchabMetrix}"
   >>>
