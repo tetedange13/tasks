@@ -184,7 +184,7 @@ task relate {
 		Array[File]+ somalier_extracted_files
 		File? ped
 		String outputPath = "./somalier_relate"
-		String csvtkExe = "csvtk"
+        String csvtkExe = "csvtk"
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -250,6 +250,10 @@ task relate {
 		ped: {
 			description: 'Optional PED file (without it, familial structure is inferred)',
 			category: 'Output path/name option'
+		}
+		csvtkExe: {
+			description: 'Path to csvtk executable [default: csvtk]',
+			category: 'System'
 		}
 		threads: {
 			description: 'Sets the number of threads [default: 1]',
@@ -425,21 +429,25 @@ task relatePostprocess {
 	}
 
 	parameter_meta {
-		path_exe: {
-			description: 'Path used as executable [default: "somalier"]',
-			category: 'System'
+		relateSamplesFile: {
+			description: 'Path to somalier_relate samples.tsv file',
+			category: 'Required'
+		}
+		relatePairsFile: {
+			description: 'Path to somalier_relate samples.tsv file',
+			category: 'Required'
 		}
 		outputPath: {
 			description: 'Output path where files were generated. [default: pwd()]',
 			category: 'Output path/name option'
 		}
-		somalier_extracted_files: {
-			description: 'Array of "/path/to/sample.somalier" files (obtained with "somalier extract" cmd)',
-			category: 'Required'
-		}
 		ped: {
 			description: 'Optional PED file (without it, familial structure is inferred)',
 			category: 'Output path/name option'
+		}
+		csvtkExe: {
+			description: 'Path to csvtk executable [default: csvtk]',
+			category: 'System'
 		}
 		threads: {
 			description: 'Sets the number of threads [default: 1]',
