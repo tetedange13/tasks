@@ -200,8 +200,6 @@ task relate {
 	String ped_or_infer = if defined(ped) then "--ped=uniq_samplID.ped" else "--infer"
 	String relateSamplesFile = "~{outputPath}.samples.tsv"
 	String relatePairsFile = "~{outputPath}.pairs.tsv"
-	String customSamplesFile = "~{outputPath}.custom.tsv"
-	String relateFilteredPairs = "~{outputPath}.filtered.tsv"
 
 	command <<<
 		set -eou pipefail
@@ -227,7 +225,8 @@ task relate {
 	>>>
 
 	output {
-		File file = relateSamplesFile
+		File RelateSamplesFile = relateSamplesFile
+        File RelatePairsFile = relatePairsFile
 	}
 
 	runtime {
