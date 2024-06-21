@@ -175,7 +175,7 @@ task relate {
 	meta {
     author: "Felix VANDERMEEREN"
     email: "felix.vandermeeren(at)chu-montpellier.fr"
-    version: "0.0.1"
+    version: "0.0.4"
     date: "2024-03-14"
   }
 
@@ -206,6 +206,104 @@ task relate {
 	command <<<
 		set -eou pipefail
 
+		# Bellow condition should be:
+		# * Empty string, if 'ped' NOT defined -> if FALSE -> do NOT run 'csvtk uniq'
+		# * Not empty string, if 'ped' defined -> if TRUE -> RUN 'csvtk uniq'
+		if [ -n "~{'' + ped}" ] ; then
+			## 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
+			# -> Uniq by sampleID (= column #2)
+			"~{csvtkExe}" uniq \
+				--tabs --comment-char '$' \
+				--fields 2 \
+				-o uniq_samplID.ped \
+				"~{ped}"
+		fi
+
+		## Run 'somalier relate'
+		"~{path_exe}" relate \
+			~{ped_or_infer} \
+			--output-prefix="~{outputPath}" \
+			~{sep=" " somalier_extracted_files}
+	>>>
+
+	output {
+		File file = relateSamplesFile
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "~{memoryByThreadsMb}"
+	}
+
+	parameter_meta {
+		path_exe: {
+			description: 'Path used as executable [default: "somalier"]',
+			category: 'System'
+		}
+		outputPath: {
+			description: 'Output path where files were generated. [default: pwd()]',
+			category: 'Output path/name option'
+		}
+		somalier_extracted_files: {
+			description: 'Array of "/path/to/sample.somalier" files (obtained with "somalier extract" cmd)',
+			category: 'Required'
+		}
+		ped: {
+			description: 'Optional PED file (without it, familial structure is inferred)',
+			category: 'Output path/name option'
+		}
+		threads: {
+			description: 'Sets the number of threads [default: 1]',
+			category: 'System'
+		}
+		memory: {
+			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			category: 'System'
+		}
+		memoryByThreads: {
+			description: 'Sets the total memory to use (in M) [default: 768]',
+			category: 'System'
+		}
+	}
+}
+
+
+task relatePostprocess {
+	meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version: "0.0.1"
+    date: "2024-06-21"
+  }
+
+	input {
+		File relateSamplesFile
+		File relatePairsFile
+		File? ped
+		String outputPath = "./somalier_relate"
+		String csvtkExe = "csvtk"
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem, "M|G", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	String customSamplesFile = "~{outputPath}.custom.tsv"
+	String relateFilteredPairs = "~{outputPath}.filtered.tsv"
+
+	command <<<
+		set -eou pipefail
+
+		## A) Post-process 'relate.samples.tsv' to create a custom one with more info:
+		temp_custom=somalier_relate.custom.tmp  # Prefix of temporary file
+
+		# ...With expected ploidy (if NO input PED provided, default value = -9):
 		ploidy_tmp=expected_ploidy.tsv
 		# Bellow condition should be:
 		# * Empty string, if 'ped' NOT defined -> if FALSE -> do NOT run 'csvtk uniq'
@@ -221,28 +319,12 @@ task relate {
 					--fields frequency --names ploidy_attendue \
 					-o "$ploidy_tmp"
 
-			## 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
-			# -> Uniq by sampleID (= column #2)
-			"~{csvtkExe}" uniq \
-				--tabs --comment-char '$' \
-				--fields 2 \
-				-o uniq_samplID.ped \
-				"~{ped}"
-
 		else
 			# Create dummy expected_ploidy, with only header + 1 empty row:
 			# (for later join to work even for 'somalier relate --infer')
 			echo -e "IndivID\tploidy_attendue\n\t" > "$ploidy_tmp"
 		fi
 
-		## Run 'somalier relate'
-		"~{path_exe}" relate \
-			~{ped_or_infer} \
-			--output-prefix="~{outputPath}" \
-			~{sep=" " somalier_extracted_files}
-
-		## Create separate 'custom' 'relate.samples.tsv':
-		temp_custom=somalier_relate.custom.tmp  # Prefix of temporary file
 
 		# ...With 'sample_id' column moved at 1st position of column order (required for multiQC):
 		# (1st remove annoying '#' at beggining)
@@ -253,7 +335,6 @@ task relate {
 			-o "$temp_custom".reordered \
 			"$temp_custom"
 
-		# ...With expected ploidy (if NO input PED provided, default value = -9):
 		"~{csvtkExe}" join \
 			--tabs \
 			--left-join --na '-9' \
@@ -307,7 +388,7 @@ task relate {
 							--expression '($original_pedigree_sex != -9 && $original_pedigree_sex == $sex) ? "pass" : "fail"' \
 							-o "~{customSamplesFile}"
 
-		## Create 'filered' relate.pairs.tsv:
+		## B) Post-process relate.pairs.tsv to create a 'filered' version of it:
 		# Containing pairs with expected relatedness or high 'homozygous_concordance'
 		# Can be used to highlight 'abnormal' relationships
 		# (= declared in PED but low 'hom_concord' or undeclared in PED but high 'hom_concord')
@@ -335,7 +416,8 @@ task relate {
 	>>>
 
 	output {
-		File file = relateSamplesFile
+		File CustomSamplesFile = customSamplesFile
+		File RelateFilteredPairs = relateFilteredPairs
 	}
 
 	runtime {

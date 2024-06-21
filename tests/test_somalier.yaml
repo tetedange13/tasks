@@ -44,9 +44,6 @@
     - path: out-miniwdl/work/somalier_relate.html
       should_exist: true
       md5sum: 7490c7034c511777914fd157365cb6fc
-    - path: out-miniwdl/work/somalier_relate.custom.tsv
-      should_exist: true
-      md5sum: 4b38aeef9b44cb12acb80059b0eed1c0
 
 - name: Somalier relate duplicated unexpected PED
   ## 'unexpected' has multiple particularities:
@@ -75,6 +72,31 @@
     - path: out-miniwdl/work/somalier_relate.html
       should_exist: true
       md5sum: 7a159585ef2671b28a72e88c073f4527
+
+- name: Somalier relate infer POSTPROCESS
+  tags:
+    - task_level
+    - relate
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relatePostprocess_inputs.json --task relatePostprocess somalier.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/somalier_relate.custom.tsv
+      should_exist: true
+      md5sum: 926eea9b92eba04154a48db2441c0913
+    - path: out-miniwdl/work/somalier_relate.filtered.tsv
+      should_exist: true
+      md5sum: 3e9ae2c271bd118836031a23c1d92b9b
+
+- name: Somalier relate duplicated unexpected PED POSTPROCESS
+  tags:
+    - task_level
+    - relate
+    - ped
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relatePostprocess_inputs.json --task relatePostprocess somalier.wdl ped=tests/somalier/unexpected.ped
+  exit_code: 0
+  files:
     - path: out-miniwdl/work/somalier_relate.custom.tsv
       should_exist: true
       md5sum: 76496902e70b75c20bdee32c0f21da72
