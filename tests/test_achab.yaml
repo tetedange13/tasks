@@ -36,6 +36,27 @@
       should_exist: true
       md5sum: a10c61c7b681caf6b0ccfce87a5a9dcd
 
+- name: Achab newHope child with parents SPECIALS
+  tags:
+    - task_level
+    - trio
+    - special
+  ## WARN: For this test to work, above test should be run with '--kwd --basetemp=/tmp/pytest_Achab'
+  command: nohup bash tests/achab/run_special.sh /tmp/pytest_Achab/Achab_newHope_child_with_parents/out-miniwdl/work
+  exit_code: 0
+  ## This trio is the same as one run through 'Exome mini' test -> expect similar checksums
+  files:
+    # WARN: At date=15mar2024, sort-order of Achab files is non-deterministic -> checksum always wrong
+    - path: out-test/achab.xlsx.md5
+      should_exist: true
+      md5sum: 142db0f3336b6cc39aa647afc391d74c
+    - path: out-test/achab.xlsx.unsorted.md5
+      should_exist: true
+      md5sum: f5a20d109053d089cc7eb5dd7a761fc0
+    - path: out-test/achab_sheets.tsv
+      should_exist: true
+      md5sum: fa0caee778470078f2c16b5f3722e71f
+
 - name: Achab catch child with parents
   tags:
     - task_level
