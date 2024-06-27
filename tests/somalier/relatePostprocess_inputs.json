@@ -1,5 +1,0 @@
-{
-"relateSamplesFile": "tests/somalier/somalier_relate.samples.tsv",
-"relatePairsFile": "tests/somalier/somalier_relate.pairs.tsv",
-"csvtkExe": "/mnt/Bioinfo/Softs/bin/csvtk"
-}

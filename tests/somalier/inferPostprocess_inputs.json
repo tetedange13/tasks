@@ -1,0 +1,5 @@
+{
+"relateSamplesFile": "tests/somalier/infer.samples.tsv",
+"relatePairsFile": "tests/somalier/infer.pairs.tsv",
+"csvtkExe": "/mnt/Bioinfo/Softs/bin/csvtk"
+}
