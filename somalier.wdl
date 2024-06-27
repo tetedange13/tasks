@@ -375,21 +375,19 @@ task relatePostprocess {
 
 		# ...With a column comparing 'pedigree_sex' with 'inferred_sex':
 		# ENH: Instead do this through 'modify' attribute of multiQC config ?
-		# ENH: 'inferred_sex' does not work very_well with pools -> use another metric ?
-		"~{csvtkExe}" replace \
+		# MEMO: '(inferred_)sex' made by somalier does not work very_well with pools
+		#       -> instead deduce sex from 'Scaled mean depth on Y'
+		#       -> Cut-off is chosen so that a pool of 3 individuals with '2 F + 1 M' with will be predicted 'female'
+		"~{csvtkExe}" mutate2 \
 			--tabs \
-			--fields sex \
-			--pattern "1" --replacement "male" \
+			--name sexY \
+			--expression '($Y_depth_mean < 0.5) ? "female" : "male"' \
 			"$temp_custom".reordered.ploidy.fraction |
-				"~{csvtkExe}" replace \
+				"~{csvtkExe}" mutate2 \
 					--tabs \
-					--fields sex \
-					--pattern "2" --replacement "female" |
-						"~{csvtkExe}" mutate2 \
-							--tabs \
-							--name valid_sex \
-							--expression '($original_pedigree_sex != -9 && $original_pedigree_sex == $sex) ? "pass" : "fail"' \
-							-o "~{customSamplesFile}"
+					--name valid_sex \
+					--expression '($original_pedigree_sex != -9 && $original_pedigree_sex == $sexY) ? "pass" : "fail"' \
+					-o "~{customSamplesFile}"
 
 		## B) Post-process relate.pairs.tsv to create a 'filered' version of it:
 		# Containing pairs with expected relatedness or high 'homozygous_concordance'
