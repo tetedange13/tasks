@@ -1,5 +1,5 @@
 {
-"somalier_extracted_files": ["tests/somalier/CSG232745.somalier","tests/somalier/CSG234115.somalier","tests/somalier/poolMAI-EX5dad.somalier","tests/somalier/poolMAI-EX5mum.somalier"],
+"somalier_extracted_files": ["/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/Somalier/CSG232745.somalier","/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/Somalier/CSG234115.somalier","/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/Somalier/poolMAI-EX5dad.somalier","/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/Somalier/poolMAI-EX5mum.somalier"],
 "path_exe": "/mnt/Bioinfo/Softs/bin/somalier",
 "csvtkExe": "/mnt/Bioinfo/Softs/bin/csvtk"
 }
