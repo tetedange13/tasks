@@ -301,7 +301,7 @@ task relatePostprocess {
 	String relateFilteredPairs = "~{outputPath}.filtered.tsv"
 
 	command <<<
-		set -eou pipefail
+		set -eoux pipefail
 
 		## A) Post-process 'relate.samples.tsv' to create a custom one with more info:
 		temp_custom=somalier_relate.custom.tmp  # Prefix of temporary file
@@ -321,6 +321,20 @@ task relatePostprocess {
 					--tabs \
 					--fields frequency --names ploidy_attendue \
 					-o "$ploidy_tmp"
+
+			# >> TEMP_SOLUCE
+			#    Re-calculate expected relatedness from PED
+			#    (not needed when Somalier allow duplicated sampleID if famID differ)
+			relatedness_temp=expected_relatedness2.tsv
+			sed '1s/^#//' "~{ped}" |
+				awk -F"\t" '$3!=0 || $4!=0' |
+				"~{csvtkExe}" mutate2 -t -n parent -e '$PereID + ";" + $MereID' |
+				"~{csvtkExe}" unfold -t -s';' -f parent |
+				"~{csvtkExe}" grep -t -f parent -v -p 0 |
+				"~{csvtkExe}" cut -t -f IndivID,parent |
+				"~{csvtkExe}" mutate2 -t -n expected_relatedness -e "'0.5'" |
+				sed '1s/^/#/' > "$relatedness_temp"
+			# << TEMP_SOLUCE
 
 		else
 			# Create dummy expected_ploidy, with only header + 1 empty row:
@@ -404,7 +418,22 @@ task relatePostprocess {
 		# ENH: Replace expected_relatedness value by 'child-parent' (and 'sib-sib' if supported)
 		# ENH: Add family_ID, when pair of well related samples
 		#
-		sed '1s/^#//' "~{relatePairsFile}" |
+		source_for_filtered="~{relatePairsFile}"
+
+		# >> TEMP_SOLUCE
+		# Replace original col 'expected_relatedness' with recomputed one:
+		if [ -n "~{'' + ped}" ] ; then
+			source_for_filtered=temp_relatedness.tsv
+			"~{csvtkExe}" join \
+				-t -C'$' \
+				--left-join --na '-1.0' \
+				-f '1,2;1,2' \
+				-o "$source_for_filtered" \
+				<("~{csvtkExe}" cut -t -C'$' -f -expected_relatedness "~{relatePairsFile}") "$relatedness_temp"
+		fi
+		# << TEMP_SOLUCE
+
+		sed '1s/^#//' "$source_for_filtered" |
 			"~{csvtkExe}" filter2 \
 				--tabs \
 				--filter '$expected_relatedness == 0.5 || $hom_concordance > 0.6' \
