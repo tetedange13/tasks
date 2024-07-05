@@ -325,7 +325,7 @@ task relatePostprocess {
 			# >> TEMP_SOLUCE
 			#    Re-calculate expected relatedness from PED
 			#    (not needed when Somalier allow duplicated sampleID if famID differ)
-			relatedness_temp=expected_relatedness2.tsv
+			recomputed_relatedness=expected_relatedness2.tsv
 			sed '1s/^#//' "~{ped}" |
 				awk -F"\t" '$3!=0 || $4!=0' |
 				"~{csvtkExe}" mutate2 -t -n parent -e '$PereID + ";" + $MereID' |
@@ -333,7 +333,7 @@ task relatePostprocess {
 				"~{csvtkExe}" grep -t -f parent -v -p 0 |
 				"~{csvtkExe}" cut -t -f IndivID,parent |
 				"~{csvtkExe}" mutate2 -t -n expected_relatedness -e "'0.5'" |
-				sed '1s/^/#/' > "$relatedness_temp"
+				sed '1s/^/#/' > "$recomputed_relatedness"
 			# << TEMP_SOLUCE
 
 		else
@@ -422,14 +422,15 @@ task relatePostprocess {
 
 		# >> TEMP_SOLUCE
 		# Replace original col 'expected_relatedness' with recomputed one:
-		if [ -n "~{'' + ped}" ] ; then
+		# WARN: Do that only if PED defined and 'pairs.tsv' has at least 1 record
+		if [ -n "~{'' + ped}" ] && [ $("~{csvtkExe}" nrow -C'$' "~{relatePairsFile}") -gt 0 ] ; then
 			source_for_filtered=temp_relatedness.tsv
 			"~{csvtkExe}" join \
 				-t -C'$' \
 				--left-join --na '-1.0' \
 				-f '1,2;1,2' \
 				-o "$source_for_filtered" \
-				<("~{csvtkExe}" cut -t -C'$' -f -expected_relatedness "~{relatePairsFile}") "$relatedness_temp"
+				<("~{csvtkExe}" cut -t -C'$' -f -expected_relatedness "~{relatePairsFile}") "$recomputed_relatedness"
 		fi
 		# << TEMP_SOLUCE
 

@@ -27,6 +27,25 @@
       should_exist: true
       md5sum: 4e75cb268f894ccf56729770ea0e4f1f
 
+- name: Somalier relate solo PED
+  tags:
+    - task_level
+    - relate
+    - ped
+    - solo
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/relate-solo_inputs.json --task relate somalier.wdl ped=tests/somalier/solo.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/somalier_relate.pairs.tsv
+      should_exist: true
+      md5sum: 4a0988fc3c0fe5cfd5dd205fe6755595  # = File with header only
+    - path: out-miniwdl/work/somalier_relate.samples.tsv
+      should_exist: true
+      md5sum: 88e1142e859c8796df32e69592367c7d
+    - path: out-miniwdl/work/somalier_relate.html
+      should_exist: true
+      md5sum: 3779648291ec64bf27c3585cc18b23be
+
 - name: Somalier relate simple PED
   tags:
     - task_level
@@ -77,6 +96,7 @@
   tags:
     - task_level
     - relate
+    - infer
     - postprocess
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/inferPostprocess_inputs.json --task relatePostprocess somalier.wdl
   exit_code: 0
@@ -87,6 +107,23 @@
     - path: out-miniwdl/work/somalier_relate.filtered.tsv
       should_exist: true
       md5sum: cad57cb531c7e583020fb1d9f4d1af69
+
+- name: Somalier relate solo PED POSTPROCESS
+  tags:
+    - task_level
+    - relate
+    - ped
+    - solo
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/pedSoloPostprocess_inputs.json --task relatePostprocess somalier.wdl ped=tests/somalier/solo.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/somalier_relate.custom.tsv
+      should_exist: true
+      md5sum: 8ea3355395dde6a6d3e059319329ef19
+    - path: out-miniwdl/work/somalier_relate.filtered.tsv
+      should_exist: true
+      md5sum: 131f1f3fdd198c2672367f5b39c5dbf2  # = File with header only
 
 - name: Somalier relate duplicated unexpected PED POSTPROCESS
   tags:
