@@ -1,6 +1,5 @@
 {
     "AchabExe" : "/mnt/Bioinfo/Softs/src/Captain-ACHAB/wwwachab.pl",
-    "csvtkExe" : "/mnt/Bioinfo/Softs/bin/csvtk",
     "SampleID" : "CSG235316",
     "OutDir" : "./",
     "mpavcf" : "/mnt/chu-ngs/Labos/UMAI/Run_Exomes/DIAGNOSTIC/Rapid_Exome/FE037_231009/casIndex/CSG235316/VCFs/CSG235316.mpa.vcf",

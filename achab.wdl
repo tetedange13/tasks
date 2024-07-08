@@ -60,7 +60,6 @@ task achab {
     ## sytem spécific
     String AchabExe = "wwwachab.pl"
     String PerlExe = "perl"
-    String csvtkExe = "csvtk"
     ## run time
     Int threads = 1
 		Int memoryByThreads = 768
@@ -94,8 +93,6 @@ task achab {
   String OutAchab = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.xlsx" else "~{OutDir}/~{SampleID}_achab_catch.xlsx"
   String OutAchabHTML = if NewHope then "~{OutDir}/~{SampleID}_newHope_achab.html" else "~{OutDir}/~{SampleID}_achab.html"
   String OutAchabPoorCov = "~{OutDir}/~{SampleID}_poorCoverage.xlsx"
-  String OutAchabMetrix = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.metrix.tsv" else "~{OutDir}/~{SampleID}_achab_catch.metrix.tsv"
-  String basenameOutAchab = basename(OutAchabHTML, ".html")
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
@@ -163,54 +160,12 @@ task achab {
       ~{poorCov} \
       ~{SkipCase} \
       ~{HideAcmg}
-
-
-    # Generate tabular metrix file from Achab outputs:
-    (
-      # Number of samples:
-      # WARN: MUST use '<()' instead of 'pipe'
-      #       Otherwise grep raise non-zero exit_code -> pipeFAIL -> task stop
-      printf "SAMPLES_COUNT,"
-      grep --count "Genotype\-" \
-        <("~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" | "~{csvtkExe}" headers)
-
-      # Total variants:
-      # (cannot be parsed directly from HTML -> Recompute it from Excel output)
-      printf "ALL,"
-      "~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" |
-        "~{csvtkExe}" nrows
-
-      # Total counts for other sheets:
-      # WARN: In HTML, colum order is also random..
-      # ENH: Use a dedicated HTML parser
-      #      Maybe the one used to write Achab HTML output
-      grep --only-matching 'value=".*([0-9]\+)"' "~{OutAchabHTML}" |
-        tr --delete '"' |
-        tr --delete '()' |
-        sed -e 's/^value=//' -e 's/ /,/'
-    ) |
-      "~{csvtkExe}" add-header --names Sheet,"~{basenameOutAchab}" -o temp_achab_metrix.csv
-
-    # With MultiQC 'custom_content', reports are included ONLY if they have all columns defined in 'headers' config
-    # -> Add missing columns with default value 0:
-    # 1) Create file with columns declared in 'custom MQC' config
-    (
-      echo "Sheet"
-      echo "AR"
-      echo "DENOVO"
-    ) > wanted_columns.csv
-    # 2) Outer-join with real metrix file:
-    # WARN: Joint output file rows order is random -> Sort to ensure consistent column order
-    "~{csvtkExe}" join --fields Sheet --outer-join --na 'NA' wanted_columns.csv temp_achab_metrix.csv |
-      "~{csvtkExe}" sort --keys Sheet |
-      "~{csvtkExe}" transpose --out-tabs -o "~{OutAchabMetrix}"
   >>>
 
   output {
     File outAchab = OutAchab
     File outAchabHTML = OutAchabHTML
     File? outAchabPoorCov = OutAchabPoorCov
-    File outAchabMetrix = OutAchabMetrix
   }
 
   runtime {
@@ -349,6 +304,131 @@ task achab {
     }
   }
 }
+
+
+task postProcess {
+  meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.1.0"
+		date: "2024-07-08"
+	}
+  input {
+    File OutAchab
+    File OutAchabHTML
+    String OutDir = "./"
+    Boolean NewHope = false
+
+    String csvtkExe = "csvtk"
+
+    ## run time
+    Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+  }
+
+  String basenameOutAchabHTML = basename(OutAchabHTML, ".html")
+  String basenameOutAchab = basename(OutAchab, ".xlsx")
+  String OutAchabMetrix = "~{OutDir}/" + basenameOutAchab + ".metrix.tsv"
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+    set -exo pipefail
+    if [[ ! -f ~{OutDir} ]]; then
+      mkdir -p ~{OutDir}
+    fi
+
+    # Generate tabular metrix file from Achab outputs:
+    (
+      # Number of samples:
+      # WARN: MUST use '<()' instead of 'pipe'
+      #       Otherwise grep raise non-zero exit_code -> pipeFAIL -> task stop
+      printf "SAMPLES_COUNT,"
+      grep --count "Genotype\-" \
+        <("~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" | "~{csvtkExe}" headers)
+
+      # Total variants:
+      # (cannot be parsed directly from HTML -> Recompute it from Excel output)
+      printf "ALL,"
+      "~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" |
+        "~{csvtkExe}" nrows
+
+      # Total counts for other sheets:
+      # WARN: In HTML, colum order is also random..
+      # ENH: Use a dedicated HTML parser
+      #      Maybe the one used to write Achab HTML output
+      grep --only-matching 'value=".*([0-9]\+)"' "~{OutAchabHTML}" |
+        tr --delete '"' |
+        tr --delete '()' |
+        sed -e 's/^value=//' -e 's/ /,/'
+    ) |
+      "~{csvtkExe}" add-header --names Sheet,"~{basenameOutAchabHTML}" -o temp_achab_metrix.csv
+
+    # With MultiQC 'custom_content', reports are included ONLY if they have all columns defined in 'headers' config
+    # -> Add missing columns with default value 0:
+    # 1) Create file with columns declared in 'custom MQC' config
+    (
+      echo "Sheet"
+      echo "AR"
+      echo "DENOVO"
+    ) > wanted_columns.csv
+    # 2) Outer-join with real metrix file:
+    # WARN: Joint output file rows order is random -> Sort to ensure consistent column order
+    "~{csvtkExe}" join --fields Sheet --outer-join --na 'NA' wanted_columns.csv temp_achab_metrix.csv |
+      "~{csvtkExe}" sort --keys Sheet |
+      "~{csvtkExe}" transpose --out-tabs -o "~{OutAchabMetrix}"
+  >>>
+
+  output {
+    File outAchabMetrix = OutAchabMetrix
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta{
+    OutAchab: {
+      description: 'XLSX file produced by Achab',
+      category: 'Required'
+    }
+    OutAchabHTML: {
+      description: 'HTML file produced by Achab',
+      category: 'Required'
+    }
+    OutDir: {
+      description: 'Path of output Directory',
+      category: 'Required'
+    }
+    NewHope: {
+      description: 'only popFreqThr filter is applied (no more filterList nor MPA_ranking filtering) (default=false)',
+      category: 'Tool option'
+    }
+    csvtkExe: {
+			description: 'Path to csvtk executable [default: csvtk]',
+      category: 'System'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}
+
 
 task get_version {
   meta {

@@ -1,6 +1,5 @@
 {
     "AchabExe" : "/mnt/Bioinfo/Softs/src/Captain-ACHAB/wwwachab.pl",
-    "csvtkExe" : "/mnt/Bioinfo/Softs/bin/csvtk",
     "SampleID" : "A161161",
     "OutDir" : "./",
     "mpavcf" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/A161161/VCFs/A161161.mpa.vcf",

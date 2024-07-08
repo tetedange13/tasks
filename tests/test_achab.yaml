@@ -13,9 +13,6 @@
     - path: out-miniwdl/out/outAchabHTML/A161161_newHope_achab.html
       should_exist: true
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
-    - path: out-miniwdl/out/outAchabMetrix/A161161_achab_catch_newHope.metrix.tsv
-      should_exist: true
-      md5sum: 82146674fa64274a95fced7358d9cf9d
 
 - name: Achab newHope child with parents
   tags:
@@ -32,9 +29,6 @@
     - path: out-miniwdl/out/outAchabHTML/CSG196372_newHope_achab.html
       should_exist: true
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
-    - path: out-miniwdl/out/outAchabMetrix/CSG196372_achab_catch_newHope.metrix.tsv
-      should_exist: true
-      md5sum: a10c61c7b681caf6b0ccfce87a5a9dcd
 
 - name: Achab newHope child with parents SPECIALS
   tags:
@@ -73,9 +67,6 @@
     - path: out-miniwdl/out/outAchabHTML/CSG196372_achab.html
       should_exist: true
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
-    - path: out-miniwdl/out/outAchabMetrix/CSG196372_achab_catch.metrix.tsv
-      should_exist: true
-      md5sum: c5577e3b5a8ebc5c9f47bb61f363dbe0
 
 ## Trio often used by Thomas to validate new versions of Achab
 - name: Achab newHope FE-37
@@ -94,6 +85,16 @@
     - path: out-miniwdl/out/outAchabHTML/CSG235316_newHope_achab.html
       should_exist: true
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
+
+- name: Achab newHope FE-37 POSTPROCESS
+  tags:
+    - task_level
+    - trio
+    - full
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/FE-37-postprocess_inputs.json --task postProcess achab.wdl NewHope=true
+  exit_code: 0
+  files:
     - path: out-miniwdl/out/outAchabMetrix/CSG235316_achab_catch_newHope.metrix.tsv
       should_exist: true
       md5sum: 2212521c2332a126d3c75b104cb63af8
