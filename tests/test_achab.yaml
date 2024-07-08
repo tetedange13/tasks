@@ -92,7 +92,7 @@
     - trio
     - full
     - postprocess
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/FE-37-postprocess_inputs.json --task postProcess achab.wdl NewHope=true
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/FE-37-postprocess_inputs.json --task postProcess achab.wdl
   exit_code: 0
   files:
     - path: out-miniwdl/out/outAchabMetrix/CSG235316_achab_catch_newHope.metrix.tsv
@@ -115,7 +115,7 @@
       md5sum: 5ae0895387e3f9e106011313546837ad
     - path: out-test/achab.xlsx.unsorted.md5
       should_exist: true
-      md5sum: d766b36553831ce168ba977f2b4aaa44
+      md5sum: 503fb9fa777e3328893bae2befcfb7db
     - path: out-test/achab_sheets.tsv
       should_exist: true
       md5sum: 0378f4fb09a4bed36f3e7a0a4608eea1
