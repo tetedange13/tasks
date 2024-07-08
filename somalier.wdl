@@ -339,7 +339,8 @@ task relatePostprocess {
 		else
 			# Create dummy expected_ploidy, with only header + 1 empty row:
 			# (for later join to work even for 'somalier relate --infer')
-			echo -e "IndivID\tploidy_attendue\n\t" > "$ploidy_tmp"
+			echo -e "IndivID\tploidy_attendue" > "$ploidy_tmp"
+			echo -e "\t" >> "$ploidy_tmp"  # Add empty row (required for later join to work as expected)
 		fi
 
 
