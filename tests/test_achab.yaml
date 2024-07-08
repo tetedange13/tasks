@@ -97,7 +97,7 @@
   files:
     - path: out-miniwdl/out/outAchabMetrix/CSG235316_achab_catch_newHope.metrix.tsv
       should_exist: true
-      md5sum: 2212521c2332a126d3c75b104cb63af8
+      md5sum: 7e8b7fdb4ff93aa17c5c4114239a1c83
 
 - name: Achab newHope FE-37 SPECIALS
   tags:
