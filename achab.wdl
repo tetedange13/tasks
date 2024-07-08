@@ -317,7 +317,6 @@ task postProcess {
     File OutAchab
     File OutAchabHTML
     String OutDir = "./"
-    Boolean NewHope = false
 
     String csvtkExe = "csvtk"
 
@@ -405,10 +404,6 @@ task postProcess {
     OutDir: {
       description: 'Path of output Directory',
       category: 'Required'
-    }
-    NewHope: {
-      description: 'only popFreqThr filter is applied (no more filterList nor MPA_ranking filtering) (default=false)',
-      category: 'Tool option'
     }
     csvtkExe: {
 			description: 'Path to csvtk executable [default: csvtk]',
