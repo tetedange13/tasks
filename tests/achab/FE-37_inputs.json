@@ -2,7 +2,7 @@
     "AchabExe" : "/mnt/Bioinfo/Softs/src/Captain-ACHAB/wwwachab.pl",
     "SampleID" : "CSG235316",
     "OutDir" : "./",
-    "mpavcf" : "/mnt/chu-ngs/Labos/UMAI/Run_Exomes/DIAGNOSTIC/Rapid_Exome/FE037_231009/casIndex/CSG235316/VCFs/CSG235316.mpa.vcf",
+    "mpavcf" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/CSG235316/VCFs/CSG235316.mpa.vcf",
     "FilterList" : "PASS",
     "GenesOfInterest" : "/mnt/Bioinfo/References/refData/intervals/GeneListUMAIglobal2024.txt_HGNC_Checked.txt",
     "CaseSample" : "CSG235316",
