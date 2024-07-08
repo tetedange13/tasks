@@ -125,6 +125,25 @@
       should_exist: true
       md5sum: 131f1f3fdd198c2672367f5b39c5dbf2  # = File with header only
 
+- name: Somalier relate simple unknown PED POSTPROCESS
+  # 'unknown.ped' is derived from 'simple.ped'
+  # But with 'parent-child' relationships removed
+  # This way 'recomputed_relatedness' is empty (but should not break join with 'pairs.tsv')
+  tags:
+    - task_level
+    - relate
+    - ped
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/pedPostprocess_inputs.json --task relatePostprocess somalier.wdl ped=tests/somalier/unknown.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/somalier_relate.custom.tsv
+      should_exist: true
+      md5sum: 2e57c2343e8d4c2b44211279cf606db3
+    - path: out-miniwdl/work/somalier_relate.filtered.tsv
+      should_exist: true
+      md5sum: cad57cb531c7e583020fb1d9f4d1af69
+
 - name: Somalier relate duplicated unexpected PED POSTPROCESS
   tags:
     - task_level

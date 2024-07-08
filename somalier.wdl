@@ -334,6 +334,8 @@ task relatePostprocess {
 				"~{csvtkExe}" cut -t -f IndivID,parent |
 				"~{csvtkExe}" mutate2 -t -n expected_relatedness -e "'0.5'" |
 				sed '1s/^/#/' > "$recomputed_relatedness"
+			# Add empty row for later join to work even if no 'parent-child' relation found in PED:
+			echo -e "\t\t" >> "$recomputed_relatedness"
 			# << TEMP_SOLUCE
 
 		else
