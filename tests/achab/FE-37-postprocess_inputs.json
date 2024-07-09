@@ -1,5 +1,6 @@
 {
     "csvtkExe" : "/mnt/Bioinfo/Softs/bin/csvtk",
     "OutAchab" : "/tmp/pytest_Achab/Achab_newHope_FE-37/out-miniwdl/work/CSG235316_achab_catch_newHope.xlsx",
-    "OutAchabHTML" : "/tmp/pytest_Achab/Achab_newHope_FE-37/out-miniwdl/work/CSG235316_newHope_achab.html"
+    "OutAchabHTML" : "/tmp/pytest_Achab/Achab_newHope_FE-37/out-miniwdl/work/CSG235316_newHope_achab.html",
+    "OutAchabPoorCov" : "/tmp/pytest_Achab/Achab_newHope_FE-37/out-miniwdl/work/CSG235316_poorCoverage.xlsx"
 }
