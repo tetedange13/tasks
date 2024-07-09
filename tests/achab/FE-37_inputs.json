@@ -8,7 +8,7 @@
     "CaseSample" : "CSG235316",
     "MotherSample" : "CSG235317",
     "FatherSample" : "CSG235318",
-    "Affected" : ["CSG235316"],
+    "Affected" : [],
     "PooledSamples" : ["CSG235318", "CSG235317"],
     "CustomInfo" : "AAChange.refGeneWithVer,GeneDetail.refGeneWithVer,QD",
     "CustomVCF" : "/mnt/Bioinfo/UMAI/DI/ALL_VCF/all_ExDI.norm.vcf",

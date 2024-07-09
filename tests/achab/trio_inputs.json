@@ -8,7 +8,7 @@
     "CaseSample" : "CSG196372",
     "MotherSample" : "PoolMere",
     "FatherSample" : "PoolMixte",
-    "Affected" : ["CSG196372"],
+    "Affected" : [],
     "PooledSamples" : ["PoolMere", "PoolMixte"],
     "CustomInfo" : "AAChange.refGeneWithVer,GeneDetail.refGeneWithVer,QD",
     "CustomVCF" : "/mnt/Bioinfo/UMAI/DI/ALL_VCF/all_ExDI.norm.vcf",
