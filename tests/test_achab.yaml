@@ -98,6 +98,9 @@
     - path: out-miniwdl/out/outAchabMetrix/CSG235316_achab_catch_newHope.metrix.tsv
       should_exist: true
       md5sum: 5b44208594dd55042699b916792f24fb
+    - path: out-miniwdl/out/outAchabPoorCovMetrix/CSG235316_achab_catch_newHope.poorCovMetrix.tsv
+      should_exist: true
+      md5sum: af355ad6a0195bae5b7883863aac5f9e
 
 - name: Achab newHope FE-37 SPECIALS
   tags:

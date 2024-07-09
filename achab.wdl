@@ -317,6 +317,7 @@ task postProcess {
     File OutAchab
     File OutAchabHTML
     String OutDir = "./"
+    File? OutAchabPoorCov
 
     String csvtkExe = "csvtk"
 
@@ -329,6 +330,7 @@ task postProcess {
   String basenameOutAchabHTML = basename(OutAchabHTML, ".html")
   String basenameOutAchab = basename(OutAchab, ".xlsx")
   String OutAchabMetrix = "~{OutDir}/" + basenameOutAchab + ".metrix.tsv"
+  String OutAchabPoorCovMetrix = "~{OutDir}/" + basenameOutAchab + ".poorCovMetrix.tsv"
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
@@ -342,7 +344,7 @@ task postProcess {
       mkdir -p ~{OutDir}
     fi
 
-    # Generate tabular metrix file from Achab outputs:
+    ## Generate tabular metrix file from Achab outputs:
     (
       # Number of samples:
       # WARN: MUST use '<()' instead of 'pipe'
@@ -381,10 +383,63 @@ task postProcess {
     "~{csvtkExe}" join --fields Sheet --outer-join --na 'NA' wanted_columns.csv temp_achab_metrix.csv |
       "~{csvtkExe}" sort --keys Sheet |
       "~{csvtkExe}" transpose --out-tabs -o "~{OutAchabMetrix}"
+
+    ## Process 'poorCoverage.xlsx' (if provided)
+    if [ -n "~{'' + OutAchabPoorCov}" ] ; then
+      temp_poorCov=temp_poorCov
+
+      # 1) First remove genes not part of a subpanel:
+      "~{csvtkExe}" xlsx2csv --comment-char '$' --sheet-index 1 "~{OutAchabPoorCov}" |
+        sed '1s/^#//' |
+        "~{csvtkExe}" grep --fields CANDIDATE --pattern '.' --invert |
+        "~{csvtkExe}" replace --fields CANDIDATE --pattern '^ ' |
+        "~{csvtkExe}" unfold --fields CANDIDATE --separater ' ' |
+        "~{csvtkExe}" rename --fields CANDIDATE --names subpanel --out-tabs -o "$temp_poorCov".sub
+
+      # 2) Then produce a total count of regions by sub-panel:
+      "~{csvtkExe}" freq --tabs --fields subpanel "$temp_poorCov".sub |
+        "~{csvtkExe}" rename --tabs --fields frequency --names "~{basenameOutAchabHTML}"_TOTAL -o "$temp_poorCov".sub.freq
+
+      # 3) Then count and list these regions, after removing most-frequent ones:
+      occurr_threshold=5
+      "~{csvtkExe}" filter2 \
+        --tabs \
+        --filter '$type=="OTHER" && $Occurrence<'$occurr_threshold \
+        -o "$temp_poorCov".sub.filt \
+        "$temp_poorCov".sub
+
+      "~{csvtkExe}" freq --tabs --fields subpanel "$temp_poorCov".sub.filt |
+        "~{csvtkExe}" rename \
+          --tabs \
+          --fields frequency \
+          --names "~{basenameOutAchabHTML}_filt=${occurr_threshold}" \
+          -o "$temp_poorCov".sub.filt.freq
+
+      # MEMO: 'csvtk summary -g subpanel -f gene:uniq does not preserve order
+      #       -> Have to use a workaround a bit complicated
+      "~{csvtkExe}" sort --tabs --keys gene "$temp_poorCov".sub.filt |
+        "~{csvtkExe}" uniq --tabs --fields subpanel,gene |
+        "~{csvtkExe}" summary --tabs --separater ';' --groups subpanel --fields gene:collapse |
+          "~{csvtkExe}" rename \
+            --tabs \
+            --fields 'gene:collapse' \
+            --names "~{basenameOutAchabHTML}_filt-list" \
+            -o "$temp_poorCov".sub.filt.list
+
+      # Then join everything:
+      # (use 'total' as 1st file, to ensure all subpanels are present)
+      "~{csvtkExe}" join \
+        --tabs \
+        --fields subpanel \
+        --left-join --na 'NA' \
+        "$temp_poorCov".sub.freq "$temp_poorCov".sub.filt.freq "$temp_poorCov".sub.filt.list |
+          "~{csvtkExe}" transpose --tabs -o "~{OutAchabPoorCovMetrix}"
+    fi
   >>>
 
   output {
     File outAchabMetrix = OutAchabMetrix
+    File outAchabPoorCovMetrix = OutAchabPoorCovMetrix
   }
 
   runtime {
