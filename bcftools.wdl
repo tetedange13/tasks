@@ -399,6 +399,7 @@ task norm {
 		String outputType = "v"
 
 		Int siteWin = 1000
+		Int? ploidy
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -425,6 +426,20 @@ task norm {
 			mkdir -p $(dirname ~{outputFile})
 		fi
 
+		# MEMO: From note at http://samtools.github.io/bcftools/howtos/FAQ.html#incorrect-nfields
+		#       bcftools does not support 'Number=G' definition with 'ploidy>2'
+		#       So 'bcftools norm' raise 'Error at chrN:XXXXXX, the tag PL has wrong number of fields'
+		# POSSIBLE SOLUCES:
+		# * Use '--force' ?
+		# * Remove tag with 'bcftools annotate --remove' ?
+		# * Re-header, specifying 'Number=.' for 'FORMAT/PL' ?
+		# -> Simpler to '--force' for now
+		#
+		force_norm=""
+		if [ ~{ploidy} -gt 2 ] ; then
+			force_norm="--force"
+		fi
+
 		~{path_exe} norm \
 			~{default="" "--check-ref " + checkRef} \
 			~{true="--remove-duplicates" false="" removeDuplicates} \
@@ -442,6 +457,7 @@ task norm {
 			--output ~{outputFile} \
 			--threads ~{threads - 1} \
 			--site-win ~{siteWin} \
+			$force_norm \
 			~{in}
 
 	>>>
