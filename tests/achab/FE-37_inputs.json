@@ -4,7 +4,7 @@
     "OutDir" : "./",
     "mpavcf" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/CSG235316/VCFs/CSG235316.mpa.vcf",
     "FilterList" : "PASS",
-    "GenesOfInterest" : "/mnt/Bioinfo/References/refData/intervals/GeneListUMAIglobal2024.txt_HGNC_Checked.txt",
+    "GenesOfInterest" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/GeneListUMAIglobal2024.txt_HGNC_Checked.txt",
     "CaseSample" : "CSG235316",
     "MotherSample" : "CSG235317",
     "FatherSample" : "CSG235318",
