@@ -387,11 +387,24 @@ task postProcess {
     ## Process 'poorCoverage.xlsx' (if provided)
     if [ -n "~{'' + OutAchabPoorCov}" ] ; then
       temp_poorCov=temp_poorCov
+      occurr_threshold=5
+      "~{csvtkExe}" xlsx2csv --comment-char '$' --sheet-index 1 "~{OutAchabPoorCov}" |
+        sed '1s/^#//' > "$temp_poorCov".csv
+
+      # If 'poorCoverage' contains only a header
+      # -> Create a outfile with dummy values and exit there:
+      if [ "$("~{csvtkExe}" nrow "$temp_poorCov".csv)" -eq 0 ] ; then
+        {
+          echo -e "subpanel\tNA"
+          echo -e "~{basenameOutAchabHTML}_TOTAL\tNA"
+          echo -e "~{basenameOutAchabHTML}_filt=${occurr_threshold}\tNA"
+          echo -e "~{basenameOutAchabHTML}_filt-list\tNA"
+        } > "~{OutAchabPoorCovMetrix}"
+        exit
+      fi
 
       # 1) First remove genes not part of a subpanel:
-      "~{csvtkExe}" xlsx2csv --comment-char '$' --sheet-index 1 "~{OutAchabPoorCov}" |
-        sed '1s/^#//' |
-        "~{csvtkExe}" grep --fields CANDIDATE --pattern '.' --invert |
+      "~{csvtkExe}" grep --fields CANDIDATE --pattern '.' --invert "$temp_poorCov".csv |
         "~{csvtkExe}" replace --fields CANDIDATE --pattern '^ ' |
         "~{csvtkExe}" unfold --fields CANDIDATE --separater ' ' |
         "~{csvtkExe}" rename --fields CANDIDATE --names subpanel --out-tabs -o "$temp_poorCov".sub
@@ -401,7 +414,6 @@ task postProcess {
         "~{csvtkExe}" rename --tabs --fields frequency --names "~{basenameOutAchabHTML}"_TOTAL -o "$temp_poorCov".sub.freq
 
       # 3) Then count and list these regions, after removing most-frequent ones:
-      occurr_threshold=5
       "~{csvtkExe}" filter2 \
         --tabs \
         --filter '$type=="OTHER" && $Occurrence<'$occurr_threshold \
