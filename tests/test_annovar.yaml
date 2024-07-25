@@ -1,0 +1,18 @@
+- name: GeneVersion
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task GeneVersion annovarForMpa.wdl HumanDb=/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 9c830a3b67d5d79335957670a09baf64
+
+- name: GeneVersion NO file
+  # Test when expected file NOT found
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task GeneVersion annovarForMpa.wdl HumanDb=/dev/null
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: ba2e00688c78ebade39ceadafb0e585d

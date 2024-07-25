@@ -253,3 +253,76 @@ task ClinvarVersion {
     }
   }
 }
+
+task GeneVersion {
+  meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version : "0.0.1"
+    date: "2024-07-25"
+  }
+
+  input {
+    String HumanDb = "/humandb"
+    String Genome = "hg19"
+    String GeneType = "refGeneWithVer"
+
+    Int threads = 1
+    Int memoryByThreads = 768
+    String? memory
+  }
+
+  File geneFile = "~{HumanDb}/~{Genome}_~{GeneType}.txt"
+
+  String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+  Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
+  Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+  Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+  set -exo pipefail
+
+  if [[ -f "~{geneFile}" ]]; then
+    readlink ~{geneFile} | cut -d "_" -f 3 | cut -d "." -f 1
+  else
+    echo "..No '(ref)Gene(WithVer).txt' file.."
+  fi
+  >>>
+
+  output {
+    String version = read_string(stdout())
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta {
+    HumanDb: {
+      description: 'Path of HumanDB dir for Annovar',
+      category: 'option'
+    }
+    Genome: {
+      description: 'Genome version',
+      category: 'option'
+    }
+    GeneType: {
+      description: 'Type of gene db for Annovar (eg: refGene, refGeneWithVer or ensGene)',
+      category: 'option'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}
