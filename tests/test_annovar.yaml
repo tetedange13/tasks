@@ -54,3 +54,12 @@
     - path: out-miniwdl/outputs.json
       should_exist: true
       md5sum: 69563c2509a09f48ffe3714160e24734
+
+- name: AnnovarTableVersion
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarTableVersion annovarForMpa.wdl TableAnnovarExe=/mnt/Bioinfo/Softs/src/Annovar/2020Jun08/table_annovar.pl
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: ce8ed6ed77a565e6b4ee88f00f6a9ee3

@@ -122,6 +122,69 @@ task annovarForMpa {
   }
 }
 
+task AnnovarTableVersion {
+  meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version : "0.1.0"
+    date: "2024-07-25"
+  }
+
+  input {
+    File TableAnnovarExe = "table_annovar.pl"
+    String PerlExe = "perl"
+
+    Int threads = 1
+    Int memoryByThreads = 768
+    String? memory
+  }
+
+  String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+  Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
+  Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+  Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+  set -ex
+  #set -o pipefail --> Had to disable this option, otherwise 'exit code = 1' ??? (due to grep I suspect)
+
+  "~{PerlExe}" "~{TableAnnovarExe}" | grep --only-matching "Version.*"
+  >>>
+
+  output {
+    String version = read_string(stdout())
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta {
+    TableAnnovarExe: {
+      description: 'Path of table_annovar perl script',
+      category: 'option'
+    }
+    PerlExe: {
+      description: 'Path of table_annovar perl script',
+      category: 'Mandatory'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}
+
 task CustomXrefVersion {
   meta {
     author: "Olivier Ardouin"
