@@ -1,6 +1,7 @@
 - name: GeneVersion
   tags:
     - task_level
+    - version
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task GeneVersion annovarForMpa.wdl HumanDb=/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb
   files:
     - path: out-miniwdl/outputs.json
@@ -11,6 +12,7 @@
   # Test when expected file NOT found
   tags:
     - task_level
+    - version
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task GeneVersion annovarForMpa.wdl HumanDb=/dev/null
   files:
     - path: out-miniwdl/outputs.json
@@ -20,6 +22,7 @@
 - name: CustomXrefVersion
   tags:
     - task_level
+    - version
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task CustomXrefVersion annovarForMpa.wdl CustomXref=/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb/gene_customfullxref_latest.txt
   files:
     - path: out-miniwdl/outputs.json
@@ -30,6 +33,7 @@
   # Test when expected file NOT found
   tags:
     - task_level
+    - version
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task CustomXrefVersion annovarForMpa.wdl CustomXref=/dev/null/gene_customfullxref_latest.txt
   files:
     - path: out-miniwdl/outputs.json
@@ -39,6 +43,7 @@
 - name: ClinvarVersion
   tags:
     - task_level
+    - version
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task ClinvarVersion annovarForMpa.wdl HumanDb=/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb
   files:
     - path: out-miniwdl/outputs.json
@@ -49,6 +54,7 @@
   # Test when expected file NOT found
   tags:
     - task_level
+    - version
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task ClinvarVersion annovarForMpa.wdl HumanDb=/dev/null
   files:
     - path: out-miniwdl/outputs.json
@@ -58,6 +64,7 @@
 - name: AnnovarTableVersion
   tags:
     - task_level
+    - version
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarTableVersion annovarForMpa.wdl TableAnnovarExe=/mnt/Bioinfo/Softs/src/Annovar/2020Jun08/table_annovar.pl
   files:
     - path: out-miniwdl/outputs.json
