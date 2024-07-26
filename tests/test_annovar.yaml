@@ -27,7 +27,7 @@
   files:
     - path: out-miniwdl/outputs.json
       should_exist: true
-      md5sum: 195906daf2579e19a411979fdc11978c
+      md5sum: dc22cbb52f530922f6891655e244c2b9
 
 - name: CustomXrefVersion NO file
   # Test when expected file NOT found
