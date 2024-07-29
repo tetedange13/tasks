@@ -115,6 +115,7 @@ task annovarForMpa {
     File outAnnotationVcf = "~{outputFile}.${Genome}_multianno.vcf"
     File outAnnotationAvinput = "~{outputFile}.avinput"
     File outAnnotationTxt = "~{outputFile}.${Genome}_multianno.txt"
+    String stderrAnnovar = read_string(stderr())
   }
   runtime {
     cpu: "~{threads}"

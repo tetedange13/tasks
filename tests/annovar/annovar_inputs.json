@@ -4,5 +4,5 @@
 "HumanDb": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb/",
 "CustomXref": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb/gene_customfullxref_latest.txt",
 "Clinvar": "clinvar_20230410",
-"threads": 8
+"threads": 1
 }

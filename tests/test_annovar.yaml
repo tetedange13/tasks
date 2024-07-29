@@ -82,3 +82,6 @@
       should_exist: true
       # md5sum: Cannot checksum VCF directly, but md5 for 'bcftools view -H' should be 4220d6a2488aef6d472325525eba3ffb
       # ENH: Use 'special' func to checksum generated VCF here
+    - path: out-miniwdl/stderr.txt
+      should_exist: true
+      md5sum: 53da477ee6996c95bdfde2d74e6b7e04
