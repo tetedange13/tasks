@@ -70,3 +70,15 @@
     - path: out-miniwdl/outputs.json
       should_exist: true
       md5sum: ce8ed6ed77a565e6b4ee88f00f6a9ee3
+
+- name: Annovar chr22 solo
+  tags:
+    - task_level
+    - annovar
+    - solo
+  command: miniwdl run --env LC_ALL=C -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/annovar/annovar_inputs.json --task annovarForMpa annovarForMpa.wdl outputPath=.
+  files:
+    - path: out-miniwdl/out/outAnnotationVcf/A161161.HC.hg19_multianno.vcf
+      should_exist: true
+      # md5sum: Cannot checksum VCF directly, but md5 for 'bcftools view -H' should be 4220d6a2488aef6d472325525eba3ffb
+      # ENH: Use 'special' func to checksum generated VCF here

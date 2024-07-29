@@ -1,0 +1,8 @@
+{
+"vcf": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/A161161/VCFs/A161161.HC.vcf",
+"AnnovarPath": "/mnt/Bioinfo/Softs/src/Annovar/2020Jun08",
+"HumanDb": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb/",
+"CustomXref": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb/gene_customfullxref_latest.txt",
+"Clinvar": "clinvar_20230410",
+"threads": 8
+}
