@@ -61,6 +61,16 @@
       should_exist: true
       md5sum: 69563c2509a09f48ffe3714160e24734
 
+- name: AnnovarUsedDb
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarUsedDb annovarForMpa.wdl HumanDb=/dev/null
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 69563c2509a09f48ffe3714160e24734
+
 - name: AnnovarTableVersion
   tags:
     - task_level
@@ -82,6 +92,9 @@
       should_exist: true
       # md5sum: Cannot checksum VCF directly, but md5 for 'bcftools view -H' should be 4220d6a2488aef6d472325525eba3ffb
       # ENH: Use 'special' func to checksum generated VCF here
+    - path: out-miniwdl/out/outAnnotationLog/A161161.HC.hg19_multianno.log
+      should_exist: true
+      md5sum: ae7bd68a7ea93f90f626d09e9907cdcc
     - path: out-miniwdl/stderr.txt
       should_exist: true
-      md5sum: 53da477ee6996c95bdfde2d74e6b7e04
+      md5sum: 8b04d7ccabe5462ebd1292117ee56cfe

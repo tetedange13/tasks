@@ -108,14 +108,14 @@ task annovarForMpa {
       -vcfinput \
       -otherinfo \
       -arg '-splicing 5','-hgvs',,,,,,,,"~{Dollar}{COMMA}" \
-      -xref "~{CustomXref}"
+      -xref "~{CustomXref}" 2> "~{outputFile}.~{Genome}_multianno.log"
     >>>
 
   output {
     File outAnnotationVcf = "~{outputFile}.${Genome}_multianno.vcf"
     File outAnnotationAvinput = "~{outputFile}.avinput"
     File outAnnotationTxt = "~{outputFile}.${Genome}_multianno.txt"
-    String stderrAnnovar = read_string(stderr())
+    File outAnnotationLog = "~{outputFile}.${Genome}_multianno.log"
   }
   runtime {
     cpu: "~{threads}"
