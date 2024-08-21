@@ -1,3 +1,6 @@
+## /!\ Run test with 'tag==annovar' using '--basetemp=/tmp/pytest_Annovar'
+##     Other test 'AnnovarUsedDB' won't work
+
 - name: GeneVersion
   tags:
     - task_level
@@ -27,7 +30,7 @@
   files:
     - path: out-miniwdl/outputs.json
       should_exist: true
-      md5sum: dc22cbb52f530922f6891655e244c2b9
+      md5sum: fd4a4b30e8b640d207ea1e5ce1628c80
 
 - name: CustomXrefVersion NO file
   # Test when expected file NOT found
@@ -61,16 +64,6 @@
       should_exist: true
       md5sum: 69563c2509a09f48ffe3714160e24734
 
-- name: AnnovarUsedDb
-  tags:
-    - task_level
-    - version
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarUsedDb annovarForMpa.wdl HumanDb=/dev/null
-  files:
-    - path: out-miniwdl/outputs.json
-      should_exist: true
-      md5sum: 69563c2509a09f48ffe3714160e24734
-
 - name: AnnovarTableVersion
   tags:
     - task_level
@@ -98,3 +91,13 @@
     - path: out-miniwdl/stderr.txt
       should_exist: true
       md5sum: 8b04d7ccabe5462ebd1292117ee56cfe
+
+- name: AnnovarUsedDb
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarUsedDb annovarForMpa.wdl StderrAnnovar=/tmp/pytest_Annovar/Annovar_chr22_solo/out-miniwdl/out/outAnnotationLog/A161161.HC.hg19_multianno.log
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: cdbc9019b5fe1a3e5a2ca3c8ce02a0f3
