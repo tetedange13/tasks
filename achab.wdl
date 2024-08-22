@@ -562,7 +562,7 @@ task genemap2Version {
   }
 
   input {
-    File Genemap2File
+    File? Genemap2File
 
     Int threads = 1
     Int memoryByThreads = 768
@@ -578,8 +578,13 @@ task genemap2Version {
   command <<<
     set -exo pipefail
 
-    # Genemap2 file contains date when it was generated in its header rows:
-    grep --max-count=1 "Generated" "~{Genemap2File}" | sed 's/^# //'
+    if [ -n "~{'' + Genemap2File}" ] ; then
+      # Genemap2 file contains date when it was generated in its header rows:
+      grep --max-count=1 "Generated" "~{Genemap2File}" | sed 's/^# //'
+
+    else
+      echo "No Genemap2 file provided"
+    fi
   >>>
 
   output {

@@ -149,3 +149,14 @@
     - path: out-miniwdl/outputs.json
       should_exist: true
       md5sum: 52413d3487018c86a9fcb68bbdbe127c
+
+- name: Achab genemap2Version NO genemap
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task genemap2Version achab.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 35965f3ec9c13fa327386189a92cde45
