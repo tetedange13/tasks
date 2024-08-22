@@ -47,3 +47,13 @@
   stdout:
     contains:
       - "Success!"
+
+- name: Cromwell syntax of achab
+  tags:
+    - syntax
+    - achab
+  command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate achab.wdl
+  exit_code: 0
+  stdout:
+    contains:
+      - "Success!"
