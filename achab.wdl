@@ -551,3 +551,62 @@ task get_version {
     }
   }
 }
+
+
+task genemap2Version {
+  meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version: "0.1.0"
+    date: "2024-08-22"
+  }
+
+  input {
+    File Genemap2File
+
+    Int threads = 1
+    Int memoryByThreads = 768
+    String? memory
+  }
+
+  String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+  Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
+  Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+  Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+    set -exo pipefail
+
+    # Genemap2 file contains date when it was generated in its header rows:
+    grep --max-count=1 "Generated" "~{Genemap2File}" | sed 's/^# //'
+  >>>
+
+  output {
+    String version = read_string(stdout())
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta {
+    Genemap2File: {
+      description: 'Path to "Genemap2" file',
+      category: 'Required'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}

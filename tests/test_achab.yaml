@@ -138,3 +138,14 @@
     - path: out-test/achab_sheets.tsv
       should_exist: true
       md5sum: 0378f4fb09a4bed36f3e7a0a4608eea1
+
+- name: Achab genemap2Version
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task genemap2Version achab.wdl Genemap2File=/mnt/chu-ngs/refData/Annotations/OMIM/genemap2_2023-04-14.txt
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 52413d3487018c86a9fcb68bbdbe127c
