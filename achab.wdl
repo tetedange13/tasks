@@ -64,6 +64,7 @@ task achab {
     Int threads = 1
 		Int memoryByThreads = 768
 		String? memory
+    File? taskOuput  # To force this task to run AFTER a given other task
   }
 
   String Case = if defined(CaseSample) then CaseSample else SampleID
