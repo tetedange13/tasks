@@ -24,3 +24,14 @@
     - path: out-miniwdl/out/outFile/Checksums.txt
       should_exist: true
       md5sum: ed8de010e93b92e8bf90b890a1cea522
+
+## /!\ Very dirty test : had to put testdir full path bellow and in JSON to make it work...
+- name: Md5check multiple files
+  tags:
+    - task_level
+    - md5check
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/checksum/md5check_inputs.json --task md5check felix.wdl
+  files:
+    - path: out-miniwdl/out/outFile/Checksums.log
+      should_exist: true
+      md5sum: 3e8333ef76a3df8240c7230e37bac4cd
