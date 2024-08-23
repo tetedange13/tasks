@@ -106,6 +106,8 @@ task fastp_pe {
 
 	String baseName = if defined(sample) then sample else sub(basename(fastqR1),subString,subStringReplace)
 	String outputBase = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
+	String FastpJson = "~{outputBase}.fastp.json"
+	String FastpHtml = "~{outputBase}.fastp.html"
 
 	command <<<
 
@@ -121,8 +123,8 @@ task fastp_pe {
 			--out1 ~{outputBase}.R1.fq.gz \
 			--out2 ~{outputBase}.R2.fq.gz \
 			--report_title ~{baseName} \
-			--json ~{outputBase}.json \
-			--html ~{outputBase}.html \
+			--json "~{FastpJson}" \
+			--html "~{FastpHtml}" \
 			--thread ~{threads}
 
 	>>>
@@ -130,8 +132,8 @@ task fastp_pe {
 	output {
 		File FastpR1 = "~{outputBase}.R1.fq.gz"
 		File FastpR2 = "~{outputBase}.R2.fq.gz"
-		File fastpJson = "~{outputBase}.json"
-		File fastpHtml = "~{outputBase}.html"
+		File fastpJson = FastpJson
+		File fastpHtml = FastpHtml
 	}
 
 	runtime {
