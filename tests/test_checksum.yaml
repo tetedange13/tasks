@@ -54,8 +54,6 @@
 
 - name: Md5check multiple one missing
 # One of the checked file has no associated '.md5'
-## WARN: 
-
   tags:
     - task_level
     - md5check
