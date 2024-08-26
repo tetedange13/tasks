@@ -306,12 +306,15 @@ task md5check {
 			mkdir --parents "~{outputPath}"
 		fi
 
-		# xargs has a strange syntax -> bellow cmd complicated
+		# WARN: xargs has a strange syntax -> bellow cmd complicated
 		# * 1st xargs put 1 file by line
 		# * Add '.md5' extension with sed
 		# * Actually run in parallel with 2nd xargs
 		#
 		# ENH: Replace by GNU-parallel ??? (https://oletange.blogspot.com/2013/04/why-not-install-gnu-parallel.html)
+		#
+		# ENH2: When a file has NO associated '.md5', it is simply absent from 'Checksum.log'
+		#       Find a way to show instead: '/path/to/file .m5 not found' ??
 		#
 		echo -e ~{sep=" " filesToCheck} |
 			xargs --max-args=1 |
