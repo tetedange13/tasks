@@ -36,7 +36,7 @@
       should_exist: true
       md5sum: 3e8333ef76a3df8240c7230e37bac4cd
 
-- name: Md5check multiple with wrong
+- name: Md5check multiple one wrong
 # One of the checked file has wrong md5 checksum
   tags:
     - task_level
@@ -47,10 +47,9 @@
     # - path: out-miniwdl/out/outFile/Checksums.log  # When exec fail, outFile not published in 'out-miniwdl/out'
     - path: out-miniwdl/work/Checksums.log
       should_exist: true
-      md5sum: 1f4b14e735382ac528d200761ad71900
-  stderr:
-    contains:
-      - "md5sum: WARNING: 1 computed checksum did NOT match"
+      md5sum: ff249e0415cc71bf8811e830292f5801
+      contains:
+        - "md5sum: WARNING: 1 computed checksum did NOT match"
 
 - name: Md5check multiple one missing
 # One of the checked file has no associated '.md5'
@@ -63,7 +62,6 @@
     # - path: out-miniwdl/out/outFile/Checksums.log  # When exec fail, outFile not published in 'out-miniwdl/out'
     - path: out-miniwdl/work/Checksums.log
       should_exist: true
-      md5sum: 97bf979400162d4c6958b5f75d2b9300
-  stderr:
-    contains:
-      - "md5sum: /home/felix/Exome/tasks/tests/checksum/missing.Identito.tsv.md5: No such file or directory"
+      md5sum: e6a64dd8f84a10d4c81d05aa8fd88f34
+      contains:
+        - "md5sum: /home/felix/Exome/tasks/tests/checksum/missing.Identito.tsv.md5: No such file or directory"

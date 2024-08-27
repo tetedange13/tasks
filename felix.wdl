@@ -313,13 +313,14 @@ task md5check {
 		#
 		# ENH: Replace by GNU-parallel ??? (https://oletange.blogspot.com/2013/04/why-not-install-gnu-parallel.html)
 		#
-		# ENH2: When a file has NO associated '.md5', it is simply absent from 'Checksum.log'
-		#       Find a way to show instead: '/path/to/file .m5 not found' ??
+		# INFO: Send also stderr into 'Checksum.log'
+		#       So that when a file has NO associated '.md5', it is included in 'Checksum.log' anyway
+		#       (same goes for messages 'WARN: N computed checksum did not match')
 		#
 		echo -e ~{sep=" " filesToCheck} |
 			xargs --max-args=1 |
 			sed 's/$/.md5/' |
-			xargs --max-args=1 --max-procs "~{threads}" "~{path_exe}" --check |
+			xargs --max-args=1 --max-procs "~{threads}" "~{path_exe}" --check 2>&1 |
 			sort > "~{OutFile}"
 	>>>
 
