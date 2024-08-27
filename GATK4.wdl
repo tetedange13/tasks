@@ -528,6 +528,7 @@ task splitIntervals {
 		Int threads = 1
 		Int memoryByThreads = 768
 		String? memory
+		File? taskOuput  # To force sequential execution of task
 	}
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
