@@ -2645,6 +2645,256 @@ task variantFiltration {
 	}
 }
 
+task CNNScoreVariants {
+	meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-08-28"
+	}
+
+	input {
+		String path_exe = "gatk"
+
+		File in
+		File? inIdx
+		String? outputPath
+		String? name
+		String subString = "\.(vcf|bcf|vcf\.gz)$"
+		String subStringReplace = ".filter.vcf"
+
+		File refFasta
+		File refFai
+		File refDict
+
+		Boolean createVCFMD5 = true
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	String baseName = if defined(name) then name + subStringReplace else sub(basename(in),subString,subStringReplace)
+	String extIdx = if sub(baseName,"(.*\.)(.gz)$","$2") == ".gz" then ".tbi" else ".idx"
+	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
+
+	command <<<
+
+		if [[ ! -d $(dirname ~{outputFile}) ]]; then
+			mkdir -p $(dirname ~{outputFile})
+		fi
+
+		~{path_exe} VariantFiltration \
+			~{default="" "--sequence-dictionary " + refDict} \
+			--create-output-variant-index \
+			~{true="--create-output-variant-md5" false="" createVCFMD5} \
+			--variant ~{in} \
+			--output ~{outputFile}
+
+	>>>
+
+	output {
+		File outputFile = outputFile
+		File outputFileIdx = outputFile + extIdx
+		File? outputFileMD5 = outputFile + ".md5"
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+	}
+
+	parameter_meta {
+		path_exe: {
+			description: 'Path used as executable [default: "gatk"]',
+			category: 'System'
+		}
+		in: {
+			description: 'VCF to filter.',
+			category: 'Required'
+		}
+		in: {
+			description: 'VCF index.',
+			category: 'Optional'
+		}
+		outputPath: {
+			description: 'Output path where vcf will be generated.',
+			category: 'Output path/name option'
+		}
+		name: {
+			description: 'Output file base name [default: sub(basename(firstFile),subString,"")].',
+			category: 'Output path/name option'
+		}
+		subString: {
+			description: 'Extension to remove from the input file [default: "(\.[0-9]+)?\.vcf$"]',
+			category: 'Output path/name option'
+		}
+		subStringReplace: {
+			description: 'subString to replace [default: ".filter"]',
+			category: 'Output path/name option'
+		}
+		refFasta: {
+			description: 'Path to the reference file (format: fasta)',
+			category: 'Required'
+		}
+		refFai: {
+			description: 'Path to the reference file index (format: fai)',
+			category: 'Required'
+		}
+		refDict: {
+			description: 'Path to the reference file dict (format: dict)',
+			category: 'Required'
+		}
+		createVCFMD5: {
+			description: 'If true, create a a MD5 digest any VCF file created. [Default: true]',
+			category: 'Tool option'
+		}
+		threads: {
+			description: 'Sets the number of threads [default: 1]',
+			category: 'System'
+		}
+		memory: {
+			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			category: 'System'
+		}
+		memoryByThreads: {
+			description: 'Sets the total memory to use (in M) [default: 768]',
+			category: 'System'
+		}
+	}
+}
+
+task filterVariantTranches {
+	meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-08-28"
+	}
+
+	input {
+		String path_exe = "gatk"
+
+		File in
+		# File bamIdx
+		String? outputPath
+		String? name
+		File? intervals
+		String subString_intervals = "([0-9]+)-scattered.interval_list"
+		String subStringReplace_intervals = "$1"
+		String ext = ".recal"
+
+		Array[File]+ knownSites
+		Array[File]+ knownSitesIdx
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"(M|G)", "$1")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	String infoKey = "CNN_1D"
+
+	String baseNameIntervals = if defined(intervals) then intervals else ""
+	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
+
+	String baseName = if defined(name) then name else sub(basename(in),"\.(sam|bam|cram)$","")
+	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.~{baseIntervals}~{ext}" else "~{baseName}.~{baseIntervals}~{ext}"
+
+	command <<<
+
+		if [[ ! -d $(dirname ~{outputFile}) ]]; then
+			mkdir -p $(dirname ~{outputFile})
+		fi
+
+		~{path_exe} FilterVariantTranches \
+			--variant ~{in} \
+			--resource ~{sep=" --resource " knownSites} \
+			--info-key ~{infoKey} \
+			--output ~{outputFile}
+
+	>>>
+
+	output {
+		File outputFile = outputFile
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+	}
+
+	parameter_meta {
+		path_exe: {
+			description: 'Path used as executable [default: "gatk"]',
+			category: 'System'
+		}
+		in: {
+			description: 'Alignement file to recalibrate (SAM/BAM/CRAM)',
+			category: 'Required'
+		}
+		# bamIdx: {
+		# 	description: 'Index for the alignement input file to recalibrate.',
+		# 	category: 'Required'
+		# }
+		intervals: {
+			description: 'Path to a file containing genomic intervals over which to operate. (format intervals list: chr1:1000-2000)',
+			category: 'Tool option'
+		}
+		subString_intervals: {
+			description: 'Substring to replace for intervals files (e.g. remove extension) [default: "([0-9]+)-scattered.interval_list"]',
+			category: 'Output path/name option'
+		}
+		subStringReplace_intervals: {
+			description: 'Substring used to replace for intervals files (e.g. add a suffix) [default: "$1"]',
+			category: 'Output path/name option'
+		}
+		outputPath: {
+			description: 'Output path where bqsr report will be generated.',
+			category: 'Output path/name option'
+		}
+		name: {
+			description: 'Output file base name [default: sub(basename(in),"\.(sam|bam|cram)$","")].',
+			category: 'Output path/name option'
+		}
+		ext: {
+			description: 'Extension for the output file [default: ".recal"]',
+			category: 'Output path/name option'
+		}
+		knownSites: {
+			description: 'One or more databases of known polymorphic sites used to exclude regions around known polymorphisms from analysis.',
+			category: 'Tool option'
+		}
+		knownSitesIdx: {
+			description: 'Indexes of the inputs known sites.',
+			category: 'Tool option'
+		}
+		threads: {
+			description: 'Sets the number of threads [default: 1]',
+			category: 'System'
+		}
+		memory: {
+			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			category: 'System'
+		}
+		memoryByThreads: {
+			description: 'Sets the total memory to use (in M) [default: 768]',
+			category: 'System'
+		}
+	}
+}
+
 task mergeVcfs {
 	meta {
 		author: "Charles VAN GOETHEM"
