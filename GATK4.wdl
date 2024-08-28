@@ -2649,7 +2649,7 @@ task CNNScoreVariants {
 	meta {
 		author: "Felix VANDERMEEREN"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.1"
+		version: "0.0.2"
 		date: "2024-08-28"
 	}
 
@@ -2661,7 +2661,7 @@ task CNNScoreVariants {
 		String? outputPath
 		String? name
 		String subString = "\.(vcf|bcf|vcf\.gz)$"
-		String subStringReplace = ".filter.vcf"
+		String subStringReplace = ".score.vcf"
 
 		File refFasta
 		File refFai
@@ -2676,18 +2676,18 @@ task CNNScoreVariants {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name + subStringReplace else sub(basename(in),subString,subStringReplace)
 	String extIdx = if sub(baseName,"(.*\.)(.gz)$","$2") == ".gz" then ".tbi" else ".idx"
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
 
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
 		fi
 
 		~{path_exe} VariantFiltration \
@@ -2695,12 +2695,12 @@ task CNNScoreVariants {
 			--create-output-variant-index \
 			~{true="--create-output-variant-md5" false="" createVCFMD5} \
 			--variant ~{in} \
-			--output ~{outputFile}
+			--output ~{OutputFile}
 
 	>>>
 
 	output {
-		File outputFile = outputFile
+		File outputFile = OutputFile
 		File outputFileIdx = outputFile + extIdx
 		File? outputFileMD5 = outputFile + ".md5"
 	}
@@ -2719,9 +2719,9 @@ task CNNScoreVariants {
 			description: 'VCF to filter.',
 			category: 'Required'
 		}
-		in: {
-			description: 'VCF index.',
-			category: 'Optional'
+		inIdx: {
+			description: 'Index of VCF to filter.',
+			category: 'Output path/name option'
 		}
 		outputPath: {
 			description: 'Output path where vcf will be generated.',
@@ -2800,7 +2800,7 @@ task filterVariantTranches {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"(M|G)", "$1")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
