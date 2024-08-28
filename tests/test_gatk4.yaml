@@ -22,3 +22,13 @@
     - path: out-test/HC.vcf.md5
       should_exist: true
       md5sum: 53f0cdf499a64d1730be27f3d5336c43
+
+- name: filterVariantTranches solo
+  tags:
+    - task_level
+    - tranches
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/gatk4/filterVariantTranches_inputs.json --task filterVariantTranches temp.wdl
+  files:
+    - path: out-miniwdl/out/outputFile/A161161.HC.score.vcf
+      should_exist: true
+      # md5sum: Cannot checksum VCF directly

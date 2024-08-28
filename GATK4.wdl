@@ -2782,13 +2782,11 @@ task filterVariantTranches {
 		String path_exe = "gatk"
 
 		File in
-		# File bamIdx
+		File? inIdx
 		String? outputPath
 		String? name
-		File? intervals
-		String subString_intervals = "([0-9]+)-scattered.interval_list"
-		String subStringReplace_intervals = "$1"
-		String ext = ".recal"
+		String subString = "\.(vcf|bcf|vcf\.gz)$"
+		String subStringReplace = ".filter.vcf"
 
 		Array[File]+ knownSites
 		Array[File]+ knownSitesIdx
@@ -2806,28 +2804,26 @@ task filterVariantTranches {
 
 	String infoKey = "CNN_1D"
 
-	String baseNameIntervals = if defined(intervals) then intervals else ""
-	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
-
-	String baseName = if defined(name) then name else sub(basename(in),"\.(sam|bam|cram)$","")
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.~{baseIntervals}~{ext}" else "~{baseName}.~{baseIntervals}~{ext}"
+	String baseName = if defined(name) then name + subStringReplace else sub(basename(in),subString,subStringReplace)
+	String extIdx = if sub(baseName,"(.*\.)(.gz)$","$2") == ".gz" then ".tbi" else ".idx"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
 
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
 		fi
 
 		~{path_exe} FilterVariantTranches \
 			--variant ~{in} \
 			--resource ~{sep=" --resource " knownSites} \
 			--info-key ~{infoKey} \
-			--output ~{outputFile}
+			--output ~{OutputFile}
 
 	>>>
 
 	output {
-		File outputFile = outputFile
+		File outputFile = OutputFile
 	}
 
 	runtime {
@@ -2844,32 +2840,24 @@ task filterVariantTranches {
 			description: 'Alignement file to recalibrate (SAM/BAM/CRAM)',
 			category: 'Required'
 		}
-		# bamIdx: {
-		# 	description: 'Index for the alignement input file to recalibrate.',
-		# 	category: 'Required'
-		# }
-		intervals: {
-			description: 'Path to a file containing genomic intervals over which to operate. (format intervals list: chr1:1000-2000)',
-			category: 'Tool option'
-		}
-		subString_intervals: {
-			description: 'Substring to replace for intervals files (e.g. remove extension) [default: "([0-9]+)-scattered.interval_list"]',
-			category: 'Output path/name option'
-		}
-		subStringReplace_intervals: {
-			description: 'Substring used to replace for intervals files (e.g. add a suffix) [default: "$1"]',
+		inIdx: {
+			description: 'Index of VCF to filter.',
 			category: 'Output path/name option'
 		}
 		outputPath: {
-			description: 'Output path where bqsr report will be generated.',
+			description: 'Output path where vcf will be generated.',
 			category: 'Output path/name option'
 		}
 		name: {
-			description: 'Output file base name [default: sub(basename(in),"\.(sam|bam|cram)$","")].',
+			description: 'Output file base name [default: sub(basename(firstFile),subString,"")].',
 			category: 'Output path/name option'
 		}
-		ext: {
-			description: 'Extension for the output file [default: ".recal"]',
+		subString: {
+			description: 'Extension to remove from the input file [default: "(\.[0-9]+)?\.vcf$"]',
+			category: 'Output path/name option'
+		}
+		subStringReplace: {
+			description: 'subString to replace [default: ".filter"]',
 			category: 'Output path/name option'
 		}
 		knownSites: {
