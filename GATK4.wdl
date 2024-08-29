@@ -2655,6 +2655,8 @@ task CNNScoreVariants {
 
 	input {
 		String path_exe = "gatk"
+		String sing_exe = "/mnt/Bioinfo/Softs/src/conda/envs/NF-core/bin/singularity"
+		String path_Simg = "/mnt/Bioinfo/Softs/NF-core/singularity_img/quay.io-nf-core-gatk-4.4.0.0.img"  # WARN: Used Simg is at GATK v4.4.0 for now
 
 		File in
 		File? inIdx
@@ -2685,13 +2687,16 @@ task CNNScoreVariants {
 	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
+		set -xeuo pipefail
 
 		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
 			mkdir -p $(dirname ~{OutputFile})
 		fi
 
-		~{path_exe} VariantFiltration \
+		# /!\ CNNScoreVariants is a pain to install through conda -> use Singularity img instead
+		~{sing_exe} run ~{path_Simg} ~{path_exe} CNNScoreVariants \
 			~{default="" "--sequence-dictionary " + refDict} \
+			--reference ~{refFasta} \
 			--create-output-variant-index \
 			~{true="--create-output-variant-md5" false="" createVCFMD5} \
 			--variant ~{in} \
