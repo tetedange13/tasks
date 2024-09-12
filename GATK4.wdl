@@ -2665,15 +2665,17 @@ task CNNScoreVariants {
 		String subString = "\.(vcf|bcf|vcf\.gz)$"
 		String subStringReplace = ".score.vcf"
 
-		File refFasta
-		File refFai
-		File refDict
+		# Difficulties with 'File' type inside Sing container -> cast bellow to 'String':
+		String refFasta
+		String refFai
+		String refDict
 
 		Boolean createVCFMD5 = true
 
 		Int threads = 1
 		Int memoryByThreads = 768
 		String? memory
+		String? runOptions
 	}
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
@@ -2694,7 +2696,8 @@ task CNNScoreVariants {
 		fi
 
 		# /!\ CNNScoreVariants is a pain to install through conda -> use Singularity img instead
-		~{sing_exe} run ~{path_Simg} ~{path_exe} CNNScoreVariants \
+		~{sing_exe} exec ~{runOptions} \
+			~{path_Simg} ~{path_exe} CNNScoreVariants \
 			~{default="" "--sequence-dictionary " + refDict} \
 			--reference ~{refFasta} \
 			--create-output-variant-index \
@@ -2713,6 +2716,7 @@ task CNNScoreVariants {
 	runtime {
 		cpu: "~{threads}"
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		queue: "avx"  # CNNScoreVariants requires AVX instructions (as deep-learning based)
 	}
 
 	parameter_meta {
