@@ -212,65 +212,6 @@ task pedToParam_ALT {
 }
 
 
-task checksum {
-	meta {
-		author: "Felix Vandermeeren"
-		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.5"
-		date: "2024-01-10"
-	}
-
-	input {
-		Array[File]+ filesToCheck
-		String path_exe = "md5sum"
-		String outputPath = "./"
-
-		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
-	}
-
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem, "M|G", "")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
-
-	String OutFile = "~{outputPath}/Checksums.txt"
-
-	# ENH: Find a way to quote optional variables correctly ?
-	# ENH: Add varName to output file ?
-	# Format of (tab-separated) outfile MUST be as follow:
-	# (otherwise corresponding section in 'custom multiQC' will be broken)
-	# - Header = fileName ; md5sum
-	# - Example_value = hg19.fa ; 7c1739fd43764bd5e3b9b76ce8635bf0
-
-	command <<<
-		set -eou pipefail
-
-		if [[ ! -d "~{outputPath}" ]]; then
-			mkdir --parents "~{outputPath}"
-		fi
-
-		echo ~{sep=" " filesToCheck} |
-			xargs --max-args=1 --max-procs "~{threads}" "~{path_exe}" |
-			sed 's/  /\t/' |
-			awk -F"\t" -v OFS="\t" '{n=split($2,a,"/"); print a[n],$1}' |
-			sort -k1,1 |
-			sed '1i fileName\tmd5sum' > "~{OutFile}"
-	>>>
-
-	output {
-		File outFile = OutFile
-	}
-
-	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreads}"
-	}
-}
-
-
 task md5check {
 	meta {
 		author: "Felix Vandermeeren"
