@@ -1,0 +1,39 @@
+- name: Stats2interop NextSeq relative path
+  tags:
+    - task_level
+    - interop
+    - relative
+  # With inDir relative to 'FastQs' (to reproduce usage in 'Exome.wdl')
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/mnt/chu-ngs/NEXTSEQ/runs/240905_NB501631_0204_AHVKN5BGXW/FastQs/../
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+      should_exist: true
+      md5sum: 46ba8c501e5e4c7e969a278f6c0cf19b
+
+- name: Stats2interop NextSeq absolute path
+  tags:
+    - task_level
+    - interop
+    - absolute
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/mnt/chu-ngs/NEXTSEQ/runs/240905_NB501631_0204_AHVKN5BGXW/
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+      should_exist: true
+      md5sum: 46ba8c501e5e4c7e969a278f6c0cf19b
+
+- name: Stats2interop NextSeq dont exist
+  tags:
+    - task_level
+    - interop
+    - dontexist
+  # Give a run path that does NOT exist
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/path/dont/exist/240905_NB501631_0204_AHVKN5BGXW/FastQs/../
+  exit_code: 1
+  files:
+    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+      should_exist: false
+    - path: out-miniwdl/stdout.txt
+      contains:
+        - "ERROR: Could not resolve input dir"
