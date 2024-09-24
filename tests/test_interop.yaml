@@ -37,3 +37,18 @@
     - path: out-miniwdl/stdout.txt
       contains:
         - "ERROR: Could not resolve input dir"
+
+- name: Stats2interop NextSeq exist NO InterOp
+  tags:
+    - task_level
+    - interop
+    - nointeropdir
+  # Give a run path that does NOT exist
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/dev/null
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+      should_exist: false
+    - path: out-miniwdl/stdout.txt
+      contains:
+        - "WARNING: '/dev/null/InterOp' dir NOT FOUND"

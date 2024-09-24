@@ -107,6 +107,15 @@ task interop2stats {
 			echo "ERROR: Could not resolve input dir"
 			exit 1
 		fi
+		canonSeqDir=$(readlink --canonicalize "~{seqDir}")
+
+		if [[ ! -d "$canonSeqDir/InterOp" ]] ; then
+			# If NO 'InterOp' dir at all -> exit without error
+			# Cuz probably a 'test' run, or a 'synthetic' one (= with FastQ from different runs)
+			echo "WARNING: '$canonSeqDir/InterOp' dir NOT FOUND"
+			touch "~{OutFileAsString}"  # To avoid miniwdl error 'function was passed non-existent file ~{OutFileAsString}'
+			exit
+		fi
 
 		if [[ ! -d ~{outputPath} ]]; then
 			mkdir --parents ~{outputPath}
@@ -120,7 +129,6 @@ task interop2stats {
 			"~{path_exe}" > "$tmpScript"
 
 		# Script deduce runID from '/path/to/runID' --> have to resolve if relative path:
-		canonSeqDir=$(readlink --canonicalize "~{seqDir}")
 		outFile="~{outputPath}/$(basename "$canonSeqDir").interop.tsv"
 		bash "$tmpScript" "${canonSeqDir}" > "$outFile"
 
@@ -129,7 +137,7 @@ task interop2stats {
 	>>>
 
 	output {
-		File outFile = read_string(OutFileAsString)
+		File? outFile = read_string(OutFileAsString)
 	}
 
 	runtime {
