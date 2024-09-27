@@ -1,0 +1,38 @@
+- name: Gather all identito files
+  tags:
+    - task_level
+  # With Miniwdl, inputs arrays are specified as 'my_array=value_1 my_array=value_2'
+  # -> Use an intermediate input JSON to shorten cmd ?
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv csvtkExe=/mnt/Bioinfo/Softs/bin/csvtk
+  files:
+    - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
+      should_exist: true
+      md5sum: cd29eb97415a722a27137ba385004fc1
+
+- name: Gather all identito files to outputPath
+  tags:
+    - task_level2
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl outputPath=tests/gatherIdentito filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex3/Metrix/casIndex3.Identito.tsv csvtkExe=/mnt/Bioinfo/Softs/bin/csvtk
+  files:
+    - path: out-miniwdl/work/tests/gatherIdentito/all_casIndex_identito.tsv
+      should_exist: true
+      md5sum: cd29eb97415a722a27137ba385004fc1
+
+- name: Gather single identito
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv csvtkExe=/mnt/Bioinfo/Softs/bin/csvtk
+  files:
+    - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
+      should_exist: true
+      md5sum: 2d504fbbd1abe3474ed1a76c8a6b41bf
+
+- name: Gather NO identito
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --input tests/gatherIdentito/empty_inputs.json --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task gatherIdentito felix.wdl
+  files:
+    - path: out-miniwdl/out/outFile/all_casIndex_identito.tsv
+      should_exist: true
+      # Checksum of an EMPTY file (expected)
+      md5sum: d41d8cd98f00b204e9800998ecf8427e

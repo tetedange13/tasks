@@ -1,0 +1,34 @@
+# /!\ Before running tests: isolate task in 'temp.wdl'
+# /!\ For 'special' tests to work, have to use 'pytest --kwd --basetemp=/tmp'
+
+- name: CNNScoreVariants solo
+  tags:
+    - task_level
+    - cnn
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/gatk4/CNNScoreVariants_inputs.json --task CNNScoreVariants temp.wdl
+  files:
+    - path: out-miniwdl/out/outputFile/A161161.HC.score.vcf
+      should_exist: true
+      # md5sum: Cannot checksum VCF directly
+
+- name: CNNScoreVariants solo specials
+  # Checksum VCF without its header
+  tags:
+    - task_level
+    - cnn
+    - special
+  command: nohup bash tests/gatk4/run_special.sh /tmp/CNNScoreVariants_solo/out-miniwdl
+  files:
+    - path: out-test/HC.vcf.md5
+      should_exist: true
+      md5sum: 53f0cdf499a64d1730be27f3d5336c43
+
+- name: filterVariantTranches solo
+  tags:
+    - task_level
+    - tranches
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/gatk4/filterVariantTranches_inputs.json --task filterVariantTranches temp.wdl
+  files:
+    - path: out-miniwdl/out/outputFile/A161161.HC.score.vcf
+      should_exist: true
+      # md5sum: Cannot checksum VCF directly

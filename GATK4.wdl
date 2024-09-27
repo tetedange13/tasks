@@ -528,6 +528,7 @@ task splitIntervals {
 		Int threads = 1
 		Int memoryByThreads = 768
 		String? memory
+		File? taskOuput  # To force sequential execution of task
 	}
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
@@ -1891,6 +1892,7 @@ task haplotypeCaller {
 	runtime {
 		cpu: "~{threads}"
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		queue: "avx"
 	}
 
 	parameter_meta {
@@ -2059,6 +2061,7 @@ task haplotypeCallerMultiple {
 		## output
 		Boolean createVCFIdx = true
 		Boolean createVCFMD5 = true
+		Boolean outputAssembledBam = false
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -2101,6 +2104,7 @@ task haplotypeCallerMultiple {
 			--emit-ref-confidence ~{emitRefConfidence} \
 			~{true="--create-output-variant-index" false="" createVCFIdx} \
 			~{true="--create-output-variant-md5" false="" createVCFMD5} \
+			~{true="--bam-output assembled.bam" false="" outputAssembledBam} \
 			--output ~{outputFile}
 
 	>>>
@@ -2624,6 +2628,253 @@ task variantFiltration {
 		}
 		createVCFMD5: {
 			description: 'If true, create a a MD5 digest any VCF file created. [Default: true]',
+			category: 'Tool option'
+		}
+		threads: {
+			description: 'Sets the number of threads [default: 1]',
+			category: 'System'
+		}
+		memory: {
+			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			category: 'System'
+		}
+		memoryByThreads: {
+			description: 'Sets the total memory to use (in M) [default: 768]',
+			category: 'System'
+		}
+	}
+}
+
+task CNNScoreVariants {
+	meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.2"
+		date: "2024-08-28"
+	}
+
+	input {
+		String path_exe = "gatk"
+		String sing_exe = "/mnt/Bioinfo/Softs/src/conda/envs/NF-core/bin/singularity"
+		String path_Simg = "/mnt/Bioinfo/Softs/NF-core/singularity_img/quay.io-nf-core-gatk-4.4.0.0.img"  # WARN: Used Simg is at GATK v4.4.0 for now
+
+		File in
+		File? inIdx
+		String? outputPath
+		String? name
+		String subString = "\.(vcf|bcf|vcf\.gz)$"
+		String subStringReplace = ".score.vcf"
+
+		# Difficulties with 'File' type inside Sing container -> cast bellow to 'String':
+		String refFasta
+		String refFai
+		String refDict
+
+		Boolean createVCFMD5 = true
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+		String? runOptions
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	String baseName = if defined(name) then name + subStringReplace else sub(basename(in),subString,subStringReplace)
+	String extIdx = if sub(baseName,"(.*\.)(.gz)$","$2") == ".gz" then ".tbi" else ".idx"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
+
+	command <<<
+		set -xeuo pipefail
+
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
+		fi
+
+		# /!\ CNNScoreVariants is a pain to install through conda -> use Singularity img instead
+		~{sing_exe} exec ~{runOptions} \
+			~{path_Simg} ~{path_exe} CNNScoreVariants \
+			~{default="" "--sequence-dictionary " + refDict} \
+			--reference ~{refFasta} \
+			--create-output-variant-index \
+			~{true="--create-output-variant-md5" false="" createVCFMD5} \
+			--variant ~{in} \
+			--output ~{OutputFile}
+
+	>>>
+
+	output {
+		File outputFile = OutputFile
+		File outputFileIdx = outputFile + extIdx
+		File? outputFileMD5 = outputFile + ".md5"
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		queue: "avx"  # CNNScoreVariants requires AVX instructions (as deep-learning based)
+	}
+
+	parameter_meta {
+		path_exe: {
+			description: 'Path used as executable [default: "gatk"]',
+			category: 'System'
+		}
+		in: {
+			description: 'VCF to filter.',
+			category: 'Required'
+		}
+		inIdx: {
+			description: 'Index of VCF to filter.',
+			category: 'Output path/name option'
+		}
+		outputPath: {
+			description: 'Output path where vcf will be generated.',
+			category: 'Output path/name option'
+		}
+		name: {
+			description: 'Output file base name [default: sub(basename(firstFile),subString,"")].',
+			category: 'Output path/name option'
+		}
+		subString: {
+			description: 'Extension to remove from the input file [default: "(\.[0-9]+)?\.vcf$"]',
+			category: 'Output path/name option'
+		}
+		subStringReplace: {
+			description: 'subString to replace [default: ".filter"]',
+			category: 'Output path/name option'
+		}
+		refFasta: {
+			description: 'Path to the reference file (format: fasta)',
+			category: 'Required'
+		}
+		refFai: {
+			description: 'Path to the reference file index (format: fai)',
+			category: 'Required'
+		}
+		refDict: {
+			description: 'Path to the reference file dict (format: dict)',
+			category: 'Required'
+		}
+		createVCFMD5: {
+			description: 'If true, create a a MD5 digest any VCF file created. [Default: true]',
+			category: 'Tool option'
+		}
+		threads: {
+			description: 'Sets the number of threads [default: 1]',
+			category: 'System'
+		}
+		memory: {
+			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			category: 'System'
+		}
+		memoryByThreads: {
+			description: 'Sets the total memory to use (in M) [default: 768]',
+			category: 'System'
+		}
+	}
+}
+
+task filterVariantTranches {
+	meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-08-28"
+	}
+
+	input {
+		String path_exe = "gatk"
+
+		File in
+		File? inIdx
+		String? outputPath
+		String? name
+		String subString = "\.(vcf|bcf|vcf\.gz)$"
+		String subStringReplace = ".filter.vcf"
+
+		Array[File]+ knownSites
+		Array[File]+ knownSitesIdx
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	String infoKey = "CNN_1D"
+
+	String baseName = if defined(name) then name + subStringReplace else sub(basename(in),subString,subStringReplace)
+	String extIdx = if sub(baseName,"(.*\.)(.gz)$","$2") == ".gz" then ".tbi" else ".idx"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
+
+	command <<<
+
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
+		fi
+
+		~{path_exe} FilterVariantTranches \
+			--variant ~{in} \
+			--resource ~{sep=" --resource " knownSites} \
+			--info-key ~{infoKey} \
+			--output ~{OutputFile}
+
+	>>>
+
+	output {
+		File outputFile = OutputFile
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+	}
+
+	parameter_meta {
+		path_exe: {
+			description: 'Path used as executable [default: "gatk"]',
+			category: 'System'
+		}
+		in: {
+			description: 'Alignement file to recalibrate (SAM/BAM/CRAM)',
+			category: 'Required'
+		}
+		inIdx: {
+			description: 'Index of VCF to filter.',
+			category: 'Output path/name option'
+		}
+		outputPath: {
+			description: 'Output path where vcf will be generated.',
+			category: 'Output path/name option'
+		}
+		name: {
+			description: 'Output file base name [default: sub(basename(firstFile),subString,"")].',
+			category: 'Output path/name option'
+		}
+		subString: {
+			description: 'Extension to remove from the input file [default: "(\.[0-9]+)?\.vcf$"]',
+			category: 'Output path/name option'
+		}
+		subStringReplace: {
+			description: 'subString to replace [default: ".filter"]',
+			category: 'Output path/name option'
+		}
+		knownSites: {
+			description: 'One or more databases of known polymorphic sites used to exclude regions around known polymorphisms from analysis.',
+			category: 'Tool option'
+		}
+		knownSitesIdx: {
+			description: 'Indexes of the inputs known sites.',
 			category: 'Tool option'
 		}
 		threads: {

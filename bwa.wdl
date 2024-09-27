@@ -34,7 +34,7 @@ task get_version {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem, "M|G", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
@@ -80,7 +80,7 @@ task memnosort {
 	meta {
 		author: "Olivier Ardouin"
 		email: "o-ardouin(at)chu-montpellier.fr"
-		version: "0.0.1"
+		version: "0.0.2"
 		date: "2021-11-23"
 	}
 
@@ -115,17 +115,17 @@ task memnosort {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem, "M|G", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(sample) then sample else sub(basename(fastqR1),subString,subStringReplace)
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.sam" else "~{baseName}.sam"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.sam" else "~{baseName}.sam"
 
 	command <<<
 
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
 		fi
 
 		~{path_exe} mem \
@@ -206,7 +206,7 @@ task mem {
 	meta {
 		author: "Charles VAN GOETHEM"
 		email: "c-vangoethem(at)chu-montpellier.fr"
-		version: "0.0.2"
+		version: "0.0.3"
 		date: "2021-03-05"
 	}
 
@@ -242,17 +242,17 @@ task mem {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem, "M|G", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(sample) then sample else sub(basename(fastqR1),subString,subStringReplace)
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.bam" else "~{baseName}.bam"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.bam" else "~{baseName}.bam"
 
 	command <<<
 
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
 		fi
 
 		~{path_exe} mem \
@@ -262,12 +262,12 @@ task mem {
 			-t ~{threads} \
 			~{refFasta} \
 			~{fastqR1} ~{default="" fastqR2} \
-			| ~{path_exe_samtools} sort -@ ~{threads-1} -m ~{memoryByThreadsMb}M -o ~{outputFile}
+			| ~{path_exe_samtools} sort -@ ~{threads-1} -m ~{memoryByThreadsMb}M -o ~{OutputFile}
 
 	>>>
 
 	output {
-		File outputFile = outputFile
+		File outputFile = OutputFile
 	}
 
 	runtime {
@@ -343,7 +343,7 @@ task index {
 	meta {
 		author: "Charles VAN GOETHEM"
 		email: "c-vangoethem(at)chu-montpellier.fr"
-		version: "0.0.1"
+		version: "0.0.2"
 		date: "2020-07-30"
 	}
 
@@ -365,7 +365,7 @@ task index {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem, "M|G", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 

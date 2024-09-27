@@ -1,0 +1,67 @@
+- name: Md5sum multiple files
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task checksum felix.wdl filesToCheck=tests/checksum/casIndex1.Identito.tsv filesToCheck=tests/checksum/casIndex2.Identito.tsv filesToCheck=tests/checksum/casIndex3.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/Checksums.txt
+      should_exist: true
+      md5sum: ed8de010e93b92e8bf90b890a1cea522
+
+- name: Md5sum single file
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task checksum felix.wdl filesToCheck=tests/checksum/casIndex1.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/Checksums.txt
+      should_exist: true
+      md5sum: 999b1d4049fde9a7f1bf84894f794cc7
+
+- name: Md5sum multiple files PARALLELIZED
+  tags:
+    - task_level
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task checksum felix.wdl threads=3 filesToCheck=tests/checksum/casIndex1.Identito.tsv filesToCheck=tests/checksum/casIndex2.Identito.tsv filesToCheck=tests/checksum/casIndex3.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/Checksums.txt
+      should_exist: true
+      md5sum: ed8de010e93b92e8bf90b890a1cea522
+
+## /!\ Very dirty tests : had to put testdir full path bellow and in JSON to make it work...
+- name: Md5check multiple files
+  tags:
+    - task_level
+    - md5check
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/checksum/md5check_inputs.json --task md5check felix.wdl
+  files:
+    - path: out-miniwdl/out/outFile/Checksums.log
+      should_exist: true
+      md5sum: 3e8333ef76a3df8240c7230e37bac4cd
+
+- name: Md5check multiple one wrong
+# One of the checked file has wrong md5 checksum
+  tags:
+    - task_level
+    - md5check
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/checksum/md5check-wrong_inputs.json --task md5check felix.wdl
+  exit_code: 123
+  files:
+    # - path: out-miniwdl/out/outFile/Checksums.log  # When exec fail, outFile not published in 'out-miniwdl/out'
+    - path: out-miniwdl/work/Checksums.log
+      should_exist: true
+      md5sum: ff249e0415cc71bf8811e830292f5801
+      contains:
+        - "md5sum: WARNING: 1 computed checksum did NOT match"
+
+- name: Md5check multiple one missing
+# One of the checked file has no associated '.md5'
+  tags:
+    - task_level
+    - md5check
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/checksum/md5check-missing_inputs.json --task md5check felix.wdl
+  exit_code: 123
+  files:
+    # - path: out-miniwdl/out/outFile/Checksums.log  # When exec fail, outFile not published in 'out-miniwdl/out'
+    - path: out-miniwdl/work/Checksums.log
+      should_exist: true
+      md5sum: e6a64dd8f84a10d4c81d05aa8fd88f34
+      contains:
+        - "md5sum: /home/felix/Exome/tasks/tests/checksum/missing.Identito.tsv.md5: No such file or directory"

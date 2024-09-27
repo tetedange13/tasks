@@ -1,0 +1,40 @@
+# /!\ Before running tests: replace bellow 'PWD' placeholder by actual 'pwd' var
+
+- name: MultiQC global
+  tags:
+    - task_level
+    - global
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check="PWD/tests/multiqc/a_run" name="global"
+  exit_code: 0
+  files:
+    # 'multiqc_report' is defined as 'output' of the task (-> check in 'out/')
+    - path: out-miniwdl/out/outputFile/global_multiqc_report.html
+      should_exist: true
+      #md5sum: Cannot checksum it directly as date present in file
+    # But 'global_multiqc_report_data' dir is not (-> check in 'work/')
+    - path: out-miniwdl/work/global_multiqc_report_data/multiqc_picard_HsMetrics.txt
+      should_exist: true
+      md5sum: 046dc0adf2790bf50cab3d1b7d3fdc81
+    - path: out-miniwdl/work/global_multiqc_report_data/multiqc_sources.txt
+      should_exist: true
+      md5sum: 92f5a08eee48de70d96ff57b059f19c0
+
+- name: MultiQC global with modules
+  tags:
+    - task_level
+    - modules
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task multiqc multiqc.wdl path_to_check=PWD/tests/multiqc/modules_run modulesList="--module somalier"
+  exit_code: 0
+  files:
+    # But 'multiqc_data' dir is not (-> check in 'work/')
+    - path: out-miniwdl/work/multiqc_report_data/multiqc_picard_HsMetrics.txt
+      should_exist: false
+    - path: out-miniwdl/work/multiqc_report_data/multiqc_sources.txt
+      should_exist: true
+      md5sum: 6739d65403be4eef188056676cca8e52
+      # Because we ran multiQC WITH this module:
+      contains:
+        - "Somalier"
+      # Because we ran multiQC WITHOUT this module:
+      must_not_contain:
+        - "Picard"

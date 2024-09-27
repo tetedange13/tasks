@@ -1,0 +1,59 @@
+- name: PedFile solo
+  tags:
+    - task_level
+    - solo
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/solo-01_inputs.json --task pedToParam felix.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: ccc18f6cb3fc72db3364d15bf792c7ee
+    - path: out-miniwdl/work/propositus.json
+      should_exist: true
+      md5sum: a27ef4fe8b0b79277c4e39c61e61272c
+    - path: out-miniwdl/work/parents.json
+      should_exist: true
+      md5sum: 58e0494c51d30eb3494f7c9198986bb9
+    - path: out-miniwdl/work/siblings.json
+      should_exist: true
+      md5sum: 58e0494c51d30eb3494f7c9198986bb9
+
+- name: PedFile trio with 2 siblings
+  tags:
+    - task_level
+    - trio
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/trio-2-siblings_inputs.json --task pedToParam felix.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 5e34badaadbf40323c769710e32dc0bc
+    - path: out-miniwdl/work/propositus.json
+      should_exist: true
+      md5sum: fa069266fe41065335049cedf7226ba1
+    - path: out-miniwdl/work/parents.json
+      should_exist: true
+      md5sum: ffba7a68b53a2cd477ce55b62b57edc9
+    - path: out-miniwdl/work/siblings.json
+      should_exist: true
+      md5sum: c4382cc2267f6b3acca0eb698b436e63
+
+- name: PedFile some duos
+  tags:
+    - task_level
+    - duos
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/duos-01_inputs.json --task pedToParam felix.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: c799ff6733b7760fcb7a234189dd9af5
+    - path: out-miniwdl/work/propositus.json
+      should_exist: true
+      md5sum: 00a0132dea33c7b02c4ef0a9b59d48eb
+    - path: out-miniwdl/work/parents.json
+      should_exist: true
+      md5sum: d39a50e5a195f91cac01198e4d928eac
+    - path: out-miniwdl/work/siblings.json
+      should_exist: true
+      md5sum: ae704a013d7614b2de8a462426769d0d

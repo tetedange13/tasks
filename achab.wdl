@@ -64,6 +64,7 @@ task achab {
     Int threads = 1
 		Int memoryByThreads = 768
 		String? memory
+    File? taskOuput  # To force this task to run AFTER a given other task
   }
 
   String Case = if defined(CaseSample) then CaseSample else SampleID
@@ -90,10 +91,13 @@ task achab {
   String HideAcmg = if HideACMG then "--hideACMG " else ""
 
   String Dollar = "$"
+  String OutAchab = if NewHope then "~{OutDir}/~{SampleID}_achab_catch_newHope.xlsx" else "~{OutDir}/~{SampleID}_achab_catch.xlsx"
+  String OutAchabHTML = if NewHope then "~{OutDir}/~{SampleID}_newHope_achab.html" else "~{OutDir}/~{SampleID}_achab.html"
+  String OutAchabPoorCov = "~{OutDir}/~{SampleID}_poorCoverage.xlsx"
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
@@ -157,11 +161,12 @@ task achab {
       ~{poorCov} \
       ~{SkipCase} \
       ~{HideAcmg}
-
   >>>
 
   output {
-File outAchab = "~{OutDir}/~{SampleID}_achab_catch.xlsx"
+    File outAchab = OutAchab
+    File outAchabHTML = OutAchabHTML
+    File? outAchabPoorCov = OutAchabPoorCov
   }
 
   runtime {
@@ -301,6 +306,193 @@ File outAchab = "~{OutDir}/~{SampleID}_achab_catch.xlsx"
   }
 }
 
+
+task postProcess {
+  meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.1.0"
+		date: "2024-07-08"
+	}
+  input {
+    File OutAchab
+    File OutAchabHTML
+    String OutDir = "./"
+    File? OutAchabPoorCov
+
+    String csvtkExe = "csvtk"
+
+    ## run time
+    Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+  }
+
+  String basenameOutAchabHTML = basename(OutAchabHTML, ".html")
+  String basenameOutAchab = basename(OutAchab, ".xlsx")
+  String OutAchabMetrix = "~{OutDir}/" + basenameOutAchab + ".metrix.tsv"
+  String OutAchabPoorCovMetrix = "~{OutDir}/" + basenameOutAchab + ".poorCovMetrix.tsv"
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+    set -exo pipefail
+    if [[ ! -f ~{OutDir} ]]; then
+      mkdir -p ~{OutDir}
+    fi
+
+    ## Generate tabular metrix file from Achab outputs:
+    (
+      # Number of samples:
+      # WARN: MUST use '<()' instead of 'pipe'
+      #       Otherwise grep raise non-zero exit_code -> pipeFAIL -> task stop
+      printf "SAMPLES_COUNT,"
+      grep --count "Genotype\-" \
+        <("~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" | "~{csvtkExe}" headers)
+
+      # Total variants:
+      # (cannot be parsed directly from HTML -> Recompute it from Excel output)
+      printf "ALL,"
+      "~{csvtkExe}" xlsx2csv --sheet-index 1 "~{OutAchab}" |
+        "~{csvtkExe}" nrows
+
+      # Total counts for other sheets:
+      # WARN: In HTML, colum order is also random..
+      # ENH: Use a dedicated HTML parser
+      #      Maybe the one used to write Achab HTML output
+      grep --only-matching 'value=".*([0-9]\+)"' "~{OutAchabHTML}" |
+        tr --delete '"' |
+        tr --delete '()' |
+        sed -e 's/^value=//' -e 's/ /,/'
+    ) |
+      "~{csvtkExe}" add-header --names Sheet,"~{basenameOutAchabHTML}" -o temp_achab_metrix.csv
+
+    # With MultiQC 'custom_content', reports are included ONLY if they have all columns defined in 'headers' config
+    # -> Add missing columns with default value 0:
+    # 1) Create file with columns declared in 'custom MQC' config
+    (
+      echo "Sheet"
+      echo "AR"
+      echo "DENOVO"
+    ) > wanted_columns.csv
+    # 2) Outer-join with real metrix file:
+    # WARN: Joint output file rows order is random -> Sort to ensure consistent column order
+    "~{csvtkExe}" join --fields Sheet --outer-join --na 'NA' wanted_columns.csv temp_achab_metrix.csv |
+      "~{csvtkExe}" sort --keys Sheet |
+      "~{csvtkExe}" transpose --out-tabs -o "~{OutAchabMetrix}"
+
+    ## Process 'poorCoverage.xlsx' (if provided)
+    if [ -n "~{'' + OutAchabPoorCov}" ] ; then
+      temp_poorCov=temp_poorCov
+      occurr_threshold=5
+      "~{csvtkExe}" xlsx2csv --comment-char '$' --sheet-index 1 "~{OutAchabPoorCov}" |
+        sed '1s/^#//' > "$temp_poorCov".csv
+
+      # If 'poorCoverage' contains only a header
+      # -> Create a outfile with dummy values and exit there:
+      if [ "$("~{csvtkExe}" nrow "$temp_poorCov".csv)" -eq 0 ] ; then
+        {
+          echo -e "subpanel\tNA"
+          echo -e "~{basenameOutAchabHTML}_TOTAL\tNA"
+          echo -e "~{basenameOutAchabHTML}_filt=${occurr_threshold}\tNA"
+          echo -e "~{basenameOutAchabHTML}_filt-list\tNA"
+        } > "~{OutAchabPoorCovMetrix}"
+        exit
+      fi
+
+      # 1) First remove genes not part of a subpanel:
+      "~{csvtkExe}" grep --fields CANDIDATE --pattern '.' --invert "$temp_poorCov".csv |
+        "~{csvtkExe}" replace --fields CANDIDATE --pattern '^ ' |
+        "~{csvtkExe}" unfold --fields CANDIDATE --separater ' ' |
+        "~{csvtkExe}" rename --fields CANDIDATE --names subpanel --out-tabs -o "$temp_poorCov".sub
+
+      # 2) Then produce a total count of regions by sub-panel:
+      "~{csvtkExe}" freq --tabs --fields subpanel "$temp_poorCov".sub |
+        "~{csvtkExe}" rename --tabs --fields frequency --names "~{basenameOutAchabHTML}"_TOTAL -o "$temp_poorCov".sub.freq
+
+      # 3) Then count and list these regions, after removing most-frequent ones:
+      "~{csvtkExe}" filter2 \
+        --tabs \
+        --filter '$type=="OTHER" && $Occurrence<'$occurr_threshold \
+        -o "$temp_poorCov".sub.filt \
+        "$temp_poorCov".sub
+
+      "~{csvtkExe}" freq --tabs --fields subpanel "$temp_poorCov".sub.filt |
+        "~{csvtkExe}" rename \
+          --tabs \
+          --fields frequency \
+          --names "~{basenameOutAchabHTML}_filt=${occurr_threshold}" \
+          -o "$temp_poorCov".sub.filt.freq
+
+      # MEMO: 'csvtk summary -g subpanel -f gene:uniq does not preserve order
+      #       -> Have to use a workaround a bit complicated
+      "~{csvtkExe}" sort --tabs --keys gene "$temp_poorCov".sub.filt |
+        "~{csvtkExe}" uniq --tabs --fields subpanel,gene |
+        "~{csvtkExe}" summary --tabs --separater ';' --groups subpanel --fields gene:collapse |
+          "~{csvtkExe}" rename \
+            --tabs \
+            --fields 'gene:collapse' \
+            --names "~{basenameOutAchabHTML}_filt-list" \
+            -o "$temp_poorCov".sub.filt.list
+
+      # Then join everything:
+      # (use 'total' as 1st file, to ensure all subpanels are present)
+      "~{csvtkExe}" join \
+        --tabs \
+        --fields subpanel \
+        --left-join --na 'NA' \
+        "$temp_poorCov".sub.freq "$temp_poorCov".sub.filt.freq "$temp_poorCov".sub.filt.list |
+          "~{csvtkExe}" transpose --tabs -o "~{OutAchabPoorCovMetrix}"
+    fi
+  >>>
+
+  output {
+    File outAchabMetrix = OutAchabMetrix
+    File outAchabPoorCovMetrix = OutAchabPoorCovMetrix
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta{
+    OutAchab: {
+      description: 'XLSX file produced by Achab',
+      category: 'Required'
+    }
+    OutAchabHTML: {
+      description: 'HTML file produced by Achab',
+      category: 'Required'
+    }
+    OutDir: {
+      description: 'Path of output Directory',
+      category: 'Required'
+    }
+    csvtkExe: {
+			description: 'Path to csvtk executable [default: csvtk]',
+      category: 'System'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}
+
+
 task get_version {
   meta {
     author: "Olivier Ardouin"
@@ -345,6 +537,70 @@ task get_version {
     PerlExe: {
       description: 'Path used as executable [default: "perl"]',
       category: 'System'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}
+
+
+task genemap2Version {
+  meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version: "0.1.0"
+    date: "2024-08-22"
+  }
+
+  input {
+    File? Genemap2File
+
+    Int threads = 1
+    Int memoryByThreads = 768
+    String? memory
+  }
+
+  String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+  Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
+  Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+  Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+    set -exo pipefail
+
+    if [ -n "~{'' + Genemap2File}" ] ; then
+      # Genemap2 file contains date when it was generated in its header rows:
+      grep --max-count=1 "Generated" "~{Genemap2File}" | sed 's/^# //'
+
+    else
+      echo "No Genemap2 file provided"
+    fi
+  >>>
+
+  output {
+    String version = read_string(stdout())
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta {
+    Genemap2File: {
+      description: 'Path to "Genemap2" file',
+      category: 'Required'
     }
     threads: {
       description: 'Sets the number of threads [default: 1]',

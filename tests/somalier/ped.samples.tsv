@@ -1,0 +1,5 @@
+#family_id	sample_id	paternal_id	maternal_id	sex	phenotype	original_pedigree_sex	gt_depth_mean	gt_depth_sd	depth_mean	depth_sd	ab_mean	ab_std	n_hom_ref	n_het	n_hom_alt	n_unknown	p_middling_ab	X_depth_mean	X_n	X_hom_ref	X_het	X_hom_alt	Y_depth_mean	Y_n
+fam1	CSG232745	poolMAI-EX5dad	CSG234115	1	2	male	39.9	20.3	35.9	22.7	0.52	0.40	4054	6099	5043	2188	0.005	53.39	314	98	103	113	0.00	0
+fam1	CSG234115	0	0	2	1	female	44.0	22.4	39.6	25.0	0.53	0.40	4054	6094	5096	2140	0.005	60.20	307	89	122	96	0.00	0
+fam1	poolMAI-EX5dad	0	0	1	2	male	58.8	29.7	53.1	33.1	0.53	0.33	1845	5342	2576	7621	0.007	74.18	202	42	105	55	0.00	0
+fam1	poolMAI-EX5mum	0	0	2	1	female	44.0	22.3	39.6	24.9	0.53	0.31	1034	6661	1451	8238	0.035	29.95	244	70	99	75	26.50	8

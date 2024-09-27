@@ -1,0 +1,5 @@
+{
+"path_exe": "/home/felix/Exome/scripts/stats_exome.sh",
+"csvtkExe": "/mnt/Bioinfo/Softs/bin/csvtk",
+"interopExe": "/home/felix/Softs/InterOp-1.1.15-Linux-GNU_bin"
+}

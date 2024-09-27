@@ -1,0 +1,162 @@
+- name: Achab newHope solo
+  tags:
+    - task_level
+    - solo
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo_inputs.json --task achab achab.wdl NewHope=true
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch_newHope.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch.xlsx
+      should_exist: false
+    - path: out-miniwdl/out/outAchabHTML/A161161_newHope_achab.html
+      should_exist: true
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
+
+- name: Achab newHope child with parents
+  tags:
+    - task_level
+    - trio
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/trio_inputs.json --task achab achab.wdl NewHope=true
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch_newHope.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch.xlsx
+      should_exist: false
+    - path: out-miniwdl/out/outAchabHTML/CSG196372_newHope_achab.html
+      should_exist: true
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
+
+- name: Achab newHope child with parents SPECIALS
+  tags:
+    - task_level
+    - trio
+    - special
+  ## WARN: For this test to work, above test should be run with '--kwd --basetemp=/tmp/pytest_Achab'
+  command: nohup bash tests/achab/run_special.sh /tmp/pytest_Achab/Achab_newHope_child_with_parents/out-miniwdl/work
+  exit_code: 0
+  ## This trio is the same as one run through 'Exome mini' test -> expect similar checksums
+  files:
+    # WARN: At date=15mar2024, sort-order of Achab files is non-deterministic -> checksum always wrong
+    - path: out-test/achab.xlsx.md5
+      should_exist: true
+      md5sum: 142db0f3336b6cc39aa647afc391d74c
+    - path: out-test/achab.xlsx.unsorted.md5
+      should_exist: true
+      md5sum: f5a20d109053d089cc7eb5dd7a761fc0
+    - path: out-test/achab_sheets.tsv
+      should_exist: true
+      md5sum: fa0caee778470078f2c16b5f3722e71f
+
+- name: Achab catch child with parents
+  tags:
+    - task_level
+    - trio
+  # 'NewHope' param is at 'false' by default
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/trio_inputs.json --task achab achab.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch_newHope.xlsx
+      should_exist: false
+    - path: out-miniwdl/out/outAchab/CSG196372_achab_catch.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchabHTML/CSG196372_achab.html
+      should_exist: true
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
+
+## Trio often used by Thomas to validate new versions of Achab
+- name: Achab newHope FE-37
+  tags:
+    - task_level
+    - trio
+    - full
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/FE-37_inputs.json --task achab achab.wdl NewHope=true
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/CSG235316_achab_catch_newHope.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchab/CSG235316_achab_catch.xlsx
+      should_exist: false
+    - path: out-miniwdl/out/outAchabHTML/CSG235316_newHope_achab.html
+      should_exist: true
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
+
+- name: Achab newHope FE-37 POSTPROCESS
+  tags:
+    - task_level
+    - trio
+    - full
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/FE-37-postprocess_inputs.json --task postProcess achab.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchabMetrix/CSG235316_achab_catch_newHope.metrix.tsv
+      should_exist: true
+      md5sum: 5b44208594dd55042699b916792f24fb
+    - path: out-miniwdl/out/outAchabPoorCovMetrix/CSG235316_achab_catch_newHope.poorCovMetrix.tsv
+      should_exist: true
+      md5sum: af355ad6a0195bae5b7883863aac5f9e
+
+- name: Achab newHope FE-37 POSTPROCESS empty poorCov
+  tags:
+    - task_level
+    - trio
+    - full
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/FE-37-postprocessEmpty_inputs.json --task postProcess achab.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchabMetrix/CSG235316_achab_catch_newHope.metrix.tsv
+      should_exist: true
+      md5sum: 5b44208594dd55042699b916792f24fb
+    - path: out-miniwdl/out/outAchabPoorCovMetrix/CSG235316_achab_catch_newHope.poorCovMetrix.tsv
+      should_exist: true
+      md5sum: 51ac0737f0dbf56c07b5487ab395c133  # File with dummy values
+
+- name: Achab newHope FE-37 SPECIALS
+  tags:
+    - task_level
+    - trio
+    - full
+    - special
+  ## WARN: For this test to work, above test should be run with '--kwd --basetemp=/tmp/pytest_Achab'
+  command: nohup bash tests/achab/run_special.sh /tmp/pytest_Achab/Achab_newHope_FE-37/out-miniwdl/work
+  exit_code: 0
+  files:
+    # WARN: At date=15mar2024, sort-order of Achab files is non-deterministic -> checksum always wrong
+    - path: out-test/achab.xlsx.md5
+      should_exist: true
+      md5sum: 5ae0895387e3f9e106011313546837ad
+    - path: out-test/achab.xlsx.unsorted.md5
+      should_exist: true
+      md5sum: 8c76a97187aeb3848c1f530044a3b4f1
+    - path: out-test/achab_sheets.tsv
+      should_exist: true
+      md5sum: 0378f4fb09a4bed36f3e7a0a4608eea1
+
+- name: Achab genemap2Version
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task genemap2Version achab.wdl Genemap2File=/mnt/chu-ngs/refData/Annotations/OMIM/genemap2_2023-04-14.txt
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 52413d3487018c86a9fcb68bbdbe127c
+
+- name: Achab genemap2Version NO genemap
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task genemap2Version achab.wdl
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 35965f3ec9c13fa327386189a92cde45

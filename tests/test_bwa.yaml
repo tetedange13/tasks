@@ -1,0 +1,63 @@
+- name: Bwa version
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task get_version bwa.wdl
+  files:
+    - path: out-miniwdl/outputs.json  # Version is just a String that is outputed
+      should_exist: true
+      # Version output different between BWA(1) and BWA2 -> checksum cannot match
+      md5sum: e72c5ae9e0b3cb5ab0f12a50ca3f3219
+
+- name: Bwa mem
+  tags:
+    - task_level
+    - mem
+  # Takes 5-6 min to run
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa/bwa_inputs.json --task mem bwa.wdl
+  files:
+    - path: out-miniwdl/out/outputFile/test_sample.bam
+      should_exist: true
+      # ENH: Better checksum 'BAM without header' (using 'special_files' functions)
+      #      -> Should be identical to 'bwa2' one
+      # md5sum:  Instead use 'bwa mem special' bellow
+
+- name: Bwa mem special files
+  # Checksum BAM without its header
+  tags:
+    - task_level
+    - mem
+    - special
+  command: nohup bash tests/bwa/run_special.sh /mnt/chu-ngs2/Labos/UMAI/LancementAnalyseCluster/Bwa_mem/out-miniwdl
+  files:
+    - path: out-test/bam.md5
+      should_exist: true
+      md5sum: 7bfd7ac1ba74c0af5463a4b6473dc05b
+
+- name: Bwa memnosort
+  tags:
+    - task_level
+    - memnosort
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa/bwa_inputs.json --task memnosort bwa.wdl
+  files:
+    - path: out-miniwdl/out/outputFile/stdout.txt  # This is indeed a SAM file
+      should_exist: true
+      # md5sum: Cannot checksum as output not sorted
+
+# TODO: Building index on a FASTA with ONLY chr22 should be fast enough ?
+# - name: Bwa index
+#   tags:
+#     - task_level
+#     - index
+#   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --task index bwa.wdl in=hg19.chr22.fa
+#   files:
+#     - path: hg19.chr22.amb
+#       should_exist: true
+#     - path: hg19.chr22.ann
+#       should_exist: true
+#     - path: hg19.chr22.pac
+#       should_exist: true
+#     - path: hg19.chr22.bwt
+#       should_exist: true
+#     - path: hg19.chr22.sa
+#       should_exist: true

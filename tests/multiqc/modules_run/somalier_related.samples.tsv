@@ -1,0 +1,4 @@
+#family_id	sample_id	paternal_id	maternal_id	sex	phenotype	original_pedigree_sex	gt_depth_mean	gt_depth_sd	depth_mean	depth_sd	ab_mean	ab_std	n_hom_ref	n_het	n_hom_alt	n_unknown	p_middling_ab	X_depth_mean	X_n	X_hom_ref	X_het	X_hom_alt	Y_depth_mean	Y_n
+CSG196372	CSG196372	-9	-9	-9	-9	-9	0.0	-nan	0.0	-nan	0.00	-nan	0	0	0	0	-nan	0.00	0	0	0	0	0.00	0
+PoolMere	PoolMere	-9	-9	-9	-9	-9	0.0	-nan	0.0	-nan	0.00	-nan	0	0	0	0	-nan	0.00	0	0	0	0	0.00	0
+PoolMixte	PoolMixte	-9	-9	-9	-9	-9	0.0	-nan	0.0	-nan	0.00	-nan	0	0	0	0	-nan	0.00	0	0	0	0	0.00	0

@@ -1,0 +1,5 @@
+{
+"somalier_extracted_files": ["/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/Somalier/CSG234115.somalier"],
+"path_exe": "/mnt/Bioinfo/Softs/bin/somalier",
+"csvtkExe": "/mnt/Bioinfo/Softs/bin/csvtk"
+}

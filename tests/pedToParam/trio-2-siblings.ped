@@ -1,0 +1,12 @@
+#FAMID	IndivID	PereID	MereID	Sex	Atteint
+fam1	A150372	0	pool40mum	1	2
+fam2	CSG223524	pool40mix3	0	1	2
+fam3	CSG224122	pool40mix2	pool40mum	1	2
+fam1	pool40mum	0	0	2	1
+fam1	pool40mix1	0	0	1	2
+fam1	pool40mix3	0	0	1	2
+fam2	pool40mix1	0	0	1	2
+fam2	pool40mix2	0	0	1	2
+fam2	pool40mix3	0	0	1	1
+fam3	pool40mum	0	0	2	1
+fam3	pool40mix2	0	0	1	1

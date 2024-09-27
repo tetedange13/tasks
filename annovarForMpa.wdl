@@ -79,7 +79,7 @@ task annovarForMpa {
 
   String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
   Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-  Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
   Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
   Int memoryByThreadsMb = floor(totalMemMb/threads)
 
@@ -108,17 +108,144 @@ task annovarForMpa {
       -vcfinput \
       -otherinfo \
       -arg '-splicing 5','-hgvs',,,,,,,,"~{Dollar}{COMMA}" \
-      -xref "~{CustomXref}"
+      -xref "~{CustomXref}" 2> "~{outputFile}.~{Genome}_multianno.log"
     >>>
 
   output {
     File outAnnotationVcf = "~{outputFile}.${Genome}_multianno.vcf"
     File outAnnotationAvinput = "~{outputFile}.avinput"
     File outAnnotationTxt = "~{outputFile}.${Genome}_multianno.txt"
+    File outAnnotationLog = "~{outputFile}.${Genome}_multianno.log"
   }
   runtime {
     cpu: "~{threads}"
     requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+}
+
+task AnnovarTableVersion {
+  meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version : "0.1.0"
+    date: "2024-07-25"
+  }
+
+  input {
+    File TableAnnovarExe = "table_annovar.pl"
+    String PerlExe = "perl"
+
+    Int threads = 1
+    Int memoryByThreads = 768
+    String? memory
+  }
+
+  String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+  Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
+  Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+  Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+  set -ex
+  #set -o pipefail --> Had to disable this option, otherwise 'exit code = 1' ??? (due to grep I suspect)
+
+  "~{PerlExe}" "~{TableAnnovarExe}" | grep --only-matching "Version.*"
+  >>>
+
+  output {
+    String version = read_string(stdout())
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta {
+    TableAnnovarExe: {
+      description: 'Path of table_annovar perl script',
+      category: 'option'
+    }
+    PerlExe: {
+      description: 'Path of table_annovar perl script',
+      category: 'Mandatory'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}
+
+task AnnovarUsedDb {
+  meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version : "0.1.0"
+    date: "2024-07-25"
+  }
+
+  input {
+    File StderrAnnovar  # Stderr produced by Annovar (log)
+
+    Int threads = 1
+    Int memoryByThreads = 768
+    String? memory
+  }
+
+  String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+  Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
+  Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+  Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+  set -exo pipefail
+
+  cat "~{StderrAnnovar}" |
+    grep -m2 system |
+    tail -1 |
+    sed 's/ -/\n-/g' |
+    grep protocol |
+    tr ',' '\n' |
+    sed '1s/-protocol /\n/'
+  >>>
+
+  output {
+    String version = read_string(stdout())
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta {
+    StderrAnnovar: {
+      description: 'Path of stderr produced by Annovar (log)',
+      category: 'option'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
   }
 }
 
@@ -131,7 +258,7 @@ task CustomXrefVersion {
   }
 
   input {
-    File CustomXref
+    String CustomXref
 
     Int threads = 1
     Int memoryByThreads = 768
@@ -140,7 +267,7 @@ task CustomXrefVersion {
 
   String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
   Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-  Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
   Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
   Int memoryByThreadsMb = floor(totalMemMb/threads)
 
@@ -204,7 +331,7 @@ task ClinvarVersion {
 
   String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
   Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-  Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
   Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
   Int memoryByThreadsMb = floor(totalMemMb/threads)
 
@@ -237,6 +364,79 @@ task ClinvarVersion {
     }
     Clinvar: {
       description: 'Clinvar File]',
+      category: 'option'
+    }
+    threads: {
+      description: 'Sets the number of threads [default: 1]',
+      category: 'System'
+    }
+    memory: {
+      description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+      category: 'System'
+    }
+    memoryByThreads: {
+      description: 'Sets the total memory to use (in M) [default: 768]',
+      category: 'System'
+    }
+  }
+}
+
+task GeneVersion {
+  meta {
+    author: "Felix VANDERMEEREN"
+    email: "felix.vandermeeren(at)chu-montpellier.fr"
+    version : "0.0.1"
+    date: "2024-07-25"
+  }
+
+  input {
+    String HumanDb = "/humandb"
+    String Genome = "hg19"
+    String GeneType = "refGeneWithVer"
+
+    Int threads = 1
+    Int memoryByThreads = 768
+    String? memory
+  }
+
+  File geneFile = "~{HumanDb}/~{Genome}_~{GeneType}.txt"
+
+  String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+  Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+  Int memoryValue = sub(totalMem,"(M|G)", "")
+  Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+  Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+  command <<<
+  set -exo pipefail
+
+  if [[ -f "~{geneFile}" ]]; then
+    readlink ~{geneFile} | cut -d "_" -f 3 | cut -d "." -f 1
+  else
+    echo "..No '(ref)Gene(WithVer).txt' file.."
+  fi
+  >>>
+
+  output {
+    String version = read_string(stdout())
+  }
+
+  runtime {
+    cpu: "~{threads}"
+    requested_memory_mb_per_core: "${memoryByThreadsMb}"
+  }
+
+  parameter_meta {
+    HumanDb: {
+      description: 'Path of HumanDB dir for Annovar',
+      category: 'option'
+    }
+    Genome: {
+      description: 'Genome version',
+      category: 'option'
+    }
+    GeneType: {
+      description: 'Type of gene db for Annovar (eg: refGene, refGeneWithVer or ensGene)',
       category: 'option'
     }
     threads: {

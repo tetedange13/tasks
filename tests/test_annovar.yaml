@@ -1,0 +1,103 @@
+## /!\ Run test with 'tag==annovar' using '--basetemp=/tmp/pytest_Annovar'
+##     Other test 'AnnovarUsedDB' won't work
+
+- name: GeneVersion
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task GeneVersion annovarForMpa.wdl HumanDb=/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 9c830a3b67d5d79335957670a09baf64
+
+- name: GeneVersion NO file
+  # Test when expected file NOT found
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task GeneVersion annovarForMpa.wdl HumanDb=/dev/null
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: ba2e00688c78ebade39ceadafb0e585d
+
+- name: CustomXrefVersion
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task CustomXrefVersion annovarForMpa.wdl CustomXref=/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb/gene_customfullxref_latest.txt
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: fd4a4b30e8b640d207ea1e5ce1628c80
+
+- name: CustomXrefVersion NO file
+  # Test when expected file NOT found
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task CustomXrefVersion annovarForMpa.wdl CustomXref=/dev/null/gene_customfullxref_latest.txt
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: d4be0a0efdf1d53d94c94cde41743985
+
+- name: ClinvarVersion
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task ClinvarVersion annovarForMpa.wdl HumanDb=/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 21efc14d9d66a626faccfd367ec8b425
+
+- name: ClinvarVersion NO file
+  # Test when expected file NOT found
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task ClinvarVersion annovarForMpa.wdl HumanDb=/dev/null
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 69563c2509a09f48ffe3714160e24734
+
+- name: AnnovarTableVersion
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarTableVersion annovarForMpa.wdl TableAnnovarExe=/mnt/Bioinfo/Softs/src/Annovar/2020Jun08/table_annovar.pl
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: ce8ed6ed77a565e6b4ee88f00f6a9ee3
+
+- name: Annovar chr22 solo
+  tags:
+    - task_level
+    - annovar
+    - solo
+  command: miniwdl run --env LC_ALL=C -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/annovar/annovar_inputs.json --task annovarForMpa annovarForMpa.wdl outputPath=.
+  files:
+    - path: out-miniwdl/out/outAnnotationVcf/A161161.HC.hg19_multianno.vcf
+      should_exist: true
+      # md5sum: Cannot checksum VCF directly, but md5 for 'bcftools view -H' should be 4220d6a2488aef6d472325525eba3ffb
+      # ENH: Use 'special' func to checksum generated VCF here
+    - path: out-miniwdl/out/outAnnotationLog/A161161.HC.hg19_multianno.log
+      should_exist: true
+      md5sum: ae7bd68a7ea93f90f626d09e9907cdcc
+    - path: out-miniwdl/stderr.txt
+      should_exist: true
+      md5sum: 8b04d7ccabe5462ebd1292117ee56cfe
+
+- name: AnnovarUsedDb
+  tags:
+    - task_level
+    - version
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarUsedDb annovarForMpa.wdl StderrAnnovar=/tmp/pytest_Annovar/Annovar_chr22_solo/out-miniwdl/out/outAnnotationLog/A161161.HC.hg19_multianno.log
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: cdbc9019b5fe1a3e5a2ca3c8ce02a0f3
