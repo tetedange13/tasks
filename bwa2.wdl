@@ -80,7 +80,7 @@ task memnosort {
 	meta {
 		author: "Felix VANDERMEEREN"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.1"
+		version: "0.1.0"
 		date: "2024-03-18"
 	}
 
@@ -96,12 +96,12 @@ task memnosort {
 		File? fastqR2
 
 		# Kept for retro-comp, but are ignored:
-		File refFasta
-		File refFai
-		File refAmb
-		File refAnn
-		File refPac
-		File refSa
+		File? refFasta
+		File? refFai
+		File? refAmb
+		File? refAnn
+		File? refPac
+		File? refSa
 		# Used param is bellow:
 		String refBwt  # Kept old name but it is rather a 'BWAindex prefix'
 
