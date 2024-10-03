@@ -1,0 +1,6 @@
+{
+    "csvtkExe" : "/mnt/Bioinfo/Softs/bin/csvtk",
+    "OutAchab" : "/tmp/pytest_Achab/Achab_newHope_FE-37/out-miniwdl/work/CSG235316_achab_catch_newHope.xlsx",
+    "OutAchabHTML" : "/tmp/pytest_Achab/Achab_newHope_FE-37/out-miniwdl/work/CSG235316_newHope_achab.html",
+    "OutAchabPoorCov" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/CSG235316/Achab/CSG235316_poorCoverage.filteredNOleft2.xlsx"
+}

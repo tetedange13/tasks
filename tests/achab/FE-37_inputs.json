@@ -22,6 +22,6 @@
     "AllelicFrequency" : 0.012,
     "MozaicRate" : 0.2,
     "MozaicDP" : 5,
-    "Genemap2File" : "/mnt/Bioinfo/Softs/src/OMIM/genemap2.txt",
+    "Genemap2File" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/fake_annovar_humandb/genemap2.txt",
     "PoorCoverageFile" : "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/CSG235316/Metrix/coverage/CSG235316.PoorCoverage_extended.tsv"
 }

@@ -392,15 +392,17 @@ task postProcess {
       "~{csvtkExe}" xlsx2csv --comment-char '$' --sheet-index 1 "~{OutAchabPoorCov}" |
         sed '1s/^#//' > "$temp_poorCov".csv
 
-      # If 'poorCoverage' contains only a header
-      # -> Create a outfile with dummy values and exit there:
+      # Default outfile is one with 'NA' values
+      # -> Exit prematurely if any filtering goes wrong
+      {
+        echo -e "subpanel\tNA"
+        echo -e "~{basenameOutAchabHTML}_TOTAL\tNA"
+        echo -e "~{basenameOutAchabHTML}_filt=${occurr_threshold}\tNA"
+        echo -e "~{basenameOutAchabHTML}_filt-list\tNA"
+      } > "~{OutAchabPoorCovMetrix}"
+
+      # 'poorCoverage' contains only a header -> exit there:
       if [ "$("~{csvtkExe}" nrow "$temp_poorCov".csv)" -eq 0 ] ; then
-        {
-          echo -e "subpanel\tNA"
-          echo -e "~{basenameOutAchabHTML}_TOTAL\tNA"
-          echo -e "~{basenameOutAchabHTML}_filt=${occurr_threshold}\tNA"
-          echo -e "~{basenameOutAchabHTML}_filt-list\tNA"
-        } > "~{OutAchabPoorCovMetrix}"
         exit
       fi
 
@@ -409,6 +411,11 @@ task postProcess {
         "~{csvtkExe}" replace --fields CANDIDATE --pattern '^ ' |
         "~{csvtkExe}" unfold --fields CANDIDATE --separater ' ' |
         "~{csvtkExe}" rename --fields CANDIDATE --names subpanel --out-tabs -o "$temp_poorCov".sub
+
+      # If 'poorCoverage' has NO regions included in a subpanel -> exit there:
+      if [ "$("~{csvtkExe}" nrow "$temp_poorCov".sub)" -eq 0 ] ; then
+        exit
+      fi
 
       # 2) Then produce a total count of regions by sub-panel:
       "~{csvtkExe}" freq --tabs --fields subpanel "$temp_poorCov".sub |
@@ -420,6 +427,14 @@ task postProcess {
         --filter '$type=="OTHER" && $Occurrence<'$occurr_threshold \
         -o "$temp_poorCov".sub.filt \
         "$temp_poorCov".sub
+
+      # If NO regions left after filtering
+      # -> Send only '_TOTAL' row to final file and exit there:
+      # (otherwise later 'sort .sub.filt' return 'ERROR: no data to sort')
+      if [ "$("~{csvtkExe}" nrow "$temp_poorCov".sub.filt)" -eq "0" ] ; then
+        "~{csvtkExe}" transpose --tabs -o "~{OutAchabPoorCovMetrix}" "$temp_poorCov".sub.freq
+        exit
+      fi
 
       "~{csvtkExe}" freq --tabs --fields subpanel "$temp_poorCov".sub.filt |
         "~{csvtkExe}" rename \
