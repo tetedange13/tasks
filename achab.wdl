@@ -417,6 +417,9 @@ task postProcess {
         exit
       fi
 
+      # ENH: In following steps, ensure all subpanels are present in outfile
+      #      -> Even one with '0 poorly covered regions'
+
       # 2) Then produce a total count of regions by sub-panel:
       "~{csvtkExe}" freq --tabs --fields subpanel "$temp_poorCov".sub |
         "~{csvtkExe}" rename --tabs --fields frequency --names "~{basenameOutAchabHTML}"_TOTAL -o "$temp_poorCov".sub.freq
