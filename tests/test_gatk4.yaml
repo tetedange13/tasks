@@ -32,3 +32,13 @@
     - path: out-miniwdl/out/outputFile/A161161.HC.score.vcf
       should_exist: true
       # md5sum: Cannot checksum VCF directly
+
+- name: Intervals splitted by chr
+  tags:
+    - task_level
+    - splitchr
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task CreateSequenceGroupingTSV temp.wdl refDict=/mnt/chu-ngs/refData/genome/hg19/hg19.dict
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 0771303786ecd36d73b12791cbb4f58b
