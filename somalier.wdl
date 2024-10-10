@@ -210,6 +210,9 @@ task relate {
 		if [ -n "~{'' + ped}" ] ; then
 			## 'somalier relate' does not allow duplicate sampleID in PED (case for pooled parents)
 			# -> Uniq by sampleID (= column #2)
+			# WARN: With bellow method, a pool with '3F + 1M' can have 'ped_sex=F' (if order is not favorable)
+			#       In any case, PED file is very sensible to order:
+			#       Eg. if proband is placed last and a sib or parent is 'affected', it will be considered proband (instead of the true proband)
 			"~{csvtkExe}" uniq \
 				--tabs --comment-char '$' \
 				--fields 2 \
@@ -285,6 +288,10 @@ task relatePostprocess {
 		File? ped
 		String outputPath = "./somalier_relate"
 		String csvtkExe = "csvtk"
+
+		#Thresholds used bellow:
+		Float maxYforFemale = 0.5  # Bellow this value -> sample predicted as 'female' (otherwise 'male')
+		Float minHomConcordForRelated = 0.6  # Above this value -> pair of samples predicted as 'related'
 
 		Int threads = 1
 		Int memoryByThreads = 768
@@ -391,14 +398,20 @@ task relatePostprocess {
 											-o "$temp_custom".reordered.ploidy.fraction
 
 		# ...With a column comparing 'pedigree_sex' with 'inferred_sex':
-		# ENH: Instead do this through 'modify' attribute of multiQC config ?
+		#
 		# MEMO: '(inferred_)sex' made by somalier does not work very_well with pools
 		#       -> instead deduce sex from 'Scaled mean depth on Y'
 		#       -> Cut-off is chosen so that a pool of 3 individuals with '2 F + 1 M' with will be predicted 'female'
+		#
+		# WARN: '0.6' can missgender a pool of 4 individuals with 3F + 1M
+		#       (eg: 'Pool16_Mixte' from DI016, predicted as 'male' when we would expect 'female')
+		#
+		# ENH: Instead do this through 'modify' attribute of multiQC config ?
+		#
 		"~{csvtkExe}" mutate2 \
 			--tabs \
 			--name sexY \
-			--expression '($Y_depth_mean < 0.5) ? "female" : "male"' \
+			--expression '($Y_depth_mean < ~{maxYforFemale}) ? "female" : "male"' \
 			"$temp_custom".reordered.ploidy.fraction |
 				"~{csvtkExe}" mutate2 \
 					--tabs \
@@ -440,12 +453,12 @@ task relatePostprocess {
 		sed '1s/^#//' "$source_for_filtered" |
 			"~{csvtkExe}" filter2 \
 				--tabs \
-				--filter '$expected_relatedness == 0.5 || $hom_concordance > 0.6' \
+				--filter '$expected_relatedness == 0.5 || $hom_concordance > ~{minHomConcordForRelated}' \
 				--show-row-number |
 				"~{csvtkExe}" mutate2 \
 					--tabs \
 					--name valid_relationship \
-					--expression '($expected_relatedness == 0.5 && $hom_concordance > 0.6) ? "pass" : "fail"' \
+					--expression '($expected_relatedness == 0.5 && $hom_concordance > ~{minHomConcordForRelated}) ? "pass" : "fail"' \
 					-o "~{relateFilteredPairs}"
 	>>>
 
