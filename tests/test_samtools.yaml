@@ -1,0 +1,27 @@
+# /!\ Before run bellow tests, isolate 'view' task in 'temp.wdl' file
+# /!\ Special tests require to be run with 'pytest --kwd --basetemp=/tmp'
+
+- name: Samtools view solo
+  tags:
+    - task_level
+    - view
+  # Takes 5-6 min to run
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/samtools/solo_inputs.json --task view temp.wdl
+  files:
+    - path: out-miniwdl/out/outputFile/A161161.bam
+      should_exist: true
+      # ENH: Better checksum 'BAM without header' (using 'special_files' functions)
+      #      -> Should be identical to 'bwa2' one
+      # md5sum:  Instead use 'bwa mem special' bellow
+
+- name: Samtools view solo special files
+  # Checksum BAM without its header
+  tags:
+    - task_level
+    - view
+    - special
+  command: nohup bash tests/samtools/run_special.sh /tmp/Samtools_view_solo/out-miniwdl/out
+  files:
+    - path: out-test/bam.md5
+      should_exist: true
+      md5sum: 455d6d048de3a82b770c05a1fa0b76b1

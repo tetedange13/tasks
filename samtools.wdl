@@ -440,23 +440,23 @@ task view {
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
 	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int memoryValue = sub(totalMem,"(M|G)", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String ext = if cram then "cram" else "bam"
 	String baseName = if defined(name) then name else sub(basename(in),"(\.bam|\.cram|\.sam)","")
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.~{ext}" else "~{baseName}.~{ext}"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.~{ext}" else "~{baseName}.~{ext}"
 
 	command <<<
 
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
 		fi
 
 		~{path_exe} view \
 			~{true="-C" false="-b" cram} \
-			-o ~{outputFile} \
+			-o ~{OutputFile} \
 			~{default="" "-t " + refFai} \
 			~{default="" "-L " + bed} \
 			~{default="" "-r " + readGroup} \
@@ -474,7 +474,7 @@ task view {
 	>>>
 
 	output {
-		File outputFile = outputFile
+		File outputFile = OutputFile
 	}
 
 	runtime {
