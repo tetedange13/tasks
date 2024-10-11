@@ -418,7 +418,8 @@ task view {
 		File in
 		String? outputPath
 		String? name
-		Boolean cram = false
+		Array[String] outFmtOptions = ["bam"]
+		String ext = outFmtOptions[0]
 
 		File? refFai
 		File? refFasta
@@ -444,7 +445,6 @@ task view {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String ext = if cram then "cram" else "bam"
 	String baseName = if defined(name) then name else sub(basename(in),"(\.bam|\.cram|\.sam)","")
 	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.~{ext}" else "~{baseName}.~{ext}"
 
@@ -455,7 +455,6 @@ task view {
 		fi
 
 		~{path_exe} view \
-			~{true="-C" false="-b" cram} \
 			-o ~{OutputFile} \
 			~{default="" "-t " + refFai} \
 			~{default="" "-L " + bed} \
@@ -466,7 +465,7 @@ task view {
 			-m ~{minCigarOp} \
 			~{true="-M" false="" multiRegioOperator} \
 			~{true="-B" false="" collapseCigarOp} \
-			--output-fmt ~{ext} \
+			--output-fmt ~{sep="," outFmtOptions} \
 			~{default="" "--reference " + refFasta} \
 			--threads ~{threads - 1} \
 			~{in}

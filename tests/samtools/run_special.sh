@@ -29,6 +29,6 @@ out_test=out-test && mkdir "$out_test"
 # (by default no header with 'samtools view')
 # WARN: Contrary to usual 'special for BAM', there removed '-type f'
 #       -> Due to miniwdl using symlinks
-find "$main_test_dir" -name "*.bam" ! -iname "*sort*" |
-	parallel --jobs 1 "checksum_bam {}" |
+find "$main_test_dir" ! -type d |
+	parallel --jobs 1 "checksum_bam_cram {}" |
 	sort --key=1,1 > "$out_test"/bam.md5

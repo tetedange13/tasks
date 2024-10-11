@@ -1,0 +1,6 @@
+{
+"in": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/out-Exome/casIndex/A161161/Alignement/A161161.bam",
+"outFmtOptions": ["cram","store_md","store_nm","level=9"],
+"refFasta": "/mnt/chu-ngs/refData/genome/hg19/hg19.fa",
+"refFai": "/mnt/chu-ngs/refData/genome/hg19/hg19.fa.fai"
+}
