@@ -50,5 +50,5 @@
     - path: out-test/bam.md5
       should_exist: true
       # MEMO: Checksum differ from above, but only due to filename extension (.cram vs .bam)
-      #       -> content is the same:
+      #       -> BAM/CRAM content is the same = cd164b4b46c2a70211fa61f2418b19be
       md5sum: b619da5c56333d224e3f55d1f2f2a185

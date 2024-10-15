@@ -408,7 +408,7 @@ task view {
 	meta {
 		author: "Charles VAN GOETHEM"
 		email: "c-vangoethem(at)chu-montpellier.fr"
-		version: "0.0.1"
+		version: "0.0.3"
 		date: "2020-07-31"
 	}
 
@@ -418,8 +418,9 @@ task view {
 		File in
 		String? outputPath
 		String? name
-		Array[String] outFmtOptions = ["bam"]
-		String ext = outFmtOptions[0]
+		Array[String]+ outFmtOptions = ["bam"]
+		# String ext = outFmtOptions[0]  #Not supported by Cromwell (later '+' operation -> errors)
+		String extOutputFile = "bam"
 
 		File? refFai
 		File? refFasta
@@ -446,7 +447,7 @@ task view {
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name else sub(basename(in),"(\.bam|\.cram|\.sam)","")
-	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.~{ext}" else "~{baseName}.~{ext}"
+	String OutputFile = if defined(outputPath) then "~{outputPath}/~{baseName}.~{extOutputFile}" else "~{baseName}.~{extOutputFile}"
 
 	command <<<
 
@@ -498,8 +499,12 @@ task view {
 			description: 'Fasta file.',
 			category: 'Required'
 		}
-		cram: {
-			description: 'Output to cram format. (bam otherwise) [default: false]',
+		outFmtOptions: {
+			description: 'Array of options passed to --output-fmt param [default: bam]',
+			category: 'Tool option'
+		}
+		extOutputFile: {
+			description: 'String of extension for outputFile [default: bam]',
 			category: 'Tool option'
 		}
 		refFai: {
