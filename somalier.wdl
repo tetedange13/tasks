@@ -340,7 +340,15 @@ task relatePostprocess {
 				"~{csvtkExe}" grep -t -f parent -v -p 0 |
 				"~{csvtkExe}" cut -t -f IndivID,parent |
 				"~{csvtkExe}" mutate2 -t -n expected_relatedness -e "'0.5'" |
-				sed '1s/^/#/' > "$recomputed_relatedness"
+				sed '1s/^/#/' > "$recomputed_relatedness".tmp
+			# Add same rows, but inverting columns 'Parent' (as 1st) and 'IndivID' (as 2nd)
+			# MEMO: Doing that make 'join -f c1,c2' result in a '-f c1==val1 OR c2==val2' operation
+			#       (by default it has a 'c1==val1 AND c2==val2' behaviour)
+			#       See run 'DI014' as example
+			{
+				cat "$recomputed_relatedness".tmp
+				"~{csvtkExe}" cut -Ht -f 2,1,3 "$recomputed_relatedness".tmp
+			} > "$recomputed_relatedness"
 			# Add empty row for later join to work even if no 'parent-child' relation found in PED:
 			echo -e "\t\t" >> "$recomputed_relatedness"
 			# << TEMP_SOLUCE

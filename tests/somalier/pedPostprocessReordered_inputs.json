@@ -1,0 +1,5 @@
+{
+"relateSamplesFile": "tests/somalier/ped.samples.tsv",
+"relatePairsFile": "tests/somalier/pedReordered.pairs.tsv",
+"csvtkExe": "/mnt/Bioinfo/Softs/bin/csvtk"
+}

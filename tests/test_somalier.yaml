@@ -159,3 +159,22 @@
     - path: out-miniwdl/work/somalier_relate.filtered.tsv
       should_exist: true
       md5sum: 3e9ae2c271bd118836031a23c1d92b9b
+
+- name: Somalier relate duplicated unexpected PED POSTPROCESS REORDER
+  # Inverted sample_a and sample_b in 1st row of '.pairs.tsv'
+  # -> Output should be the equivalent
+  tags:
+    - task_level
+    - relate
+    - ped
+    - postprocess
+    - reordered
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/pedPostprocessReordered_inputs.json --task relatePostprocess somalier.wdl ped=tests/somalier/unexpected.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/somalier_relate.custom.tsv
+      should_exist: true
+      md5sum: cca100f688453ea541b09b0c9e2cc3d2
+    - path: out-miniwdl/work/somalier_relate.filtered.tsv
+      should_exist: true
+      md5sum: 3fe11fb784f1db65b785ed7269d18374
