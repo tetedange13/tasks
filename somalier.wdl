@@ -329,29 +329,31 @@ task relatePostprocess {
 					--fields frequency --names ploidy_attendue \
 					-o "$ploidy_tmp"
 
-			# >> TEMP_SOLUCE
-			#    Re-calculate expected relatedness from PED
-			#    (not needed when Somalier allow duplicated sampleID if famID differ)
-			recomputed_relatedness=expected_relatedness2.tsv
-			sed '1s/^#//' "~{ped}" |
-				awk -F"\t" '$3!=0 || $4!=0' |
-				"~{csvtkExe}" mutate2 -t -n parent -e '$PereID + ";" + $MereID' |
-				"~{csvtkExe}" unfold -t -s';' -f parent |
-				"~{csvtkExe}" grep -t -f parent -v -p 0 |
-				"~{csvtkExe}" cut -t -f IndivID,parent |
-				"~{csvtkExe}" mutate2 -t -n expected_relatedness -e "'0.5'" |
-				sed '1s/^/#/' > "$recomputed_relatedness".tmp
-			# Add same rows, but inverting columns 'Parent' (as 1st) and 'IndivID' (as 2nd)
-			# MEMO: Doing that make 'join -f c1,c2' result in a '-f c1==val1 OR c2==val2' operation
-			#       (by default it has a 'c1==val1 AND c2==val2' behaviour)
-			#       See run 'DI014' as example
-			{
-				cat "$recomputed_relatedness".tmp
-				"~{csvtkExe}" cut -Ht -f 2,1,3 "$recomputed_relatedness".tmp
-			} > "$recomputed_relatedness"
-			# Add empty row for later join to work even if no 'parent-child' relation found in PED:
-			echo -e "\t\t" >> "$recomputed_relatedness"
-			# << TEMP_SOLUCE
+			if [ -n "$(awk 'NR>1 {print $2}' "~{ped}" | sort | uniq --repeated)" ] ; then  # If duplicated indivID in PED (ie pools)
+				# >> TEMP_SOLUCE
+				#    Re-calculate expected relatedness from PED
+				#    (not needed when Somalier allow duplicated sampleID if famID differ)
+				recomputed_relatedness=expected_relatedness2.tsv
+				sed '1s/^#//' "~{ped}" |
+					awk -F"\t" '$3!=0 || $4!=0' |
+					"~{csvtkExe}" mutate2 -t -n parent -e '$PereID + ";" + $MereID' |
+					"~{csvtkExe}" unfold -t -s';' -f parent |
+					"~{csvtkExe}" grep -t -f parent -v -p 0 |
+					"~{csvtkExe}" cut -t -f IndivID,parent |
+					"~{csvtkExe}" mutate2 -t -n expected_relatedness -e "'0.5'" |
+					sed '1s/^/#/' > "$recomputed_relatedness".tmp
+				# Add same rows, but inverting columns 'Parent' (as 1st) and 'IndivID' (as 2nd)
+				# MEMO: Doing that make 'join -f c1,c2' result in a '-f c1==val1 OR c2==val2' operation
+				#       (by default it has a 'c1==val1 AND c2==val2' behaviour)
+				#       See run 'DI014' as example
+				{
+					cat "$recomputed_relatedness".tmp
+					"~{csvtkExe}" cut -Ht -f 2,1,3 "$recomputed_relatedness".tmp
+				} > "$recomputed_relatedness"
+				# Add empty row for later join to work even if no 'parent-child' relation found in PED:
+				echo -e "\t\t" >> "$recomputed_relatedness"
+				# << TEMP_SOLUCE
+			fi
 
 		else
 			# Create dummy expected_ploidy, with only header + 1 empty row:
@@ -446,8 +448,12 @@ task relatePostprocess {
 
 		# >> TEMP_SOLUCE
 		# Replace original col 'expected_relatedness' with recomputed one:
-		# WARN: Do that only if PED defined and 'pairs.tsv' has at least 1 record
-		if [ -n "~{'' + ped}" ] && [ $("~{csvtkExe}" nrow -C'$' "~{relatePairsFile}") -gt 0 ] ; then
+		# WARN: Do that only if:
+		# * PED defined
+		# * 'pairs.tsv' has at least 1 record
+		# * PED show duplicated 'indivID' (ie pools)
+		#
+		if [ -n "~{'' + ped}" ] && [ $("~{csvtkExe}" nrow -C'$' "~{relatePairsFile}") -gt 0 ] && [ -n "$(awk 'NR>1 {print $2}' "~{ped}" | sort | uniq --repeated)" ] ; then
 			source_for_filtered=temp_relatedness.tsv
 			"~{csvtkExe}" join \
 				-t -C'$' \

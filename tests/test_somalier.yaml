@@ -127,8 +127,10 @@
 
 - name: Somalier relate simple unknown PED POSTPROCESS
   # 'unknown.ped' is derived from 'simple.ped'
-  # But with 'parent-child' relationships removed
+  # But with 'parent-child' relationships removed (+ 1 duplicated sample)
   # This way 'recomputed_relatedness' is empty (but should not break join with 'pairs.tsv')
+  # WARN: Mismatch between PED (NO expected relations) and 'pairs.tsv' (some expected relations)
+  #       This could not be possible in real life
   tags:
     - task_level
     - relate
@@ -139,10 +141,36 @@
   files:
     - path: out-miniwdl/work/somalier_relate.custom.tsv
       should_exist: true
-      md5sum: 2e57c2343e8d4c2b44211279cf606db3
+      md5sum: 542e198c1357fc6c90054a7e79e41884
     - path: out-miniwdl/work/somalier_relate.filtered.tsv
       should_exist: true
       md5sum: cad57cb531c7e583020fb1d9f4d1af69
+    - path: out-miniwdl/work/expected_relatedness2.tsv
+      should_exist: true
+      md5sum: fb05de6cce69f5be9ed404790e3fc38d
+
+- name: Somalier relate simple notRecomputed PED POSTPROCESS
+  # 'notRecomputed.ped' is derived from above 'unknown.ped'
+  # So 'parent-child' relationships removed, but NO duplicated sample
+  # This way NO 'relatedness recomputation' made ('filtered' file kept identical)
+  # WARN: Mismatch between PED (NO expected relations) and 'pairs.tsv' (some expected relations)
+  #       This could not be possible in real life
+  tags:
+    - task_level
+    - relate
+    - ped
+    - postprocess
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/somalier/pedPostprocess_inputs.json --task relatePostprocess somalier.wdl ped=tests/somalier/notRecomputed.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/work/somalier_relate.custom.tsv
+      should_exist: true
+      md5sum: 2e57c2343e8d4c2b44211279cf606db3
+    - path: out-miniwdl/work/somalier_relate.filtered.tsv
+      should_exist: true
+      md5sum: 3e9ae2c271bd118836031a23c1d92b9b
+    - path: out-miniwdl/work/expected_relatedness2.tsv
+      should_exist: false
 
 - name: Somalier relate duplicated unexpected PED POSTPROCESS
   tags:
