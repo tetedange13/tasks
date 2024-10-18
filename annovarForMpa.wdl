@@ -88,7 +88,7 @@ task annovarForMpa {
     COMMA=','
     POPFREQMAX=',~{PopFreqMax}'
     #REFGENE='refGeneWithVer'
-    if [ ${Genome} == 'hg38' ];then
+    if [ "~{Genome}" == 'hg38' ];then
     OPERATION_SUFFIX=''
       COMMA=''
       POPFREQMAX=''
