@@ -91,12 +91,12 @@
       should_exist: true
       md5sum: d41d8cd98f00b204e9800998ecf8427e  # Empty stderr
 
-## /!\ This test requires 'pytest --basetemp=/tmp' to work
+## /!\ This test requires 'pytest --basetemp=/tmp/pytest_Annovar' to work
 - name: AnnovarUsedDb
   tags:
     - task_level
     - version
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarUsedDb annovarForMpa.wdl StderrAnnovar=/tmp/Annovar_chr22_solo/out-miniwdl/out/outAnnotationLog/A161161.HC.hg19_multianno.log
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task AnnovarUsedDb annovarForMpa.wdl StderrAnnovar=/tmp/pytest_Annovar/Annovar_chr22_solo/out-miniwdl/out/outAnnotationLog/A161161.HC.hg19_multianno.log
   files:
     - path: out-miniwdl/outputs.json
       should_exist: true
