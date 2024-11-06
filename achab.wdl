@@ -47,6 +47,8 @@ task achab {
     String? FilterCustomVCF
     String? FilterCustomVCFRegex
     Boolean AddCustomVCFRegex = false
+    String? GnomadExomeFields
+    String? GnomadGenomeFields
     Array[String]? PooledSamples
     String? SampleSubset
     Boolean AddCaseDepth = false
@@ -152,6 +154,8 @@ task achab {
       ~{filtCustVcf} \
       ~{filtCustVcfReg} \
       ~{AddCustVCFRegex} \
+      ~{"--gnomadExome " + GnomadExomeFields} \
+      ~{"--gnomadGenome " + GnomadGenomeFields} \
       ~{Dollar}{pool} \
       ~{Dollar}{affect} \
       ~{sampSub} \
@@ -537,16 +541,16 @@ task get_version {
   command <<<
     ~{PerlExe} ~{AchabExe} --version
   >>>
-  
+
   output {
     String version = read_string(stdout())
   }
-  
+
   runtime {
     cpu: "~{threads}"
     requested_memory_mb_per_core: "${memoryByThreadsMb}"
   }
-  
+
   parameter_meta {
     AchabExe: {
       description: 'Path used as executable [default: "/mnt/Bioinfo/Softs/src/Captain-ACHAB/wwwachab.pl"]',
