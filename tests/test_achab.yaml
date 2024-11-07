@@ -38,6 +38,53 @@
       - "gnomAD_genome_NFE	= 6.667e-05"  # Variant SERPIND1:c.1325C>T
       # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
 
+- name: Achab newHope solo with WRONG gnomAD fields
+  # Pass GnomAD{Exome,Genome}Fields to Achab
+  # But use fields only present in 'GnomAD_v2.1.1' (and mpa.vcf generated with 'GnomAD_v2.0.1')
+  tags:
+    - task_level
+    - solo
+    - gnomADfields
+  command: miniwdl run --env LC_ALL=C -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-wrongGnomADfields_inputs.json --task achab achab.wdl NewHope=true
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch_newHope.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch.xlsx
+      should_exist: false
+    - path: out-miniwdl/out/outAchabHTML/A161161_newHope_achab.html
+      should_exist: true
+      must_not_contain:
+      - "gnomAD_exome_EAS	= 7.097e-05"  # Variant NFAM1:c.571C>T
+      - "gnomAD_genome_NFE	= 6.667e-05"  # Variant SERPIND1:c.1325C>T
+      contains:
+      - "GAS2L1:NM_001395196.1:exon5:c.1198_1199insC"  # This variant should be filtered out by popFreq (but here Achab cannot as wrong GnomADfields)
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
+
+- name: Achab newHope solo with gnomAD V211 fields
+  # Pass GnomAD{Exome,Genome}Fields V2.1.1 to Achab
+  tags:
+    - task_level
+    - solo
+    - gnomADfields
+  command: miniwdl run --env LC_ALL=C -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-gnomADv211fields_inputs.json --task achab achab.wdl NewHope=true
+  exit_code: 0
+  files:
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch_newHope.xlsx
+      should_exist: true
+      # md5sum: Cannot checksum Excel file directly
+    - path: out-miniwdl/out/outAchab/A161161_achab_catch.xlsx
+      should_exist: false
+    - path: out-miniwdl/out/outAchabHTML/A161161_newHope_achab.html
+      should_exist: true
+      contains:
+      - "non_topmed_AF_popmax	= 0.0041"  # Variant NFAM1:c.571C>T (gnomAD_Exome)
+      # Bellow should FAIL as of 7nov2024 (problem of duplicate GnomAD fields in v2.1.1 Annovar files):
+      - "Genome_non_topmed_AF_popmax	= 6.667e-05"  # Variant SERPIND1:c.1325C>T
+      must_not_contain:
+      - "GAS2L1:NM_001395196.1:exon5:c.1198_1199insC"  # This variant should be filtered out by popFreq
+      # md5sum: Cannot checksum Achab HTML output (problem with random rows order again ?)
 
 - name: Achab newHope child with parents
   tags:
