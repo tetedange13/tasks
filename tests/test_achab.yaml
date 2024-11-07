@@ -23,7 +23,7 @@
     - task_level
     - solo
     - gnomADfields
-  command: miniwdl run --env LC_ALL=C -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-gnomADfields_inputs.json --task achab achab.wdl NewHope=true
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-gnomADfields_inputs.json --task achab achab.wdl NewHope=true
   exit_code: 0
   files:
     - path: out-miniwdl/out/outAchab/A161161_achab_catch_newHope.xlsx
@@ -45,7 +45,7 @@
     - task_level
     - solo
     - gnomADfields
-  command: miniwdl run --env LC_ALL=C -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-wrongGnomADfields_inputs.json --task achab achab.wdl NewHope=true
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-wrongGnomADfields_inputs.json --task achab achab.wdl NewHope=true
   exit_code: 0
   files:
     - path: out-miniwdl/out/outAchab/A161161_achab_catch_newHope.xlsx
@@ -68,7 +68,7 @@
     - task_level
     - solo
     - gnomADfields
-  command: miniwdl run --env LC_ALL=C -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-gnomADv211fields_inputs.json --task achab achab.wdl NewHope=true
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/achab/solo-gnomADv211fields_inputs.json --task achab achab.wdl NewHope=true
   exit_code: 0
   files:
     - path: out-miniwdl/out/outAchab/A161161_achab_catch_newHope.xlsx
