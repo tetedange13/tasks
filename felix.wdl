@@ -312,6 +312,10 @@ task gatherIdentito {
 
 		if [ ~{nb_files} -eq 1 ] ; then
 			"~{csvtkExe}" cut --tabs --fields 1,2 ~{sep='' filesToGather} |
+				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/1' --replacement 'HTZ' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '1/1' --replacement 'MUT' |
 				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
 
 		else
@@ -327,6 +331,10 @@ task gatherIdentito {
 			for a_file in ~{sep=' ' filesToGather}; do echo $a_file ; done |
 				xargs basename --multiple |
 				xargs "~{csvtkExe}" join --tabs --fields GENE |
+				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/1' --replacement 'HTZ' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '1/1' --replacement 'MUT' |
 				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
 		fi
 	>>>
