@@ -1814,3 +1814,76 @@ task checksum {
 		requested_memory_mb_per_core: "${memoryByThreads}"
 	}
 }
+
+task gatherIdentito {
+	meta {
+		author: "Felix Vandermeeren"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.2"
+		date: "2024-01-22"
+	}
+
+	input {
+		Array[File] filesToGather
+		String outputPath = "./"
+		String csvtkExe = "csvtk"
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String OutFile = "~{outputPath}/" + "all_casIndex.identito.tsv"
+	String nb_files = length(filesToGather)
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem, "M|G", "")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	command <<<
+		set -xeuo pipefail
+
+		if [[ ! -d "~{outputPath}" ]]; then
+			mkdir --parents "~{outputPath}"
+		fi
+
+		if [ ~{nb_files} -eq 1 ] ; then
+			"~{csvtkExe}" cut --tabs --fields 1,2 ~{sep='' filesToGather} |
+				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/1' --replacement 'HTZ' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '1/1' --replacement 'MUT' |
+				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
+
+		else
+			# First keep only 1st col of casIndex:
+			# WARN: What if casIndex is in 1st col ?
+			#       IDEA: Use 'csvtk grep'
+			for a_file in ~{sep=' ' filesToGather}; do
+				"~{csvtkExe}" cut --tabs --fields 1,2 -o "$(basename "$a_file")" "$a_file"
+			done
+
+			# Then join intermediate files:
+			# MEMO: Use one-liner 'for' to list elements from WDL Array
+			for a_file in ~{sep=' ' filesToGather}; do echo $a_file ; done |
+				xargs basename --multiple |
+				xargs "~{csvtkExe}" join --tabs --fields GENE |
+				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/1' --replacement 'HTZ' |
+				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '1/1' --replacement 'MUT' |
+				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
+		fi
+	>>>
+
+	output {
+		File outFile = OutFile
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreads}"
+	}
+}
