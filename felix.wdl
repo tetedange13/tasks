@@ -285,8 +285,8 @@ task gatherIdentito {
 	}
 
 	input {
-		String outputPath = "./"
 		Array[File] filesToGather
+		String outputPath = "./"
 		String csvtkExe = "csvtk"
 
 		Int threads = 1
@@ -294,7 +294,7 @@ task gatherIdentito {
 		String? memory
 	}
 
-	String OutFile = "~{outputPath}/" + "all_casIndex_identito.tsv"
+	String OutFile = "~{outputPath}/" + "all_casIndex.identito.tsv"
 	String nb_files = length(filesToGather)
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
@@ -304,31 +304,30 @@ task gatherIdentito {
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
-		set -eou pipefail
-
-		# If no 'Identito' files -> Simply create empty file and exit without error
-		if [ ~{nb_files} -eq 0 ] ; then
-			touch "~{OutFile}"
-			exit
-		fi
+		set -xeuo pipefail
 
 		if [[ ! -d "~{outputPath}" ]]; then
 			mkdir --parents "~{outputPath}"
 		fi
 
 		if [ ~{nb_files} -eq 1 ] ; then
-			cut --fields 1,2 ~{sep='' filesToGather} > "~{OutFile}"
+			"~{csvtkExe}" cut --tabs --fields 1,2 ~{sep='' filesToGather} |
+				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
 
 		else
 			# First keep only 1st col of casIndex:
 			# WARN: What if casIndex is in 1st col ?
 			#       IDEA: Use 'csvtk grep'
-			for a_file in ~{sep=' ' filesToGather}; do echo $a_file ; done |
-				awk -F"/" '{print "cut -f1,2",$0,">",$NF}' |
-				bash
+			for a_file in ~{sep=' ' filesToGather}; do
+				"~{csvtkExe}" cut --tabs --fields 1,2 -o "$(basename "$a_file")" "$a_file"
+			done
 
 			# Then join intermediate files:
-			"~{csvtkExe}" join --tabs -o "~{OutFile}" ./*.Identito.tsv
+			# MEMO: Use one-liner 'for' to list elements from WDL Array
+			for a_file in ~{sep=' ' filesToGather}; do echo $a_file ; done |
+				xargs basename --multiple |
+				xargs "~{csvtkExe}" join --tabs --fields GENE |
+				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
 		fi
 	>>>
 
