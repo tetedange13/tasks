@@ -81,10 +81,10 @@ task interop2stats {
   }
 
 	input {
+		String seqDir
 		File path_exe = "scripts/stats_exome.sh"
 		String csvtkExe = "csvtk"
 		String interopExe = "Softs/InterOp-1.1.15-Linux-GNU_bin/"
-		String seqDir
 		String outputPath = "./"
 
 		Int threads = 1
@@ -98,27 +98,20 @@ task interop2stats {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String OutFileAsString = "./outDir.string"
+	String OutFile = "~{outputPath}/sequencing.interop.tsv"
 
 	command <<<
 		set -xeou pipefail
 
-		if [[ ! "$(readlink --canonicalize "~{seqDir}")" ]] ; then
-			echo "ERROR: Could not resolve input dir"
-			exit 1
-		fi
-		canonSeqDir=$(readlink --canonicalize "~{seqDir}")
-
-		if [[ ! -d "$canonSeqDir/InterOp" ]] ; then
+		if [[ ! -d "~{seqDir}" ]] ; then
 			# If NO 'InterOp' dir at all -> exit without error
 			# Cuz probably a 'test' run, or a 'synthetic' one (= with FastQ from different runs)
-			echo "WARNING: '$canonSeqDir/InterOp' dir NOT FOUND"
-			touch "~{OutFileAsString}"  # To avoid miniwdl error 'function was passed non-existent file ~{OutFileAsString}'
+			echo "WARNING: '~{seqDir}' dir NOT FOUND"
 			exit
 		fi
 
-		if [[ ! -d ~{outputPath} ]]; then
-			mkdir --parents ~{outputPath}
+		if [[ ! -d "~{outputPath}" ]]; then
+			mkdir --parents "~{outputPath}"
 		fi
 
 		# Edit script to set correct exe for (a bit dirty):
@@ -128,16 +121,11 @@ task interop2stats {
 			-e 's|interopExe=.*|interopExe="~{interopExe}"|' \
 			"~{path_exe}" > "$tmpScript"
 
-		# Script deduce runID from '/path/to/runID' --> have to resolve if relative path:
-		outFile="~{outputPath}/$(basename "$canonSeqDir").interop.tsv"
-		bash "$tmpScript" "${canonSeqDir}" > "$outFile"
-
-		# Have to put outDir to a temp file, so that can be declared as outfile (a bit dirty):
-		echo "$outFile" > "~{OutFileAsString}"
+		bash "$tmpScript" "~{seqDir}" > "~{OutFile}"
 	>>>
 
 	output {
-		File? outFile = read_string(OutFileAsString)
+		File? outFile = OutFile
 	}
 
 	runtime {
@@ -146,6 +134,10 @@ task interop2stats {
 	}
 
 	parameter_meta {
+		seqDir: {
+			description: '/path/to/input/sequencing/dir (eg.: <NAS>/Runs/221021_M02960_0624_000000000-KKH76)'
+			category: 'Required'
+		}
 		path_exe: {
 			description: 'Path to script [default: "/path/to/prod/Exome/code"]',
 			category: 'System'

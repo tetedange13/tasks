@@ -5,11 +5,10 @@
     - relative
   # With inDir relative to 'FastQs' (to reproduce usage in 'Exome.wdl')
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/mnt/chu-ngs/NEXTSEQ/runs/240905_NB501631_0204_AHVKN5BGXW/FastQs/../
-  exit_code: 0
   files:
-    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+    - path: out-miniwdl/out/outFile/sequencing.interop.tsv
       should_exist: true
-      md5sum: 46ba8c501e5e4c7e969a278f6c0cf19b
+      md5sum: 7be6cd5fc6e23ec7c2909d9fcdb057dc
 
 - name: Stats2interop NextSeq absolute path
   tags:
@@ -17,11 +16,10 @@
     - interop
     - absolute
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/mnt/chu-ngs/NEXTSEQ/runs/240905_NB501631_0204_AHVKN5BGXW/
-  exit_code: 0
   files:
-    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+    - path: out-miniwdl/out/outFile/sequencing.interop.tsv
       should_exist: true
-      md5sum: 46ba8c501e5e4c7e969a278f6c0cf19b
+      md5sum: 7be6cd5fc6e23ec7c2909d9fcdb057dc
 
 - name: Stats2interop NextSeq dont exist
   tags:
@@ -29,26 +27,25 @@
     - interop
     - dontexist
   # Give a run path that does NOT exist
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/path/dont/exist/240905_NB501631_0204_AHVKN5BGXW/FastQs/../
-  exit_code: 1
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/path/dont/exist/FastQs/../
   files:
-    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+    - path: out-miniwdl/out/outFile/sequencing.interop.tsv
       should_exist: false
     - path: out-miniwdl/stdout.txt
       contains:
-        - "ERROR: Could not resolve input dir"
+        - "WARNING: '/path/dont/exist/FastQs/../' dir NOT FOUND"
 
 - name: Stats2interop NextSeq exist NO InterOp
   tags:
     - task_level
     - interop
-    - nointeropdir
-  # Give a run path that does NOT exist
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/dev/null
-  exit_code: 0
+    - noseqDir
+  # Give a run invalid for InterOp
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/home
+  exit_code: 1
   files:
-    - path: out-miniwdl/out/outFile/240905_NB501631_0204_AHVKN5BGXW.interop.tsv
+    - path: out-miniwdl/out/outFile/sequencing.interop.tsv
       should_exist: false
-    - path: out-miniwdl/stdout.txt
+    - path: out-miniwdl/stderr.txt
       contains:
-        - "WARNING: '/dev/null/InterOp' dir NOT FOUND"
+        - "ERROR: '/home' is invalid for InterOP lib"
