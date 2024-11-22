@@ -82,7 +82,7 @@ task interop2stats {
 
 	input {
 		String seqDir
-		File path_exe = "scripts/stats_exome.sh"
+		File path_exe = "/mnt/chu-ngs/Labos/Transversal/Softs/Interne/Exome/scripts/stats_exome.sh"
 		String csvtkExe = "csvtk"
 		String interopExe = "Softs/InterOp-1.1.15-Linux-GNU_bin/"
 		String outputPath = "./"
