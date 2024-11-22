@@ -2,7 +2,7 @@
   tags:
     - task_level
     - solo
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/solo-01_inputs.json --task pedToParam felix.wdl
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/common_inputs.json --task pedToParam felix.wdl PedFile=tests/pedToParam/solo-01.ped
   exit_code: 0
   files:
     - path: out-miniwdl/outputs.json
@@ -22,7 +22,7 @@
   tags:
     - task_level
     - trio
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/trio-2-siblings_inputs.json --task pedToParam felix.wdl
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/common_inputs.json --task pedToParam felix.wdl PedFile=tests/pedToParam/trio-2-siblings.ped
   exit_code: 0
   files:
     - path: out-miniwdl/outputs.json
@@ -42,7 +42,7 @@
   tags:
     - task_level
     - duos
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/duos-01_inputs.json --task pedToParam felix.wdl
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/common_inputs.json --task pedToParam felix.wdl PedFile=tests/pedToParam/duos-01.ped
   exit_code: 0
   files:
     - path: out-miniwdl/outputs.json
