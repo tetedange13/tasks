@@ -183,7 +183,7 @@ task relate {
 		String path_exe = "somalier"
 		Array[File]+ somalier_extracted_files
 		File? ped
-		String outputPath = "./somalier_relate"
+		String outputPath = "./"
         String csvtkExe = "csvtk"
 
 		Int threads = 1
@@ -198,11 +198,16 @@ task relate {
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String ped_or_infer = if defined(ped) then "--ped=uniq_samplID.ped" else "--infer"
-	String relateSamplesFile = "~{outputPath}.samples.tsv"
-	String relatePairsFile = "~{outputPath}.pairs.tsv"
+	String relatedPrefix = "~{outputPath}/related"
+	String relateSamplesFile = "~{relatedPrefix}.samples.tsv"
+	String relatePairsFile = "~{relatedPrefix}.pairs.tsv"
 
 	command <<<
 		set -eou pipefail
+
+		if [[ ! -d "~{outputPath}" ]]; then
+			mkdir --parents "~{outputPath}"
+		fi
 
 		# Bellow condition should be:
 		# * Empty string, if 'ped' NOT defined -> if FALSE -> do NOT run 'csvtk uniq'
@@ -223,7 +228,7 @@ task relate {
 		## Run 'somalier relate'
 		"~{path_exe}" relate \
 			~{ped_or_infer} \
-			--output-prefix="~{outputPath}" \
+			--output-prefix="~{relatedPrefix}" \
 			~{sep=" " somalier_extracted_files}
 	>>>
 
@@ -286,7 +291,7 @@ task relatePostprocess {
 		File relateSamplesFile
 		File relatePairsFile
 		File? ped
-		String outputPath = "./somalier_relate"
+		String outputPath = "./"
 		String csvtkExe = "csvtk"
 
 		#Thresholds used bellow:
@@ -304,8 +309,9 @@ task relatePostprocess {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String customSamplesFile = "~{outputPath}.custom.tsv"
-	String relateFilteredPairs = "~{outputPath}.filtered.tsv"
+	String postProcessPrefix = "~{outputPath}/postProcessed"
+	String customSamplesFile = "~{postProcessPrefix}.custom.tsv"
+	String relateFilteredPairs = "~{postProcessPrefix}.filtered.tsv"
 
 	command <<<
 		set -eoux pipefail
