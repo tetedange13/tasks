@@ -57,3 +57,23 @@
     - path: out-miniwdl/work/siblings.json
       should_exist: true
       md5sum: ae704a013d7614b2de8a462426769d0d
+
+- name: PedFile full run
+  tags:
+    - task_level
+    - full
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/pedToParam/common_inputs.json --task pedToParam felix.wdl PedFile=tests/pedToParam/full.ped
+  exit_code: 0
+  files:
+    - path: out-miniwdl/outputs.json
+      should_exist: true
+      md5sum: 11be3c294747d8b2350c3593709567f6
+    - path: out-miniwdl/work/propositus.json
+      should_exist: true
+      md5sum: 7fdabbad3d8a998c4a4dcd0ff6c02ce6
+    - path: out-miniwdl/work/parents.json
+      should_exist: true
+      md5sum: 8946e10fb62315bfe05819da617cb29f
+    - path: out-miniwdl/work/siblings.json
+      should_exist: true
+      md5sum: 5ba099675ae20a20ba2f491ef09bb6f5
