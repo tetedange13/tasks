@@ -135,7 +135,7 @@ task interop2stats {
 
 	parameter_meta {
 		seqDir: {
-			description: '/path/to/input/sequencing/dir (eg.: <NAS>/Runs/221021_M02960_0624_000000000-KKH76)'
+			description: '/path/to/input/sequencing/dir (eg.: <NAS>/Runs/221021_M02960_0624_000000000-KKH76)',
 			category: 'Required'
 		}
 		path_exe: {
