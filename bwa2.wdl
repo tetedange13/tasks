@@ -80,7 +80,7 @@ task memnosort {
 	meta {
 		author: "Felix VANDERMEEREN"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.1.0"
+		version: "0.2.0"
 		date: "2024-03-18"
 	}
 
@@ -95,15 +95,15 @@ task memnosort {
 		File fastqR1
 		File? fastqR2
 
+		# MEMO: Used param is bellow:
+		String refFasta  # Kept old name but it is rather a 'BWAindex prefix'
 		# Kept for retro-comp, but are ignored:
-		File? refFasta
 		File? refFai
 		File? refAmb
 		File? refAnn
 		File? refPac
 		File? refSa
-		# Used param is bellow:
-		String refBwt  # Kept old name but it is rather a 'BWAindex prefix'
+		File? refBwt
 
 		String platformReads = "ILLUMINA"
 
@@ -135,8 +135,8 @@ task memnosort {
 			-T ~{minScore} \
 			~{true="-M" false="" markShorter} \
 			-t ~{threads} \
-			"~{refBwt}" \
-			~{fastqR1} ~{default="" fastqR2} \
+			"~{refFasta}" \
+			~{fastqR1} ~{default="" fastqR2}
 	>>>
 
 	output {
@@ -211,7 +211,7 @@ task mem {
 	meta {
 		author: "Felix VANDERMEEREN"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
-		version: "0.0.1"
+		version: "0.2.0"
 		date: "2024-03-18"
 	}
 
@@ -227,15 +227,15 @@ task mem {
 		File fastqR1
 		File? fastqR2
 
+		# MEMO: Used param is bellow:
+		String refFasta  # Kept old name but it is rather a 'BWAindex prefix'
 		# Kept for retro-comp, but are ignored:
-		File refFasta
-		File refFai
-		File refAmb
-		File refAnn
-		File refPac
-		File refSa
-		# Used param is bellow:
-		String refBwt  # Kept old name but it is rather a 'BWAindex prefix'
+		File? refFai
+		File? refAmb
+		File? refAnn
+		File? refPac
+		File? refSa
+		File? refBwt
 
 		String platformReads = "ILLUMINA"
 
@@ -267,7 +267,7 @@ task mem {
 			-T ~{minScore} \
 			~{true="-M" false="" markShorter} \
 			-t ~{threads} \
-			"~{refBwt}" \
+			"~{refFasta}" \
 			~{fastqR1} ~{default="" fastqR2} \
 			| ~{path_exe_samtools} sort -@ ~{threads-1} -m ~{memoryByThreadsMb}M -o ~{OutputFile}
 

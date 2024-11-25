@@ -19,6 +19,7 @@
       should_exist: true
       # md5sum:  Instead use 'bwa2 mem special' bellow
 
+# /!\ For bellow test to work, run pytest with '--basetemp=/mnt/chu-ngs2/Labos/UMAI/LancementAnalyseCluster'
 - name: Bwa2 mem special files
   # Checksum BAM without its header
   tags:
