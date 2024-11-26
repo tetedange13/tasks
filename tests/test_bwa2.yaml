@@ -15,7 +15,7 @@
   # Takes 5-6 min to run
   command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa2/bwa2_inputs.json --task mem bwa2.wdl
   files:
-    - path: out-miniwdl/out/outputFile/test_sample.bam
+    - path: out-miniwdl/out/outputFile/A161161.bam
       should_exist: true
       # md5sum:  Instead use 'bwa2 mem special' bellow
 
@@ -30,7 +30,7 @@
   files:
     - path: out-test/bam.md5
       should_exist: true
-      md5sum: 7bfd7ac1ba74c0af5463a4b6473dc05b
+      md5sum: 80b7d8b83fbfe5743371d65a448df63a
 
 - name: Bwa2 memnosort
   tags:
