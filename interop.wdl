@@ -121,7 +121,20 @@ task interop2stats {
 			-e 's|interopExe=.*|interopExe="~{interopExe}"|' \
 			"~{path_exe}" > "$tmpScript"
 
-		bash "$tmpScript" "~{seqDir}" > "~{OutFile}"
+		# First send to a temp file:
+		tmpOut=out.tsv
+		set +e  # CRUCIAL
+		bash "$tmpScript" "~{seqDir}" > "$tmpOut"
+		# WARN: In case of 'not valid for InterOP':
+		#       -> Script should return a non-0 exit code
+		#       -> But task should allow that (for external FASTQ without InterOp)
+		if [[ ! -s "$tmpOut" ]] ; then
+			echo "WARN: Script exited with error -> IGNORE IT"
+			echo "(mostly due to invalid 'InterOp' dir. See stderr for details)"
+			exit
+		fi
+		# And if no error, move it as outFile:
+		mv --verbose "$tmpOut" "~{OutFile}"
 	>>>
 
 	output {
