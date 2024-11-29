@@ -1850,7 +1850,7 @@ task gatherIdentito {
 		fi
 
 		if [ ~{nb_files} -eq 1 ] ; then
-			"~{csvtkExe}" cut --tabs --fields 1,2 ~{sep='' filesToGather} |
+			cat ~{sep='' filesToGather} |
 				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/1' --replacement 'HTZ' |
@@ -1858,17 +1858,9 @@ task gatherIdentito {
 				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
 
 		else
-			# First keep only 1st col of casIndex:
-			# WARN: What if casIndex is in 1st col ?
-			#       IDEA: Use 'csvtk grep'
-			for a_file in ~{sep=' ' filesToGather}; do
-				"~{csvtkExe}" cut --tabs --fields 1,2 -o "$(basename "$a_file")" "$a_file"
-			done
-
 			# Then join intermediate files:
 			# MEMO: Use one-liner 'for' to list elements from WDL Array
 			for a_file in ~{sep=' ' filesToGather}; do echo $a_file ; done |
-				xargs basename --multiple |
 				xargs "~{csvtkExe}" join --tabs --fields GENE |
 				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |

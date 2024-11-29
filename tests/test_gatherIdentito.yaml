@@ -8,7 +8,7 @@
   files:
     - path: out-miniwdl/out/outFile/all_casIndex.identito.tsv
       should_exist: true
-      md5sum: 5195f41eab8ef7a8a14c76562c7c042e
+      md5sum: af1d4b46094d2545bd86796326f10e12
 
 - name: Gather all identito files to outputPath
   tags:
@@ -18,7 +18,7 @@
   files:
     - path: out-miniwdl/work/tests/gatherIdentito/all_casIndex.identito.tsv
       should_exist: true
-      md5sum: 5195f41eab8ef7a8a14c76562c7c042e  # Should be identical to above test
+      md5sum: af1d4b46094d2545bd86796326f10e12  # Should be identical to above test
 
 - name: Gather single identito
   tags:
@@ -28,4 +28,4 @@
   files:
     - path: out-miniwdl/out/outFile/all_casIndex.identito.tsv
       should_exist: true
-      md5sum: 4a5992f0e45838f866658954c4c40edb
+      md5sum: b02227701978b953ac14b943f6326124
