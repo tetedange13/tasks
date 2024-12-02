@@ -1849,24 +1849,35 @@ task gatherIdentito {
 			mkdir --parents "~{outputPath}"
 		fi
 
+		# If only 1 file --> simply transform it:
 		if [ ~{nb_files} -eq 1 ] ; then
 			cat ~{sep='' filesToGather} |
 				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/1' --replacement 'HTZ' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '1/1' --replacement 'MUT' |
-				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
+				"~{csvtkExe}" transpose --tabs |
+				"~{csvtkExe}" grep \
+									--tabs \
+									--fields GENE \
+									--ignore-case --use-regexp --pattern "^pool" --invert \
+									-o "~{OutFile}"
 
 		else
-			# Then join intermediate files:
-			# MEMO: Use one-liner 'for' to list elements from WDL Array
+			# Otherwise, join input files then transform:
+			# MEMO: Bellow one-liner 'for' is used to list elements from WDL Array
 			for a_file in ~{sep=' ' filesToGather}; do echo $a_file ; done |
 				xargs "~{csvtkExe}" join --tabs --fields GENE |
 				"~{csvtkExe}" replace --tabs --fields -GENE --ignore-case --pattern 'Not Found' --replacement 'WT' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/0' --replacement 'WT' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '0/1' --replacement 'HTZ' |
 				"~{csvtkExe}" replace --tabs --fields -GENE --pattern '1/1' --replacement 'MUT' |
-				"~{csvtkExe}" transpose --tabs -o "~{OutFile}"
+				"~{csvtkExe}" transpose --tabs |
+				"~{csvtkExe}" grep \
+									--tabs \
+									--fields GENE \
+									--ignore-case --use-regexp --pattern "^pool" --invert \
+									-o "~{OutFile}"
 		fi
 	>>>
 

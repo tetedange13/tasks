@@ -20,6 +20,19 @@
       should_exist: true
       md5sum: af1d4b46094d2545bd86796326f10e12  # Should be identical to above test
 
+- name: Gather all identito files with pool samples
+  tags:
+    - task_level
+    - multiple
+    - pools
+  # With Miniwdl, inputs arrays are specified as 'my_array=value_1 my_array=value_2'
+  # -> Use an intermediate input JSON to shorten cmd ?
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/gatherIdentito/common_inputs.json --task gatherIdentito temp.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex1/Metrix/casIndex1.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex2/Metrix/casIndex2.Identito.tsv filesToGather=tests/gatherIdentito/casIndex/casIndex4/Metrix/casIndex4.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/all_casIndex.identito.tsv
+      should_exist: true
+      md5sum: 0ad7ebb7a38926a3f8b302902fd3cea3  # Should be DIFFERENT from above test
+
 - name: Gather single identito
   tags:
     - task_level
@@ -29,3 +42,16 @@
     - path: out-miniwdl/out/outFile/all_casIndex.identito.tsv
       should_exist: true
       md5sum: b02227701978b953ac14b943f6326124
+
+- name: Gather all identito files with pool SINGLE
+  tags:
+    - task_level
+    - multiple
+    - pools
+  # With Miniwdl, inputs arrays are specified as 'my_array=value_1 my_array=value_2'
+  # -> Use an intermediate input JSON to shorten cmd ?
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/gatherIdentito/common_inputs.json --task gatherIdentito temp.wdl filesToGather=tests/gatherIdentito/casIndex/casIndex4/Metrix/casIndex4.Identito.tsv
+  files:
+    - path: out-miniwdl/out/outFile/all_casIndex.identito.tsv
+      should_exist: true
+      md5sum: c6ba6c4b81f4e545036efefae6c61375  # Should be DIFFERENT from above test
