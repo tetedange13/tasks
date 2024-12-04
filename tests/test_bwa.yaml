@@ -22,6 +22,19 @@
       #      -> Should be identical to 'bwa2' one
       # md5sum:  Instead use 'bwa mem special' bellow
 
+- name: Bwa mem minimal args
+  tags:
+    - task_level
+    - mem
+  # Takes 5-6 min to run
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa/mini_inputs.json --task mem bwa.wdl
+  files:
+    - path: out-miniwdl/out/outputFile/test_sample.bam
+      should_exist: true
+      # ENH: Better checksum 'BAM without header' (using 'special_files' functions)
+      #      -> Should be identical to 'bwa2' one
+      # md5sum:  Instead use 'bwa mem special' bellow
+
 - name: Bwa mem special files
   # Checksum BAM without its header
   tags:

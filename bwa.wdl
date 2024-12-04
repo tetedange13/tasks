@@ -95,13 +95,15 @@ task memnosort {
 		File fastqR1
 		File? fastqR2
 
-		File refFasta
-		File refFai
-		File refAmb
-		File refAnn
-		File refBwt
-		File refPac
-		File refSa
+		# MEMO: Used param is bellow:
+		String refFasta  # Kept old name but it is rather a 'BWAindex prefix'
+		# Kept for retro-comp, but are ignored:
+		File? refFai
+		File? refAmb
+		File? refAnn
+		File? refBwt
+		File? refPac
+		File? refSa
 
 		String platformReads = "ILLUMINA"
 
@@ -222,13 +224,15 @@ task mem {
 		File fastqR1
 		File? fastqR2
 
-		File refFasta
-		File refFai
-		File refAmb
-		File refAnn
-		File refBwt
-		File refPac
-		File refSa
+		# MEMO: Used param is bellow:
+		String refFasta  # Kept old name but it is rather a 'BWAindex prefix'
+		# Kept for retro-comp, but are ignored:
+		File? refFai
+		File? refAmb
+		File? refAnn
+		File? refBwt
+		File? refPac
+		File? refSa
 
 		String platformReads = "ILLUMINA"
 
