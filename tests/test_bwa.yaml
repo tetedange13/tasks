@@ -14,7 +14,7 @@
     - task_level
     - mem
   # Takes 5-6 min to run
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa/bwa_inputs.json --task mem bwa.wdl
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa/bwa_inputs.json --task mem bwa.wdl compressionLevel=0
   files:
     - path: out-miniwdl/out/outputFile/test_sample.bam
       should_exist: true
@@ -27,7 +27,7 @@
     - task_level
     - mem
   # Takes 5-6 min to run
-  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa/mini_inputs.json --task mem bwa.wdl
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/bwa/mini_inputs.json --task mem bwa.wdl compressionLevel=0
   files:
     - path: out-miniwdl/out/outputFile/test_sample.bam
       should_exist: true

@@ -239,6 +239,9 @@ task mem {
 		Boolean markShorter = true
 		Int minScore = 30
 
+		# For 'samtools sort':
+		Int compressionLevel = 6
+
 		Int threads = 1
 		Int memoryByThreads = 768
 		String? memory
@@ -266,7 +269,7 @@ task mem {
 			-t ~{threads} \
 			~{refFasta} \
 			~{fastqR1} ~{default="" fastqR2} \
-			| ~{path_exe_samtools} sort -@ ~{threads-1} -m ~{memoryByThreadsMb}M -o ~{OutputFile}
+			| ~{path_exe_samtools} sort -@ ~{threads-1} -m ~{memoryByThreadsMb}M -l ~{compressionLevel} -o ~{OutputFile}
 
 	>>>
 
