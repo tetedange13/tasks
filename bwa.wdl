@@ -268,8 +268,12 @@ task mem {
 			~{true="-M" false="" markShorter} \
 			-t ~{threads} \
 			~{refFasta} \
-			~{fastqR1} ~{default="" fastqR2} \
-			| ~{path_exe_samtools} sort -@ ~{threads-1} -m ~{memoryByThreadsMb}M -l ~{compressionLevel} -o ~{OutputFile}
+			~{fastqR1} ~{default="" fastqR2} |
+				~{path_exe_samtools} sort \
+					-@ ~{threads-1} \
+					-m ~{memoryByThreadsMb}M \
+					-l ~{compressionLevel} \
+					-o ~{OutputFile}
 
 	>>>
 
