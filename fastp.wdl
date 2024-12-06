@@ -108,6 +108,10 @@ task fastp_pe {
 	String outputBase = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 	String FastpJson = "~{outputBase}.fastp.json"
 	String FastpHtml = "~{outputBase}.fastp.html"
+	# MEMO: Fastq processed by fastp are considered as intermediate files:
+	#       -> NOT sent to 'final dir'
+	String FastpR1 = "~{baseName}.R1.fq.gz"
+	String FastpR2 = "~{baseName}.R2.fq.gz"
 
 	command <<<
 
@@ -120,8 +124,8 @@ task fastp_pe {
 			--in2 ~{fastqR2} \
 			~{true="--unpaired1" false="" unpaired1} \
 			~{true="--unpaired2" false="" unpaired2} \
-			--out1 ~{outputBase}.R1.fq.gz \
-			--out2 ~{outputBase}.R2.fq.gz \
+			--out1 "~{FastpR1}" \
+			--out2 "~{FastpR2}" \
 			--report_title ~{baseName} \
 			--json "~{FastpJson}" \
 			--html "~{FastpHtml}" \
@@ -130,8 +134,8 @@ task fastp_pe {
 	>>>
 
 	output {
-		File FastpR1 = "~{outputBase}.R1.fq.gz"
-		File FastpR2 = "~{outputBase}.R2.fq.gz"
+		File FastpR1 = FastpR1
+		File FastpR2 = FastpR2
 		File fastpJson = FastpJson
 		File fastpHtml = FastpHtml
 	}
