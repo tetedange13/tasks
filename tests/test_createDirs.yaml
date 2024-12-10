@@ -1,0 +1,36 @@
+# /!\ Before running tests: put tasks 'CreateCIDir' and 'CreateParentDir' (from Exome.wdl) in a 'temp.wdl file
+
+- name: CreateParentDir
+  tags:
+    - task_level
+    - parent
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/createdirs/common_inputs.json --task CreateParentDir temp.wdl parent=A161161
+  exit_code: 2  # MiniWDL does NOT allow subdirs in 'work' -> will always return error (see: https://github.com/chanzuckerberg/miniwdl/issues/214)
+  files:
+  # Task produce symlinks of FASTQ + specific (empty) directories tree:
+    - path: out-miniwdl/work/out-cromwell/Parent/A161161/A161161.R1.fastq.gz
+      should_exist: true
+      md5sum: adf575f603040535a6021d7ba6fb13ab
+    - path: out-miniwdl/work/out-cromwell/Parent/A161161/A161161.R2.fastq.gz
+      should_exist: true
+      md5sum: 5e367b3dca4247d13f8938b3461d4309
+    - path: out-miniwdl/work/out-cromwell/Parent/A161161/Metrix
+    - path: out-miniwdl/work/out-cromwell/Parent/A161161/Alignement
+
+- name: CreateCIDir
+  tags:
+    - task_level
+    - casIndex
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/createdirs/common_inputs.json --task CreateCIDir temp.wdl CI=A161161 CI=dontCareDad CI=dontCareMum
+  exit_code: 2  # MiniWDL does NOT allow subdirs in 'work' -> will always return error (see: https://github.com/chanzuckerberg/miniwdl/issues/214)
+  files:
+  # Task produce symlinks of FASTQ + specific (empty) directories tree:
+    - path: out-miniwdl/work/out-cromwell/casIndex/A161161/A161161.R1.fastq.gz
+      should_exist: true
+      md5sum: adf575f603040535a6021d7ba6fb13ab
+    - path: out-miniwdl/work/out-cromwell/casIndex/A161161/A161161.R2.fastq.gz
+      should_exist: true
+      md5sum: 5e367b3dca4247d13f8938b3461d4309    
+    - path: out-miniwdl/work/out-cromwell/casIndex/A161161/Metrix
+    - path: out-miniwdl/work/out-cromwell/casIndex/A161161/Alignement
+    - path: out-miniwdl/work/out-cromwell/casIndex/A161161/VCFs  # This one is specific to 'casIndex'
