@@ -101,12 +101,15 @@ task interop2stats {
 	String OutFile = "~{outputPath}/sequencing.interop.tsv"
 
 	command <<<
-		set -xeou pipefail
+		set -xeuo pipefail
+
+		# Use 'ls' there, to solve possible wildcards in seqDir:
+		solvedPath=$(ls -d ~{seqDir})
 
 		# MEMO: If NO 'InterOp' dir -> exit WITHOUT error
 		#       Cuz probably a 'test' run, or a 'synthetic' one (= with FastQ from different runs)
-		if [[ ! -d "~{seqDir}/InterOp" ]] ; then
-			echo "WARNING: '~{seqDir}/InterOp' dir NOT FOUND -> Skip 'interop2stats' step"
+		if [[ ! -d "${solvedPath}/InterOp" ]] ; then
+			echo "WARNING: '${solvedPath}/InterOp' dir NOT FOUND -> Skip 'interop2stats' step"
 			exit
 		fi
 
@@ -116,14 +119,14 @@ task interop2stats {
 			mkdir --parents "~{outputPath}"
 		fi
 
-		# Edit script to set correct exe for (a bit dirty):
+		# Edit script to use exe defined as task inputs (a bit dirty):
 		tmpScript=./stats_exome.sh
 		sed \
 			-e 's|csvtkExe=.*|csvtkExe="~{csvtkExe}"|' \
 			-e 's|interopExe=.*|interopExe="~{interopExe}"|' \
 			"~{path_exe}" > "$tmpScript"
 
-		bash "$tmpScript" "~{seqDir}" > "~{OutFile}"
+		bash "$tmpScript" "${solvedPath}" > "~{OutFile}"
 	>>>
 
 	output {
