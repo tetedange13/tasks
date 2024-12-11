@@ -88,6 +88,30 @@
     - path: out-miniwdl/work/out-cromwell/Parent/HG002/Metrix
     - path: out-miniwdl/work/out-cromwell/Parent/HG002/Alignement
 
+- name: CreateParentDir seqDir collision
+  # 2 sequencing runs at date '241025' (on 2 different NextSeq)
+  tags:
+    - task_level
+    - parent
+    - collision
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --task CreateParentDir temp.wdl FastqDir=/mnt/chu-ngs/NEXTSEQ/runs/241025*/FastQs parent=CAD240548 RunName=out-cromwell
+  exit_code: 2  # MiniWDL does NOT allow subdirs in 'work' -> will always return error (see: https://github.com/chanzuckerberg/miniwdl/issues/214)
+  files:
+  # Task produce symlinks of FASTQ + specific (empty) directories tree:
+    - path: out-miniwdl/work/out-cromwell/Parent/CAD240548/CAD240548.R1.fastq.gz
+      should_exist: true
+      md5sum: edd627e47b4a966cdf49390aea9a720c
+    - path: out-miniwdl/work/out-cromwell/Parent/CAD240548/CAD240548.R2.fastq.gz
+      should_exist: true
+      md5sum: a99b7f253c56e522b819d1c6ad303a9f
+    - path: out-miniwdl/work/out-cromwell/Parent/CAD240548/Metrix
+    - path: out-miniwdl/work/out-cromwell/Parent/CAD240548/Alignement
+
+# - name: CreateParentDir seqDir same date and sampleName collision
+# Hypothetical scenario with same sample sequenced on 2 sequencers at same date
+# -> Should result in 'ln: target' ERROR, as glob will expand in 2 possibilities
+# -> Not very likely to happen ? (and if so: skip automation and specify FastqDir ?)
+
 - name: CreateCIDir
   tags:
     - task_level
