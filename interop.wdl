@@ -103,12 +103,14 @@ task interop2stats {
 	command <<<
 		set -xeou pipefail
 
-		if [[ ! -d "~{seqDir}" ]] ; then
-			# If NO 'InterOp' dir at all -> exit without error
-			# Cuz probably a 'test' run, or a 'synthetic' one (= with FastQ from different runs)
-			echo "WARNING: '~{seqDir}' dir NOT FOUND"
+		# MEMO: If NO 'InterOp' dir -> exit WITHOUT error
+		#       Cuz probably a 'test' run, or a 'synthetic' one (= with FastQ from different runs)
+		if [[ ! -d "~{seqDir}/InterOp" ]] ; then
+			echo "WARNING: '~{seqDir}/InterOp' dir NOT FOUND -> Skip 'interop2stats' step"
 			exit
 		fi
+
+		# ELSE: Let script handle possible errors:
 
 		if [[ ! -d "~{outputPath}" ]]; then
 			mkdir --parents "~{outputPath}"
@@ -121,20 +123,7 @@ task interop2stats {
 			-e 's|interopExe=.*|interopExe="~{interopExe}"|' \
 			"~{path_exe}" > "$tmpScript"
 
-		# First send to a temp file:
-		tmpOut=out.tsv
-		set +e  # CRUCIAL
-		bash "$tmpScript" "~{seqDir}" > "$tmpOut"
-		# WARN: In case of 'not valid for InterOP':
-		#       -> Script should return a non-0 exit code
-		#       -> But task should allow that (for external FASTQ without InterOp)
-		if [[ ! -s "$tmpOut" ]] ; then
-			echo "WARN: Script exited with error -> IGNORE IT"
-			echo "(mostly due to invalid 'InterOp' dir. See stderr for details)"
-			exit
-		fi
-		# And if no error, move it as outFile:
-		mv --verbose "$tmpOut" "~{OutFile}"
+		bash "$tmpScript" "~{seqDir}" > "~{OutFile}"
 	>>>
 
 	output {
