@@ -3763,8 +3763,8 @@ task CollectHsMetrics {
 }
 
 task CreateSequenceGroupingTSV {
-# Task taken from 'GATK best practice pipeline'
-# https://github.com/gatk-workflows/gatk4-data-processing/blob/c44603c464fe3cb7d9b82da2a95f844fdeb20e3c/processing-for-variant-discovery-gatk4.wdl#L501C1-L558C2
+	# Task taken from 'GATK best practice pipeline'
+	# https://github.com/gatk-workflows/gatk4-data-processing/blob/c44603c464fe3cb7d9b82da2a95f844fdeb20e3c/processing-for-variant-discovery-gatk4.wdl#L501C1-L558C2
  input {
     File refDict 
 
@@ -3828,4 +3828,135 @@ task CreateSequenceGroupingTSV {
     Array[Array[String]] sequence_grouping = read_tsv("sequence_grouping.txt")
     Array[Array[String]] sequence_grouping_with_unmapped = read_tsv("sequence_grouping_with_unmapped.txt")
   }
+}
+
+task variantAnnotator {
+	meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-12-16"
+	}
+
+	input {
+		String path_exe = "gatk"
+
+		File in
+		File? idx
+		String? outputPath
+		String? name
+		String subString = "\.(vcf|bcf)$"
+		String suffix = ".sort"
+		String ext = ".vcf"
+
+		## Annotation
+		File dbsnp
+		File dbsnpIdx
+
+		## output
+		Boolean createVCFIdx = true
+		Boolean createVCFMD5 = true
+
+		Int threads = 1
+		Int memoryByThreads = 768
+		String? memory
+	}
+
+	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
+	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
+	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
+	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
+	Int memoryByThreadsMb = floor(totalMemMb/threads)
+
+	String extOut = if defined(ext) then ext else sub(basename(in),"(.*)(\.vcf|\.bcf)$","$2")
+	String baseName = if defined(name) then name else sub(basename(in),subString,"")
+	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{suffix}~{extOut}" else "~{baseName}~{suffix}~{extOut}"
+
+	command <<<
+
+		if [[ ! -d $(dirname ~{outputFile}) ]]; then
+			mkdir -p $(dirname ~{outputFile})
+		fi
+
+		~{path_exe} VariantAnnotator \
+			--variant ~{in} \
+			--dbsnp ~{dbsnp} \
+			~{true="--create-output-variant-index" false="" createVCFIdx} \
+			~{true="--create-output-variant-md5" false="" createVCFMD5} \
+			--output ~{outputFile}
+	>>>
+
+	output {
+		File outputFile = outputFile
+		File? outputFileIdx = outputFile + ".idx"
+		File? outputFileMD5 = outputFile + ".md5"
+	}
+
+	runtime {
+		cpu: "~{threads}"
+		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+	}
+
+	parameter_meta {
+		path_exe: {
+			description: 'Path used as executable [default: "gatk"]',
+			category: 'System'
+		}
+		in: {
+			description: 'BAM file.',
+			category: 'Required'
+		}
+		idx: {
+			description: 'Index of the BAM file.',
+			category: 'Required'
+		}
+		outputPath: {
+			description: 'Output path where files will be generated.',
+			category: 'Output path/name option'
+		}
+		name: {
+			description: 'Output file name [default: base on the input file].',
+			category: 'Output path/name option'
+		}
+		subString: {
+			description: 'Extension to remove from the input file [default: "\.(vcf|bcf)$"]',
+			category: 'Output path/name option'
+		}
+		suffix: {
+			description: 'Suffix to add for the output file (e.g sample.suffix.bam)[default: ".sort"]',
+			category: 'Output path/name option'
+		}
+		ext: {
+			description: 'Extension for the output file [default: ".recal"]',
+			category: 'Output path/name option'
+		}
+		dbsnp: {
+			description: 'Path to the file containing dbsnp (format: vcf)',
+			category: 'Option: Annotation'
+		}
+		dbsnpIdx: {
+			description: 'Path to the index of dbsnp file (format: tbi)',
+			category: 'Option: Annotation'
+		}
+		createVCFIdx: {
+			description: 'If true, create a VCF index when writing a coordinate-sorted VCF file. [Default: true]',
+			category: 'Option: output'
+		}
+		createVCFMD5: {
+			description: 'If true, create a a MD5 digest any VCF file created. [Default: true]',
+			category: 'Option: output'
+		}
+		threads: {
+			description: 'Sets the number of threads [default: 1]',
+			category: 'System'
+		}
+		memory: {
+			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			category: 'System'
+		}
+		memoryByThreads: {
+			description: 'Sets the total memory to use (in M) [default: 768]',
+			category: 'System'
+		}
+	}
 }
