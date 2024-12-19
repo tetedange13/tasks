@@ -91,6 +91,9 @@ task extract {
 		String refFasta
 		File bamFile
 		File bamIdx  # Somalier requires BAM to be indexed
+		String ext = ".bam"
+		# MEMO: Somalier always name '.somalier' from BAM ReadGroup tag -> use bellow param if needed:
+		String sampleName = basename(bamFile, ext)
 		String outputPath = "./"
 
 		Int threads = 1
@@ -103,9 +106,6 @@ task extract {
 	Int memoryValue = sub(totalMem, "M|G", "")
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
-
-	# ENH: Define Outfile correctly (sample.bam -> sample.somalier)
-	#      And define it in 'output' section
 
 	command <<<
 		set -eou pipefail
@@ -122,7 +122,7 @@ task extract {
 	>>>
 
 	output {
-		File file = "~{outputPath}/" + basename(bamFile, ".bam") + ".somalier"
+		File file = "~{outputPath}/" + sampleName + ".somalier"
 	}
 
 	runtime {
