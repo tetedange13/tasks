@@ -498,9 +498,9 @@ task printSoftVersion {
 		if [[ ! -d $(dirname ~{outFile}) ]]; then
 			mkdir -p $(dirname ~{outFile})
 		fi
-		date ~{to} ~{outFile}
-		echo -e "~{sep='\n---\n' Soft}" >> ~{outFile}
+		echo -e "~{sep='\n---\n' Soft}" ~{to} ~{outFile}
 		echo "----" >> ~{outFile}
+		date >> ~{outFile}
 	>>>
 
 	output {
