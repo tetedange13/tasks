@@ -62,3 +62,20 @@
     - path: out-miniwdl/out/outFile/sequencing.interop.tsv
       should_exist: true
       md5sum: 7be6cd5fc6e23ec7c2909d9fcdb057dc
+
+- name: Stats2interop NextSeq some NoCalls
+  # Run with some cycles at 'NoCalls > 50' -> should not break output
+  tags:
+    - task_level
+    - interop
+    - relative
+    - wildcard
+    - noCalls
+  command: miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/sing.cfg --input tests/interop/common_inputs.json --task interop2stats interop.wdl seqDir=/mnt/chu-ngs/NEXTSEQ/runs/250224*/FastQs/../
+  files:
+    - path: out-miniwdl/out/outFile/sequencing.interop.tsv
+      should_exist: true
+      md5sum: 732efe3bbdacd54746bb4d433bbfff46
+  stderr:
+    contains:
+      - "Removed './250224_NB501631_0290_AHKKCLBGYW-noCalls.tmp'"
