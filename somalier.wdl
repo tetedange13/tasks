@@ -87,7 +87,7 @@ task extract {
 		#       -> Use local file instead
 		# WARN2: Once extracted, '.somalier' files are genome-build-agnostic
 		#       See 'sites files' section of release
-		File sites = "/mnt/chu-ngs/refData/igenomes/Homo_sapiens/GATK/GRCh37/Annotation/Somalier/sites.hg19.vcf.gz"
+		File sites
 		String refFasta
 		File bamFile
 		File bamIdx  # Somalier requires BAM to be indexed
