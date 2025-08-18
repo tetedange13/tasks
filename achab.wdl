@@ -474,7 +474,7 @@ task postProcess {
 
   output {
     File outAchabMetrix = OutAchabMetrix
-    File outAchabPoorCovMetrix = OutAchabPoorCovMetrix
+    File? outAchabPoorCovMetrix = OutAchabPoorCovMetrix
   }
 
   runtime {

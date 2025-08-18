@@ -260,7 +260,7 @@ task computePoorCoverageExtended {
 
 		File BamFile
 		File intervalBedFile
-		String PoorCoverageFileFolder
+		String? PoorCoverageFileFolder
 		File CoverageFile
 
 		Int BedtoolsLowCoverage = 10
