@@ -48,7 +48,7 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}
@@ -140,7 +140,7 @@ task sort {
 
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{refFasta}"
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}

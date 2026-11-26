@@ -74,7 +74,7 @@ task findFiles {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -186,7 +186,7 @@ task convertBedToIntervals {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -274,7 +274,7 @@ task makeLink {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -368,7 +368,7 @@ task concatenateFiles {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -499,7 +499,7 @@ task wget {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -656,7 +656,7 @@ task gzip {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -757,7 +757,7 @@ task sortgtf {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -842,7 +842,7 @@ task fai2bed {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -962,7 +962,7 @@ task nanoVar2Bed {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -1033,7 +1033,7 @@ task bed2Array {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -1088,7 +1088,7 @@ task bedPrimer2woutPrimer {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -1159,7 +1159,7 @@ task getColumn {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -1263,7 +1263,7 @@ task filterBEDOnName {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 
@@ -1351,7 +1351,7 @@ task computePoorCoverage {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 }
@@ -1403,7 +1403,7 @@ task computeCoverage {
 		File TsvCoverageFile = "~{outputFile}"
 	}
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 }
@@ -1470,7 +1470,7 @@ task computePoorCoverageExtended {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 	parameter_meta {
@@ -1567,7 +1567,7 @@ task computeCoverageClamms {
 		File ClammsCoverageFile = "~{outputFile}"
 	}
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 }
@@ -1622,7 +1622,7 @@ task BamReadByChromosomes {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 }
@@ -1668,7 +1668,7 @@ task printStringtoFile {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 }
@@ -1715,7 +1715,7 @@ task printSoftVersion {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 }
@@ -1746,7 +1746,7 @@ task mkDir {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreads}"
 	}
 
@@ -1793,7 +1793,7 @@ task rm_files {
 	>>>
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreads}"
 	}
 
@@ -1852,7 +1852,7 @@ task suffixArray {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}

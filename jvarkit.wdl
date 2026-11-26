@@ -48,7 +48,7 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}
@@ -145,7 +145,7 @@ task vcfpolyx {
 
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}"
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}

@@ -48,7 +48,7 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}
@@ -177,7 +177,7 @@ task norm {
 
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}
@@ -377,7 +377,7 @@ task view {
 
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}
@@ -534,7 +534,7 @@ task sort {
 
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" 
-		cpu: "~{threads}"
+		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 		docker: "~{apptainer_img}"
 	}
