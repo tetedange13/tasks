@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "fastp"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
         String apptainer_img = "fastp:1.3.6"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version
@@ -49,7 +43,7 @@ task get_version {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
         container: "~{apptainer_img}"
 	}
 
@@ -101,16 +95,10 @@ task fastp {
 		Boolean unpaired2 = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
         String apptainer_img = "fastp:1.3.6"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(sample) then sample else sub(basename(fastqR1),subString,subStringReplace)
 	String outputBase = "~{outputPath}/~{subdir}/~{baseName}"
@@ -144,7 +132,7 @@ task fastp {
 	runtime {
         bind_opt: "~{outputPath}/~{subdir}" + "," + "~{fastqR1}" + "," + "~{fastqR2}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
         container: "~{apptainer_img}"
 	}
 

@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "sambamba"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "sambamba:1.0.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version 2>&1 | head -2 | tail -1
@@ -49,7 +43,7 @@ task get_version {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -104,16 +98,10 @@ task markdup {
 		Int? bufferSize
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "sambamba:1.0.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\\.bam|\\.sam|\\.cram)","")
 	String outputBam = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam"
@@ -146,7 +134,7 @@ task markdup {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "~{default='' ',' + tempDir}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -244,16 +232,10 @@ task sort {
 		String? tempDir
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "sambamba:1.0.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\\.bam|\\.sam|\\.cram)","")
 	String outputFile = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam"
@@ -285,7 +267,7 @@ task sort {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "~{default='' ',' + tempDir}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 

@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "jvarkit"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "jvarkit:2026.04.30"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		echo "jvarkit $(~{path_exe} --version)"
@@ -49,7 +43,7 @@ task get_version {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -106,16 +100,10 @@ task vcfpolyx {
 
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "jvarkit:2026.04.30"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String ext = if bcf then ".bcf" else ".vcf"
 
@@ -146,7 +134,7 @@ task vcfpolyx {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 

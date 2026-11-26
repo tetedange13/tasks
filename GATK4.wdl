@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "gatk"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "GATK4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version | head -4 | tail -1
@@ -49,7 +43,7 @@ task get_version {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -106,16 +100,10 @@ task splitIntervals {
 		Boolean intersectionRule = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name else sub(basename(bed),subString,subStringReplace)
 	String outputRep = "~{outputPath}/~{subdir}/~{baseName}"
@@ -145,7 +133,7 @@ task splitIntervals {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{bed}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -269,16 +257,10 @@ task baseRecalibrator {
 		Boolean intersectionRule = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(bed) then bed else ""
 	String baseIntervals = if defined(bed) then sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
@@ -318,7 +300,7 @@ task baseRecalibrator {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + bed}" + "," + "~{sep=',' knownSites}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -450,16 +432,10 @@ task gatherBQSRReports {
 		String ext = ".bqsr.report"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String firstFile = basename(reports[0])
 	String baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
@@ -484,7 +460,7 @@ task gatherBQSRReports {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{sep=',' reports}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -579,16 +555,10 @@ task applyBQSR {
 		Boolean bamMD5 = true
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String baseIntervals = if defined(intervals) then "." + sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
@@ -630,7 +600,7 @@ task applyBQSR {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "," + "~{bqsrReport}" + "~{default='' ',' + intervals}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -778,16 +748,10 @@ task leftAlignIndels {
 		Boolean bamMD5 = true
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),"([0-9]+)-scattered.interval_list","\\.$1") else ""
@@ -825,7 +789,7 @@ task leftAlignIndels {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + intervals}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -956,16 +920,10 @@ task haplotypeCaller {
 		String smithAndWaterman = "FASTEST_AVAILABLE"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String getIntervalsBase = if defined(intervals) then sub(basename(baseNameIntervals),subStringIntervals,subStringReplaceIntervals) else ""
@@ -1008,7 +966,7 @@ task haplotypeCaller {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + intervals}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -1149,16 +1107,10 @@ task gatherVcfs {
 		Boolean reorder = true
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String firstFile = basename(vcfs[0])
 	String baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
@@ -1185,7 +1137,7 @@ task gatherVcfs {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcfs}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -1265,16 +1217,10 @@ task splitVcfs {
 		Int max_records  = 500000
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputIndels = "~{outputPath}/~{subdir}/~{baseName}.indels.vcf"
@@ -1305,7 +1251,7 @@ task splitVcfs {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -1390,16 +1336,10 @@ task variantFiltration  {
 		Array[Pair[String, String]] filters
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputVcf = "~{outputPath}/~{subdir}/~{baseName}.vcf"
@@ -1439,7 +1379,7 @@ task variantFiltration  {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -1515,16 +1455,10 @@ task mergeVcfs  {
 		String suffix = ".merge"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name else sub(basename(vcfs[0]),subString,subStringReplace)
 	String outputVcf = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.vcf"
@@ -1547,7 +1481,7 @@ task mergeVcfs  {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{sep=',' vcfs}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 

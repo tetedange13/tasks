@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "samtools"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "samtools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version | head -1
@@ -49,7 +43,7 @@ task get_version {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -101,16 +95,10 @@ task sort {
 		File? refFasta
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "samtools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name else sub(basename(bam),"(\\.sam|\\.bam|\\.cram)","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.~{format}"
@@ -141,7 +129,7 @@ task sort {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{refFasta}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 

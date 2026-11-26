@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "deepvariant"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "deepvariant:1.9.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version
@@ -49,7 +43,7 @@ task get_version {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 		queue: "avx"
 	}
@@ -109,16 +103,10 @@ task deepvariant {
 		String model = "WES"
 
 		Int threads = 12
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "deepvariant:1.9.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseName = if defined(name) then name else sub(basename(bam),"\\.(bam|cram)$","")
 	String ext = if gunzip then ".vcf.gz" else ".vcf"
@@ -147,7 +135,7 @@ task deepvariant {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{bam}" + "~{default='' ',' + bed}"
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 		queue: "avx"  ## https://cromwell.readthedocs.io/en/latest/RuntimeAttributes/
 	}

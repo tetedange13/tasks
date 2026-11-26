@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "bcftools"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version | head -1
@@ -49,7 +43,7 @@ task get_version {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -118,16 +112,10 @@ task norm {
 		Int siteWin = 1000
 
 		Int threads = 12
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	Map[String,String] extType = {"v" : ".vcf", "u" : ".bcf", "z" : ".vcf.gz", "b" : ".bcf.gz"}
 	Map[String,String] idxType = {"v" : "", "u" : "csi", "z" : "tbi", "b" : "csi"}
@@ -178,7 +166,7 @@ task norm {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -326,16 +314,10 @@ task view {
 		String? include
 
 		Int threads = 12
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	Map[String,String] extType = {"v" : ".vcf", "u" : ".bcf", "z" : ".vcf.gz", "b" : ".bcf.gz"}
 	Map[String,String] idxType = {"v" : "", "u" : "csi", "z" : "tbi", "b" : "csi"}
@@ -378,7 +360,7 @@ task view {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
@@ -490,16 +472,10 @@ task sort {
 		String outputType = "z"
 
 		Int threads = 12
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	Map[String,String] extType = {"v" : ".vcf", "u" : ".bcf", "z" : ".vcf.gz", "b" : ".bcf.gz"}
 	Map[String,String] idxType = {"v" : "", "u" : "csi", "z" : "tbi", "b" : "csi"}
@@ -521,7 +497,6 @@ task sort {
 		~{path_exe} sort \
 			--output-type ~{outputType} \
 			~{true="-W" false="" index}~{idxFmt} \
-			-m ~{totalMem} \
 			--output ~{outputFile} \
 			~{vcf}
 
@@ -535,7 +510,7 @@ task sort {
 	runtime {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" 
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
 	}
 
