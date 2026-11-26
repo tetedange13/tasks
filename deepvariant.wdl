@@ -120,7 +120,7 @@ task deepvariant {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(bam),"\.(bam|cram)$","")
+	String baseName = if defined(name) then name else sub(basename(bam),"\\.(bam|cram)$","")
 	String ext = if gunzip then ".vcf.gz" else ".vcf"
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
@@ -174,7 +174,7 @@ task deepvariant {
 			category: 'Output path/name option'
 		}
 		name: {
-			description: 'Output file base name [default: sub(basename(bam),"\.(bam|cram)$","")].',
+			description: 'Output file base name [default: sub(basename(bam),"\\.(bam|cram)$","")].',
 			category: 'Output path/name option'
 		}
 		suffix: {

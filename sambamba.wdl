@@ -115,7 +115,7 @@ task markdup {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\.bam|\.sam|\.cram)","")
+	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\\.bam|\\.sam|\\.cram)","")
 	String outputBam = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam"
 	String outputBai = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam.bai"
 
@@ -164,7 +164,7 @@ task markdup {
 			category: 'Output path/name option'
         }
 		sample: {
-			description: 'Sample name to use for output file name [default: sub(basename(in),"(\.bam|\.sam|\.cram)","")]',
+			description: 'Sample name to use for output file name [default: sub(basename(in),"(\\.bam|\\.sam|\\.cram)","")]',
 			category: 'Output path/name option'
 		}
 		bam: {
@@ -255,7 +255,7 @@ task sort {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\.bam|\.sam|\.cram)","")
+	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\\.bam|\\.sam|\\.cram)","")
 	String outputFile = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam"
 
 	command <<<
@@ -303,7 +303,7 @@ task sort {
 			category: 'Output path/name option'
         }
 		sample: {
-			description: 'Sample name to use for output file name [default: sub(basename(in),"(\.bam|\.sam|\.cram)","")]',
+			description: 'Sample name to use for output file name [default: sub(basename(in),"(\\.bam|\\.sam|\\.cram)","")]',
 			category: 'Output path/name option'
 		}
 		bam: {

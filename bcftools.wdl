@@ -92,7 +92,7 @@ task norm {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf|bcf)(\.gz)?$"
+		String subString = "\\.(vcf|bcf)(\\.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".norm"
 
@@ -200,7 +200,7 @@ task norm {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.(vcf|bcf)(\.gz)?$"]',
+			description: 'Extension to remove from the input file [default: "\\.(vcf|bcf)(\\.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -309,7 +309,7 @@ task view {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf|bcf)(\.gz)?$"
+		String subString = "\\.(vcf|bcf)(\\.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".view"
 
@@ -400,7 +400,7 @@ task view {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.(vcf|bcf)(\.gz)?$"]',
+			description: 'Extension to remove from the input file [default: "\\.(vcf|bcf)(\\.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -477,7 +477,7 @@ task sort {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf|bcf)(\.gz)?$"
+		String subString = "\\.(vcf|bcf)(\\.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".sort"
 
@@ -557,7 +557,7 @@ task sort {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.(vcf|bcf)(\.gz)?$"]',
+			description: 'Extension to remove from the input file [default: "\\.(vcf|bcf)(\\.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {

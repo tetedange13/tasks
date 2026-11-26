@@ -810,7 +810,7 @@ task fai2bed {
 		String in
 		String? outputPath
 		String? name
-		String subString = "\.?(fa)?(sta)?\.fai$"
+		String subString = "\\.?(fa)?(sta)?\\.fai$"
 		String subStringReplace = ".bed"
 
 		Int threads = 1
@@ -860,7 +860,7 @@ task fai2bed {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to remove to create name file [default: "\.?(fa)?(sta)?\.fai$"]',
+			description: 'Substring to remove to create name file [default: "\\.?(fa)?(sta)?\\.fai$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -894,7 +894,7 @@ task nanoVar2Bed {
 		File inputNanovar
 		String? outputPath
 		String? name
-		String subString = "\.tsv$"
+		String subString = "\\.tsv$"
 		String subStringReplace = "_igv_sorted.bed"
 
 		Int threads = 1
@@ -980,7 +980,7 @@ task nanoVar2Bed {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to remove to create name file [default: "\.tsv$"]',
+			description: 'Substring to remove to create name file [default: "\\.tsv$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1329,7 +1329,7 @@ task computePoorCoverage {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\.(sam|bam|cram)$","$1")
+	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
@@ -1441,7 +1441,7 @@ task computePoorCoverageExtended {
 		String? memory
 	}
 
-	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\.(sam|bam|cram)$","$1")
+	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
@@ -1603,7 +1603,7 @@ task BamReadByChromosomes {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(in),"(.*)\.(sam|bam|cram)$","$1")
+	String baseName = if defined(name) then name else sub(basename(in),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<

@@ -92,7 +92,7 @@ task splitIntervals {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.([a-zA-Z]*)$"
+		String subString = "\\.([a-zA-Z]*)$"
 		String subStringReplace = "-split"
 
 		File refFasta
@@ -167,11 +167,11 @@ task splitIntervals {
 			category: 'Output path/name option'
 		}
 		name: {
-			description: 'Output repertory name [default: sub(basename(in),"\.([a-zA-Z]*)$","")].',
+			description: 'Output repertory name [default: sub(basename(in),"\\.([a-zA-Z]*)$","")].',
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.([a-zA-Z]*)$"]',
+			description: 'Extension to remove from the input file [default: "\\.([a-zA-Z]*)$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -283,7 +283,7 @@ task baseRecalibrator {
 	String baseNameIntervals = if defined(bed) then bed else ""
 	String baseIntervals = if defined(bed) then sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"\.(sam|bam|cram)$","")
+	String baseName = if defined(name) then name else sub(basename(bam),"\\.(sam|bam|cram)$","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}.~{baseIntervals}~{ext}"
 
 	command <<<
@@ -352,7 +352,7 @@ task baseRecalibrator {
 			category: 'Output path/name option'
 		}
 		name: {
-			description: 'Output file base name [default: sub(basename(in),"\.(sam|bam|cram)$","")].',
+			description: 'Output file base name [default: sub(basename(in),"\\.(sam|bam|cram)$","")].',
 			category: 'Output path/name option'
 		}
 		ext: {
@@ -445,7 +445,7 @@ task gatherBQSRReports {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "(\.[0-9]+)?\.recal$"
+		String subString = "(\\.[0-9]+)?\\.recal$"
 		String subStringReplace = ""
 		String ext = ".bqsr.report"
 
@@ -514,7 +514,7 @@ task gatherBQSRReports {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "(\.[0-9]+)?\.recal$"]',
+			description: 'Extension to remove from the input file [default: "(\\.[0-9]+)?\\.recal$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -593,9 +593,9 @@ task applyBQSR {
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String baseIntervals = if defined(intervals) then "." + sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(.*)\.(sam|bam|cram)$","$1")
-	String ext = sub(basename(bam),"(.*)\.(sam|bam|cram)$","$2")
-	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\.~{ext}"
+	String baseName = if defined(name) then name else sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$1")
+	String ext = sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$2")
+	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\\.~{ext}"
 	String outputBaiFile = sub(outputBamFile,"(m)$","i")
 
 	command <<<
@@ -790,11 +790,11 @@ task leftAlignIndels {
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(intervals) then intervals else ""
-	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),"([0-9]+)-scattered.interval_list","\.$1") else ""
+	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),"([0-9]+)-scattered.interval_list","\\.$1") else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(\.[0-9]+)?\.(sam|bam|cram)$","")
-	String ext = sub(basename(bam),"(.*)\.(sam|bam|cram)$","$2")
-	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\.~{ext}"
+	String baseName = if defined(name) then name else sub(basename(bam),"(\\.[0-9]+)?\\.(sam|bam|cram)$","")
+	String ext = sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$2")
+	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\\.~{ext}"
 	String outputBaiFile = sub(outputBamFile,"(m)$","i")
 
 	command <<<
@@ -925,7 +925,7 @@ task haplotypeCaller {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.(sam|bam|cram)$"
+		String subString = "\\.(sam|bam|cram)$"
 		String subStringReplace = ".haplotypeCaller.vcf"
 		String subStringIntervals = "([0-9]+)-scattered.interval_list$"
 		String subStringReplaceIntervals = ".$1"
@@ -1030,7 +1030,7 @@ task haplotypeCaller {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(sam|bam|cram)$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(sam|bam|cram)$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1143,7 +1143,7 @@ task gatherVcfs {
 		String? outputPath
 		String subdir = ""
 		String? name
-		String subString = "([a-zA-Z0-9_-]+)(\.[0-9]{4})?(\.[0-9a-zA-Z_-]+)?\.(vcf)(.gz)?$"
+		String subString = "([a-zA-Z0-9_-]+)(\\.[0-9]{4})?(\\.[0-9a-zA-Z_-]+)?\\.(vcf)(.gz)?$"
 		String subStringReplace = "$1$3.gather"
 
 		Boolean reorder = true
@@ -1211,7 +1211,7 @@ task gatherVcfs {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "(\.[0-9]+)?(\.[a-zA-Z_-]+)?\.(vcf)$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "(\\.[0-9]+)?(\\.[a-zA-Z_-]+)?\\.(vcf)$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1257,7 +1257,7 @@ task splitVcfs {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf)(.gz)?$"
+		String subString = "\\.(vcf)(.gz)?$"
 		String subStringReplace = ""
 
 		Boolean strict = true
@@ -1331,7 +1331,7 @@ task splitVcfs {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(vcf)(.gz)?$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(vcf)(.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1384,7 +1384,7 @@ task variantFiltration  {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf)(.gz)?$"
+		String subString = "\\.(vcf)(.gz)?$"
 		String subStringReplace = ".filter"
 
 		Array[Pair[String, String]] filters
@@ -1465,7 +1465,7 @@ task variantFiltration  {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(vcf)(.gz)?$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(vcf)(.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1510,7 +1510,7 @@ task mergeVcfs  {
 		String outputPath
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf)(.gz)?$"
+		String subString = "\\.(vcf)(.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".merge"
 
@@ -1573,7 +1573,7 @@ task mergeVcfs  {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(vcf)(.gz)?$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(vcf)(.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {

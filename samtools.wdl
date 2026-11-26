@@ -112,7 +112,7 @@ task sort {
 	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
 	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(\.sam|\.bam|\.cram)","")
+	String baseName = if defined(name) then name else sub(basename(bam),"(\\.sam|\\.bam|\\.cram)","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.~{format}"
 
 	command <<<
@@ -159,7 +159,7 @@ task sort {
 			category: 'Output path/name option'
         }
 		name: {
-			description: 'Name to use for output file name [default: sub(basename(in),"(\.bam|\.sam|\.cram)","")]',
+			description: 'Name to use for output file name [default: sub(basename(in),"(\\.bam|\\.sam|\\.cram)","")]',
 			category: 'Tool option'
 		}
 		bam: {
