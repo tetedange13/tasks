@@ -60,10 +60,6 @@ task get_version {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: fastp:1.3.6]',
 			category: 'System'
@@ -183,10 +179,6 @@ task fastp {
 		}
 		memory: {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 		apptainer_img: {

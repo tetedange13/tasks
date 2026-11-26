@@ -60,10 +60,6 @@ task get_version {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: bcftools:1.23.1]',
 			category: 'System'
@@ -271,10 +267,6 @@ task norm {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: bcftools:1.23.1]',
 			category: 'System'
@@ -433,10 +425,6 @@ task view {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: bcftools:1.23.1]',
 			category: 'System'
@@ -553,10 +541,6 @@ task sort {
 		}
 		memory: {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 		apptainer_img: {

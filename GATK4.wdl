@@ -60,10 +60,6 @@ task get_version {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: GATK4:4.6.2.0]',
 			category: 'System'
@@ -204,10 +200,6 @@ task splitIntervals {
 		}
 		memory: {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -401,10 +393,6 @@ task baseRecalibrator {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: gatk4:4.6.2.0]',
 			category: 'System'
@@ -503,10 +491,6 @@ task gatherBQSRReports {
 		}
 		memory: {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -705,10 +689,6 @@ task applyBQSR {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: gatk4:4.6.2.0]',
 			category: 'System'
@@ -860,10 +840,6 @@ task leftAlignIndels {
 		}
 		memory: {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1075,10 +1051,6 @@ task haplotypeCaller {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: gatk4:4.6.2.0]',
 			category: 'System'
@@ -1181,10 +1153,6 @@ task gatherVcfs {
 		}
 		memory: {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1304,10 +1272,6 @@ task splitVcfs {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: gatk4:4.6.2.0]',
 			category: 'System'
@@ -1424,10 +1388,6 @@ task variantFiltration  {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: gatk4:4.6.2.0]',
 			category: 'System'
@@ -1524,10 +1484,6 @@ task mergeVcfs  {
 		}
 		memory: {
 			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 		apptainer_img: {
