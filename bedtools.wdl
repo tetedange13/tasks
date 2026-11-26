@@ -26,17 +26,17 @@ task computePoorCoverage {
 	}
 
 	input {
-		File BamFile
+		File bamFile
 		File IntervalBedFile
-		Int BedtoolsLowCoverage = 30
-		Int BedToolsSmallInterval = 20
-		String GenomeVersion = "hg19"
+		Int bedtoolsLowCoverage = 30
+		Int bedToolsSmallInterval = 20
+		String genomeVersion = "hg19"
 
 		String? outputPath
 		String? name
 		String ext = ".LowCoverage.tsv"
 
-		String BedToolsExe = "bedtools"
+		String bedToolsExe = "bedtools"
 		String awkExe = "awk"
 		String sortExe = "sort"
 
@@ -45,7 +45,7 @@ task computePoorCoverage {
 		String apptainer_img = "bedtools:XXX"
 	}
 
-	String? baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
+	String? baseName = if defined(name) then name else sub(basename(bamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
@@ -54,13 +54,13 @@ task computePoorCoverage {
 			mkdir -p $(dirname ~{outputFile})
 		fi
 
-		~{BedToolsExe} genomecov -ibam ~{BamFile} -bga \
-		| ~{awkExe} -v low_coverage="~{BedtoolsLowCoverage}" '$4<low_coverage' \
-		| ~{BedToolsExe} intersect -a ~{IntervalBedFile} -b - \
+		~{bedToolsExe} genomecov -ibam ~{bamFile} -bga \
+		| ~{awkExe} -v low_coverage="~{bedtoolsLowCoverage}" '$4<low_coverage' \
+		| ~{bedToolsExe} intersect -a ~{IntervalBedFile} -b - \
 		| ~{sortExe} -k1,1 -k2,2n -k3,3n \
-		| ~{BedToolsExe} merge -c 4 -o distinct -i - \
-		| ~{awkExe} -v small_intervall="~{BedToolsSmallInterval}" \
-		'BEGIN {OFS="\t";print "#chr","start","end","region","size bp","type","UCSC link"} {a=($3-$2+1);if(a<small_intervall) {b="SMALL_INTERVAL"} else {b="OTHER"};url="http://genome-euro.ucsc.edu/cgi-bin/hgTracks?db='~{GenomeVersion}'&position="$1":"$2-10"-"$3+10"&highlight='~{GenomeVersion}'."$1":"$2"-"$3;print $0, a, b, url}' > "~{outputFile}"
+		| ~{bedToolsExe} merge -c 4 -o distinct -i - \
+		| ~{awkExe} -v small_intervall="~{bedToolsSmallInterval}" \
+		'BEGIN {OFS="\t";print "#chr","start","end","region","size bp","type","UCSC link"} {a=($3-$2+1);if(a<small_intervall) {b="SMALL_INTERVAL"} else {b="OTHER"};url="http://genome-euro.ucsc.edu/cgi-bin/hgTracks?db='~{genomeVersion}'&position="$1":"$2-10"-"$3+10"&highlight='~{genomeVersion}'."$1":"$2"-"$3;print $0, a, b, url}' > "~{outputFile}"
 
 	>>>
 
@@ -86,13 +86,13 @@ task computePoorCoverageExtended {
 	input {
 		String path_exe = "bedtools"
 
-		File BamFile
+		File bamFile
 		File intervalBedFile
-		String PoorCoverageFileFolder
+		String poorCoverageFileFolder
 		File CoverageFile
 
-		Int BedtoolsLowCoverage = 10
-		Int BedToolsSmallInterval = 5
+		Int bedtoolsLowCoverage = 10
+		Int bedToolsSmallInterval = 5
 
 		String genomeVersion = "hg19"
 
@@ -108,19 +108,19 @@ task computePoorCoverageExtended {
 		String apptainer_img = "bedtools:XXX"
 	}
 
-	String? baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
+	String? baseName = if defined(name) then name else sub(basename(bamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
 
-		~{path_exe} genomecov -ibam ~{BamFile} -bga \
-		| awk -v low_coverage="~{BedtoolsLowCoverage}" '$4<low_coverage' \
+		~{path_exe} genomecov -ibam ~{bamFile} -bga \
+		| awk -v low_coverage="~{bedtoolsLowCoverage}" '$4<low_coverage' \
 		| ~{path_exe} intersect -wb -a ~{intervalBedFile} -b - \
 		| sort -k1,1 -k2,2n -k3,3n \
 		| ~{path_exe} merge -d 1 -c 4,10,10 -o distinct,min,max -i - \
-		| ~{path_exe} intersect -loj -c -a -  -b ~{PoorCoverageFileFolder}/*.tsv  \
+		| ~{path_exe} intersect -loj -c -a -  -b ~{poorCoverageFileFolder}/*.tsv  \
 		| ~{path_exe} intersect -wb -loj -a -  -b ~{CoverageFile}  \
-		| awk -v small_intervall="~{BedToolsSmallInterval}" -v genomeVersion="~{genomeVersion}" \
+		| awk -v small_intervall="~{bedToolsSmallInterval}" -v genomeVersion="~{genomeVersion}" \
 		'BEGIN {OFS="~{ofs}";print "#chr","start","end","gene","region","region_size","type","MIN_COV","MAX_COV","Occurrence","ROI_MEAN_COV","UCSC link"} {split($4,gene,":");a=($3-$2+1);if(a<small_intervall) {b="SMALL_INTERVAL"} else {b="OTHER"};url="http://genome-euro.ucsc.edu/cgi-bin/hgTracks?db='genomeVersion'&position="$1":"$2-10"-"$3+10"&highlight='genomeVersion'."$1":"$2"-"$3; print $1,$2,$3,gene[1],$4,a, b,$5,$6,$7,$12, url}' \
 		> ~{outputFile}
 
@@ -141,7 +141,7 @@ task computePoorCoverageExtended {
 			description: 'Path to the BedTools exe',
 			category: 'Required'
 		}
-		BamFile: {
+		bamFile: {
 			description: 'Bam file to process',
 			category: 'Required'
 		}
@@ -149,7 +149,7 @@ task computePoorCoverageExtended {
 			description: 'Bed file, need to be merged',
 			category: 'Required'
 		}
-		PoorCoverageFileFolder: {
+		poorCoverageFileFolder: {
 			description: 'TSV file directory, output from computePoorCoverage, done with the same BAM and the same intervalBedFile',
 			category: 'Required'
 		}
@@ -157,11 +157,11 @@ task computePoorCoverageExtended {
 			description: 'TSV file, output from computeCoverage, done with the same BAM and the same intervalBedFile',
 			category: 'Required'
 		}
-		BedtoolsLowCoverage: {
+		bedtoolsLowCoverage: {
 			description: 'Limit value for define cow coverage target [default = 10]',
 			category: 'Optional value'
 		}
-		BedToolsSmallInterval: {
+		bedToolsSmallInterval: {
 			description: 'Limit value for define max size for tagging poor coverage area [default = 5]',
 			category: 'Optional value'
 		}
@@ -229,7 +229,7 @@ task computeCoverage {
 	>>>
 
 	output {
-		File TsvCoverageFile = "~{outputFile}"
+		File tsvCoverageFile = "~{outputFile}"
 	}
 
 	runtime {
@@ -279,7 +279,7 @@ task computeCoverageClamms {
 	>>>
 
 	output {
-		File ClammsCoverageFile = "~{outputFile}"
+		File clammsCoverageFile = "~{outputFile}"
 	}
 
 	runtime {
@@ -329,7 +329,7 @@ task BamReadByChromosomes {
 	>>>
 
 	output {
-		File ReadCountByChrom = "~{outputFile}"
+		File readCountByChrom = "~{outputFile}"
 	}
 
 	runtime {
