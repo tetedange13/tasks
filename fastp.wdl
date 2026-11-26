@@ -57,7 +57,7 @@ task get_version {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -178,7 +178,7 @@ task fastp {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {

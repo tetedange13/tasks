@@ -118,7 +118,7 @@ task findFiles {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -196,7 +196,7 @@ task convertBedToIntervals {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -274,7 +274,7 @@ task makeLink {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -370,7 +370,7 @@ task concatenateFiles {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -543,7 +543,7 @@ task wget {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -646,7 +646,7 @@ task gzip {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -721,7 +721,7 @@ task sortgtf {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -796,7 +796,7 @@ task fai2bed {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -906,7 +906,7 @@ task nanoVar2Bed {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -951,7 +951,7 @@ task bed2Array {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -996,7 +996,7 @@ task bedPrimer2woutPrimer {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -1089,7 +1089,7 @@ task getColumn {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -1159,7 +1159,7 @@ task filterBEDOnName {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}

@@ -57,7 +57,7 @@ task get_version {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -199,7 +199,7 @@ task splitIntervals {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -390,7 +390,7 @@ task baseRecalibrator {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -490,7 +490,7 @@ task gatherBQSRReports {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -686,7 +686,7 @@ task applyBQSR {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -839,7 +839,7 @@ task leftAlignIndels {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1048,7 +1048,7 @@ task haplotypeCaller {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1152,7 +1152,7 @@ task gatherVcfs {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1269,7 +1269,7 @@ task splitVcfs {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1385,7 +1385,7 @@ task variantFiltration  {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1483,7 +1483,7 @@ task mergeVcfs  {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
