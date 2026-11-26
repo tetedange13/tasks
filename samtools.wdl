@@ -112,7 +112,7 @@ task sort {
 			--output-fmt ~{format} \
 			~{default="" "--reference \"" + refFasta + "\""} \
 			--threads ~{threads - 1} \
-			-m ~{memoryByThreadsMb}M \
+			-m ~{memory} \
 			-o "~{outputFile}" \
 			"~{bam}"
 

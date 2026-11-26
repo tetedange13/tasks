@@ -1560,6 +1560,7 @@ task mkDir {
 		String outputPath
 
 		Int threads = 1
+		Int memory
 	}
 
 	command <<<
@@ -1574,7 +1575,7 @@ task mkDir {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreads}"
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -1601,6 +1602,7 @@ task rm_files {
 		Array[String] files
 
 		Int threads = 1
+		Int memory
 	}
 
 	command <<<
@@ -1616,7 +1618,7 @@ task rm_files {
 
 	runtime {
 		cpu: threads
-		requested_memory_mb_per_core: "${memoryByThreads}"
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
