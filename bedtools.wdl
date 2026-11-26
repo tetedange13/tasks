@@ -37,30 +37,31 @@ task computePoorCoverage {
 		String ext = ".LowCoverage.tsv"
 
 		String BedToolsExe = "bedtools"
-		String AwkExe = "awk"
-		String SortExe = "sort"
+		String awkExe = "awk"
+		String sortExe = "sort"
 
 		Int threads = 1
 		Int memory
 		String apptainer_img = "bedtools:XXX"
 	}
 
-
 	String? baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
+
 		if [[ ! -d $(dirname ~{outputFile}) ]]; then
 			mkdir -p $(dirname ~{outputFile})
 		fi
 
 		~{BedToolsExe} genomecov -ibam ~{BamFile} -bga \
-		| ~{AwkExe} -v low_coverage="~{BedtoolsLowCoverage}" '$4<low_coverage' \
+		| ~{awkExe} -v low_coverage="~{BedtoolsLowCoverage}" '$4<low_coverage' \
 		| ~{BedToolsExe} intersect -a ~{IntervalBedFile} -b - \
-		| ~{SortExe} -k1,1 -k2,2n -k3,3n \
+		| ~{sortExe} -k1,1 -k2,2n -k3,3n \
 		| ~{BedToolsExe} merge -c 4 -o distinct -i - \
-		| ~{AwkExe} -v small_intervall="~{BedToolsSmallInterval}" \
+		| ~{awkExe} -v small_intervall="~{BedToolsSmallInterval}" \
 		'BEGIN {OFS="\t";print "#chr","start","end","region","size bp","type","UCSC link"} {a=($3-$2+1);if(a<small_intervall) {b="SMALL_INTERVAL"} else {b="OTHER"};url="http://genome-euro.ucsc.edu/cgi-bin/hgTracks?db='~{GenomeVersion}'&position="$1":"$2-10"-"$3+10"&highlight='~{GenomeVersion}'."$1":"$2"-"$3;print $0, a, b, url}' > "~{outputFile}"
+
 	>>>
 
 	output {
@@ -109,7 +110,6 @@ task computePoorCoverageExtended {
 
 	String? baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
-
 
 	command <<<
 
@@ -198,37 +198,40 @@ task computeCoverage {
 
 	input {
 
-		File BedCovFile
+		File bedCovFile
 
 		String? outputPath
 		String? name
 
 		String ext = ".Coverage.tsv"
 
-		String AwkExe = "awk"
-		String SortExe = "sort"
+		String awkExe = "awk"
+		String sortExe = "sort"
 
 		Int threads = 1
 		Int memory
 		String apptainer_img = "bedtools:XXX"
 	}
 
-
-	String? baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
+	String? baseName = if defined(name) then name else sub(basename(bedCovFile),".bed","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
+
 		if [[ ! -d $(dirname ~{outputFile}) ]]; then
 			mkdir -p $(dirname ~{outputFile})
 		fi
 
-		~{SortExe} -k1,1 -k2,2n -k3,3n ~{BedCovFile} \
-		| ~{AwkExe} 'BEGIN {OFS="\t"}{a=($3-$2+1);b=($7/a);print $1,$2,$3,$4,b,"+","+"}' \
+		~{sortExe} -k1,1 -k2,2n -k3,3n ~{bedCovFile} \
+		| ~{awkExe} 'BEGIN {OFS="\t"}{a=($3-$2+1);b=($7/a);print $1,$2,$3,$4,b,"+","+"}' \
 		> "~{outputFile}"
+
 	>>>
+
 	output {
 		File TsvCoverageFile = "~{outputFile}"
 	}
+
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: memory
@@ -245,37 +248,40 @@ task computeCoverageClamms {
 	}
 
 	input {
-		File BedCovFile
+		File bedCovFile
 
 		String? outputPath
 		String? name
 
 		String ext = ".coverage.bed"
 
-		String AwkExe = "awk"
-		String SortExe = "sort"
+		String awkExe = "awk"
+		String sortExe = "sort"
 
 		Int threads = 1
 		Int memory
 		String apptainer_img = "bedtools:XXX"
 	}
 
-
-	String? baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
+	String? baseName = if defined(name) then name else sub(basename(bedCovFile),".bed","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
+
 		if [[ ! -d $(dirname ~{outputFile}) ]]; then
 			mkdir -p $(dirname ~{outputFile})
 		fi
 
-		~{SortExe} -k1,1 -k2,2n -k3,3n ~{BedCovFile} \
-		| ~{AwkExe} '{ printf "%s\t%d\t%d\t%.6g\n", $1, $2, $3, $NF/($3-$2); }' \
+		~{sortExe} -k1,1 -k2,2n -k3,3n ~{bedCovFile} \
+		| ~{awkExe} '{ printf "%s\t%d\t%d\t%.6g\n", $1, $2, $3, $NF/($3-$2); }' \
 		> "~{outputFile}"
+
 	>>>
+
 	output {
 		File ClammsCoverageFile = "~{outputFile}"
 	}
+
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: memory
@@ -307,7 +313,6 @@ task BamReadByChromosomes {
 		Int memory
 		String apptainer_img = "bedtools:XXX"
 	}
-
 
 	String? baseName = if defined(name) then name else sub(basename(in),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
