@@ -42,6 +42,7 @@ task computePoorCoverage {
 
 		Int threads = 1
 		Int memory
+		String apptainer_img = "bedtools:XXX"
 	}
 
 
@@ -69,6 +70,7 @@ task computePoorCoverage {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 }
 
@@ -102,6 +104,7 @@ task computePoorCoverageExtended {
 
 		Int threads = 1
 		Int memory
+		String apptainer_img = "bedtools:XXX"
 	}
 
 	String? baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
@@ -130,7 +133,9 @@ task computePoorCoverageExtended {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
+
 	parameter_meta {
 		path_exe: {
 			description: 'Path to the BedTools exe',
@@ -176,6 +181,10 @@ task computePoorCoverageExtended {
 			description: 'extension for outputFile [default = .PoorCoverage_extended.tsv]',
 			category: 'Optional value'
 		}
+		apptainer_img: {
+			description: 'Sets the apptainer image you want to use [default: bedtools:XXX]',
+			category: 'System'
+		}
 	}
 }
 
@@ -201,6 +210,7 @@ task computeCoverage {
 
 		Int threads = 1
 		Int memory
+		String apptainer_img = "bedtools:XXX"
 	}
 
 
@@ -222,6 +232,7 @@ task computeCoverage {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 }
 
@@ -246,6 +257,7 @@ task computeCoverageClamms {
 
 		Int threads = 1
 		Int memory
+		String apptainer_img = "bedtools:XXX"
 	}
 
 
@@ -267,6 +279,7 @@ task computeCoverageClamms {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 }
 
@@ -292,6 +305,7 @@ task BamReadByChromosomes {
 
 		Int threads = 1
 		Int memory
+		String apptainer_img = "bedtools:XXX"
 	}
 
 
@@ -316,5 +330,6 @@ task BamReadByChromosomes {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 }
