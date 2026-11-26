@@ -188,3 +188,53 @@ task sort {
 		}
 	}
 }
+
+task bamReadByChromosomes {
+	meta {
+		author: "Olivier ARDOUIN"
+		email: "o-ardouin(at)chu-montpellier.fr"
+		version: "0.0.2"
+		date: "2021-10-11"
+	}
+
+	input {
+		File in
+
+		String? outputPath
+		String? name
+
+		String ext = ".readByChrom.tsv"
+
+		String samtoolsExe = "samtools"
+		String cutExe = "cut"
+		String uniqExe = "uniq"
+
+		Int threads = 1
+		Int memory
+		String apptainer_img = "samtools:1.23.1"
+	}
+
+	String? baseName = if defined(name) then name else sub(basename(in),"(.*)\\.(sam|bam|cram)$","$1")
+	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
+
+	command <<<
+		if [[ ! -d $(dirname ~{outputFile}) ]]; then
+			mkdir -p $(dirname ~{outputFile})
+		fi
+
+		~{samtoolsExe} view ~{in} \
+		| ~{cutExe} -f 3 \
+		| ~{uniqExe} -c \
+		> "~{outputFile}"
+	>>>
+
+	output {
+		File readCountByChrom = "~{outputFile}"
+	}
+
+	runtime {
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
+	}
+}
