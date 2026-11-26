@@ -103,7 +103,7 @@ task map {
 	}
 
 
-	String baseName = if defined(sample) then sample else sub(basename(fastqR1),subString,subStringReplace)
+	String? baseName = if defined(sample) then sample else sub(basename(fastqR1),subString,subStringReplace)
 	String outputBase = "~{outputPath}/~{subdir}/~{baseName}"
 
 	command <<<

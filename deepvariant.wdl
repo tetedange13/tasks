@@ -108,7 +108,7 @@ task deepvariant {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(bam),"\\.(bam|cram)$","")
+	String? baseName = if defined(name) then name else sub(basename(bam),"\\.(bam|cram)$","")
 	String ext = if gunzip then ".vcf.gz" else ".vcf"
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 

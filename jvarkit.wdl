@@ -107,7 +107,7 @@ task vcfpolyx {
 
 	String ext = if bcf then ".bcf" else ".vcf"
 
-	String baseName = if defined(name) then name else sub(basename(vcf),"\\.(vcf|bcf)(.gz)?$","")
+	String? baseName = if defined(name) then name else sub(basename(vcf),"\\.(vcf|bcf)(.gz)?$","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	command <<<

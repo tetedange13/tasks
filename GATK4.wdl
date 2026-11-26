@@ -105,7 +105,7 @@ task splitIntervals {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(bed),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(bed),subString,subStringReplace)
 	String outputRep = "~{outputPath}/~{subdir}/~{baseName}"
 
 	command <<<
@@ -265,7 +265,7 @@ task baseRecalibrator {
 	String baseNameIntervals = if defined(bed) then bed else ""
 	String baseIntervals = if defined(bed) then sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"\\.(sam|bam|cram)$","")
+	String? baseName = if defined(name) then name else sub(basename(bam),"\\.(sam|bam|cram)$","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}.~{baseIntervals}~{ext}"
 
 	command <<<
@@ -438,7 +438,7 @@ task gatherBQSRReports {
 
 
 	String firstFile = basename(reports[0])
-	String baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{ext}"
 
 	command <<<
@@ -563,7 +563,7 @@ task applyBQSR {
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String baseIntervals = if defined(intervals) then "." + sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$1")
+	String? baseName = if defined(name) then name else sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$1")
 	String ext = sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$2")
 	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\\.~{ext}"
 	String outputBaiFile = sub(outputBamFile,"(m)$","i")
@@ -756,7 +756,7 @@ task leftAlignIndels {
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),"([0-9]+)-scattered.interval_list","\\.$1") else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(\\.[0-9]+)?\\.(sam|bam|cram)$","")
+	String? baseName = if defined(name) then name else sub(basename(bam),"(\\.[0-9]+)?\\.(sam|bam|cram)$","")
 	String ext = sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$2")
 	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\\.~{ext}"
 	String outputBaiFile = sub(outputBamFile,"(m)$","i")
@@ -929,7 +929,7 @@ task haplotypeCaller {
 	String getIntervalsBase = if defined(intervals) then sub(basename(baseNameIntervals),subStringIntervals,subStringReplaceIntervals) else ""
 
 	String bn = if length(bam) == 1 then basename(bam[0]) else "MultiSample"
-	String baseName = if defined(name) then name + getIntervalsBase + subStringReplace else sub(bn,subString,getIntervalsBase + subStringReplace)
+	String? baseName = if defined(name) then name + getIntervalsBase + subStringReplace else sub(bn,subString,getIntervalsBase + subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}"
 
 	command <<<
@@ -1113,7 +1113,7 @@ task gatherVcfs {
 
 
 	String firstFile = basename(vcfs[0])
-	String baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}.vcf"
 
 	command <<<
@@ -1222,7 +1222,7 @@ task splitVcfs {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputIndels = "~{outputPath}/~{subdir}/~{baseName}.indels.vcf"
 	String outputSnps = "~{outputPath}/~{subdir}/~{baseName}.snps.vcf"
 
@@ -1341,7 +1341,7 @@ task variantFiltration  {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputVcf = "~{outputPath}/~{subdir}/~{baseName}.vcf"
 
 	File pairs = write_json(filters) 
@@ -1460,7 +1460,7 @@ task mergeVcfs  {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(vcfs[0]),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcfs[0]),subString,subStringReplace)
 	String outputVcf = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.vcf"
 
 	command <<<

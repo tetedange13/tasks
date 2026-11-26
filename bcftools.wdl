@@ -125,7 +125,7 @@ task norm {
 	String idxFmt = idxType[outputType]
 	Boolean index = idx[outputType]
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	String multiallelics = if splitMA then "-~{multiallelicType}" else "+~{multiallelicType}"
@@ -327,7 +327,7 @@ task view {
 	String idxFmt = idxType[outputType]
 	Boolean index = idx[outputType]
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	command <<<
@@ -485,7 +485,7 @@ task sort {
 	String idxFmt = idxType[outputType]
 	Boolean index = idx[outputType]
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	command <<<

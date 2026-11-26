@@ -317,14 +317,14 @@ task concatenateFiles {
 	}
 
 
-	# String baseName = if defined(name) then name else sub(basename(in[0]),subString,subStringReplace)
+	# String? baseName = if defined(name) then name else sub(basename(in[0]),subString,subStringReplace)
 	# String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	String cmd_exe = if defined(exe) then exe else if gzip then "zcat" else "cat"
 	String compress = if gzip then " | gzip " else ""
 
 	String baseNameTemp = if defined(name) then name else sub(basename(in[0]),subString,subStringReplace)
-	String baseName = if gzip then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
+	String? baseName = if gzip then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -430,7 +430,7 @@ task wget {
 	}
 
 
-	String baseName = if defined(name) then name else sub(in,subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(in,subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	Boolean extAcceptDefined = defined(extAccept)
@@ -597,7 +597,7 @@ task gzip {
 
 
 	String baseNameTemp = if defined(name) then name else sub(basename(in),subString,subStringReplace)
-	String baseName = if decompress then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
+	String? baseName = if decompress then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -697,7 +697,7 @@ task sortgtf {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -776,7 +776,7 @@ task fai2bed {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -854,7 +854,7 @@ task nanoVar2Bed {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(inputNanovar),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(inputNanovar),subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -1245,7 +1245,7 @@ task computePoorCoverage {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
+	String? baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
@@ -1297,7 +1297,7 @@ task computeCoverage {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
+	String? baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
@@ -1350,7 +1350,7 @@ task computePoorCoverageExtended {
 		Int memory
 	}
 
-	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
+	String? baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 
@@ -1449,7 +1449,7 @@ task computeCoverageClamms {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
+	String? baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
@@ -1495,7 +1495,7 @@ task BamReadByChromosomes {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(in),"(.*)\\.(sam|bam|cram)$","$1")
+	String? baseName = if defined(name) then name else sub(basename(in),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<

@@ -100,7 +100,7 @@ task sort {
 	}
 
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(\\.sam|\\.bam|\\.cram)","")
+	String? baseName = if defined(name) then name else sub(basename(bam),"(\\.sam|\\.bam|\\.cram)","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.~{format}"
 
 	command <<<
