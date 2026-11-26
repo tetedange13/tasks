@@ -50,7 +50,7 @@ task get_version {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 		queue: "avx"
 	}
 
@@ -148,7 +148,7 @@ task deepvariant {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{bam}" + "~{default='' ',' + bed}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 		queue: "avx"  ## https://cromwell.readthedocs.io/en/latest/RuntimeAttributes/
 	}
 

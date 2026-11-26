@@ -50,7 +50,7 @@ task get_version {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -146,7 +146,7 @@ task splitIntervals {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{bed}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -319,7 +319,7 @@ task baseRecalibrator {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + bed}" + "," + "~{sep=',' knownSites}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -485,7 +485,7 @@ task gatherBQSRReports {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{sep=',' reports}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -631,7 +631,7 @@ task applyBQSR {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "," + "~{bqsrReport}" + "~{default='' ',' + intervals}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -826,7 +826,7 @@ task leftAlignIndels {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + intervals}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1009,7 +1009,7 @@ task haplotypeCaller {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + intervals}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1186,7 +1186,7 @@ task gatherVcfs {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcfs}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1306,7 +1306,7 @@ task splitVcfs {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1440,7 +1440,7 @@ task variantFiltration  {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1548,7 +1548,7 @@ task mergeVcfs  {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{sep=',' vcfs}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {

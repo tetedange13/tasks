@@ -50,7 +50,7 @@ task get_version {
 	runtime {
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -142,7 +142,7 @@ task sort {
 		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{refFasta}"
 		cpu: threads
 		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
