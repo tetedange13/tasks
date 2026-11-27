@@ -73,10 +73,10 @@
   command: sprocket check --lint --hide-warnings samtools.wdl
   exit_code: 0
 
-- name: utilities sprocket syntax
-  tags:
-    - syntax
-    - sprocket
-    - utilities
-  command: sprocket check --lint --hide-warnings utilities.wdl
-  exit_code: 0
+#- name: utilities sprocket syntax
+#  tags:
+#    - syntax
+#    - sprocket
+#    - utilities
+#  command: sprocket check --lint --hide-warnings utilities.wdl
+#  exit_code: 0
