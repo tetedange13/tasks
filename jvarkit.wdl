@@ -79,7 +79,7 @@ task vcfpolyx {
 		String path_exe = "jvarkit"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String suffix = ".polyx"
 		String? name

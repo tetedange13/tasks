@@ -79,7 +79,7 @@ task sort {
 		String path_exe = "samtools"
 
 		File bam
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String suffix = ".sort"

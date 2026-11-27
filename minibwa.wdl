@@ -78,7 +78,7 @@ task map {
 	input {
 		String path_exe = "minibwa"
 
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? sample
 		String subString = ".(fastq|fq)(.gz)?"

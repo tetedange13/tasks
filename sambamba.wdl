@@ -79,7 +79,7 @@ task markdup {
 		String path_exe = "sambamba"
 
 		File bam
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? sample
 		String suffix = ".markdup"
@@ -209,7 +209,7 @@ task sort {
 		String path_exe = "sambamba"
 
 		File bam
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? sample
 		String suffix = ".sort"

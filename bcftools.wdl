@@ -79,7 +79,7 @@ task norm {
 		String path_exe = "bcftools"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.(vcf|bcf)(\\.gz)?$"
@@ -285,7 +285,7 @@ task view {
 		String path_exe = "bcftools"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.(vcf|bcf)(\\.gz)?$"
@@ -442,7 +442,7 @@ task sort {
 		String path_exe = "bcftools"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.(vcf|bcf)(\\.gz)?$"

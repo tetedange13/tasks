@@ -213,7 +213,7 @@ task makeLink {
 	input {
 		File in
 
-		String outputPath
+		String outputPath = "."
 		String? name
 
 		Boolean softLink = false
@@ -1255,7 +1255,7 @@ task mkDir {
 	}
 
 	input {
-		String outputPath
+		String outputPath = "."
 
 		Int threads = 1
 		Int memory

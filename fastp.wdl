@@ -78,7 +78,7 @@ task fastp {
 	input {
 		String path_exe = "fastp"
 
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? sample
 		String subString = "(_S[0-9]+)?(_L[0-9][0-9][0-9])?(_R[12])?(_[0-9][0-9][0-9])?.(fastq|fq)(.gz)?"

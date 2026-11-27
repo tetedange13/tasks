@@ -82,7 +82,7 @@ task deepvariant {
 		File bam
 		File bai = bam + ".bai"
 
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String suffix = ".dv"
