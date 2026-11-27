@@ -214,7 +214,7 @@ task bedcov {
 		String apptainer_img = "samtools:1.23.1"
 	}
 
-	String? baseName = if defined(name) then name else sub(basename(bamFile),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(bam),subString,subStringReplace)
 	String OutputBedcov = "~{outputPath}/~{subdir}/~{baseName}_bedcov.bed"
 
 	command <<<
@@ -225,7 +225,7 @@ task bedcov {
 
 		~{path_exe} bedcov -Q ~{minCovBamQual} \
 		~{intervalBedFile} \
-		~{bamFile} \
+		~{bam} \
 		> ~{OutputBedcov}
 
 	>>>
