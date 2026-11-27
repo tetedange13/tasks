@@ -57,7 +57,7 @@ args = ["--time=60"]
 # Additional command-line arguments to pass to `apptainer exec` when executing
 # tasks. Each entry is passed as one literal argument, without shell expansion
 # or splitting, so use a separate entry for each argument.
-extra_args = ["--hostname=my_host"]
+#extra_args = ["--bind /data"]
 
 # Path to the Apptainer (or Singularity) executable. Defaults to `"apptainer"`.
 # Set to `"singularity"` or a full path if the executable is not on `PATH`.
