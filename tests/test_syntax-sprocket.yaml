@@ -1,102 +1,82 @@
 # /!\ Before running tests: isolate task in 'temp.wdl'
 # /!\ For 'special' tests to work, have to use 'pytest --kwd --basetemp=/tmp'
 
-- name: bcftools WDL syntax
+- name: bcftools sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - bcftools
-  command: womtool validate bcftools.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings bcftools.wdl
+  exit_code: 0
 
-- name: bedtools WDL syntax
+- name: bedtools sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - bedtools
-  command: womtool validate bedtools.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings bedtools.wdl
+  exit_code: 0
 
-- name: deepvariant WDL syntax
+- name: deepvariant sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - deepvariant
-  command: womtool validate deepvariant.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings deepvariant.wdl
+  exit_code: 0
 
-- name: fastp WDL syntax
+- name: fastp sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - fastp
-  command: womtool validate fastp.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings fastp.wdl
+  exit_code: 0
 
-- name: gatk WDL syntax
+- name: gatk sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - gatk
-  command: womtool validate GATK4.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings GATK4.wdl
+  exit_code: 0
 
-- name: jvarkit WDL syntax
+- name: jvarkit sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - jvarkit
-  command: womtool validate jvarkit.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings jvarkit.wdl
+  exit_code: 0
 
-- name: minibwa WDL syntax
+- name: minibwa sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - minibwa
-  command: womtool validate minibwa.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings minibwa.wdl
+  exit_code: 0
 
-- name: sambamba WDL syntax
+- name: sambamba sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - sambamba
-  command: womtool validate sambamba.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings sambamba.wdl
+  exit_code: 0
 
-- name: samtools WDL syntax
+- name: samtools sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - samtools
-  command: womtool validate samtools.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings samtools.wdl
+  exit_code: 0
 
-- name: utilities WDL syntax
+- name: utilities sprocket syntax
   tags:
     - syntax
-    - wdl
+    - sprocket
     - utilities
-  command: womtool validate utilities.wdl
-  stdout:
-    contains:
-      - "Success!"
+  command: sprocket check --lint --hide-warnings utilities.wdl
+  exit_code: 0
