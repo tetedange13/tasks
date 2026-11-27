@@ -249,7 +249,7 @@ task bamReadByChromosomes {
 	}
 
 	input {
-		File in
+		File bam
 
 		String? outputPath
 		String? name
@@ -265,7 +265,7 @@ task bamReadByChromosomes {
 		String apptainer_img = "samtools:1.23.1"
 	}
 
-	String? baseName = if defined(name) then name else sub(basename(in),"(.*)\\.(sam|bam|cram)$","$1")
+	String? baseName = if defined(name) then name else sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$1")
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
 
 	command <<<
@@ -273,7 +273,7 @@ task bamReadByChromosomes {
 			mkdir -p $(dirname ~{outputFile})
 		fi
 
-		~{samtoolsExe} view ~{in} \
+		~{samtoolsExe} view ~{bam} \
 		| ~{cutExe} -f 3 \
 		| ~{uniqExe} -c \
 		> "~{outputFile}"
