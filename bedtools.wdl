@@ -42,7 +42,7 @@ task computePoorCoverage {
 
 		Int threads = 1
 		Int memory
-		String apptainer_img = "bedtools:XXX"
+		String apptainer_img = "bedtools:2.31.1"
 	}
 
 	String? baseName = if defined(name) then name else sub(basename(bamFile),"(.*)\\.(sam|bam|cram)$","$1")
@@ -105,7 +105,7 @@ task computePoorCoverageExtended {
 
 		Int threads = 1
 		Int memory
-		String apptainer_img = "bedtools:XXX"
+		String apptainer_img = "bedtools:2.31.1"
 	}
 
 	String? baseName = if defined(name) then name else sub(basename(bamFile),"(.*)\\.(sam|bam|cram)$","$1")
@@ -260,7 +260,7 @@ task computeCoverageClamms {
 
 		Int threads = 1
 		Int memory
-		String apptainer_img = "bedtools:XXX"
+		String apptainer_img = "bedtools:2.31.1"
 	}
 
 	String? baseName = if defined(name) then name else sub(basename(bedCovFile),".bed","$1")

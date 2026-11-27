@@ -1,0 +1,82 @@
+# /!\ Before running tests: isolate task in 'temp.wdl'
+# /!\ For 'special' tests to work, have to use 'pytest --kwd --basetemp=/tmp'
+
+- name: bcftools sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - bcftools
+  command: sprocket check --lint --hide-warnings bcftools.wdl
+  exit_code: 0
+
+- name: bedtools sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - bedtools
+  command: sprocket check --lint --hide-warnings bedtools.wdl
+  exit_code: 0
+
+- name: deepvariant sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - deepvariant
+  command: sprocket check --lint --hide-warnings deepvariant.wdl
+  exit_code: 0
+
+- name: fastp sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - fastp
+  command: sprocket check --lint --hide-warnings fastp.wdl
+  exit_code: 0
+
+- name: gatk sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - gatk
+  command: sprocket check --lint --hide-warnings GATK4.wdl
+  exit_code: 0
+
+- name: jvarkit sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - jvarkit
+  command: sprocket check --lint --hide-warnings jvarkit.wdl
+  exit_code: 0
+
+- name: minibwa sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - minibwa
+  command: sprocket check --lint --hide-warnings minibwa.wdl
+  exit_code: 0
+
+- name: sambamba sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - sambamba
+  command: sprocket check --lint --hide-warnings sambamba.wdl
+  exit_code: 0
+
+- name: samtools sprocket syntax
+  tags:
+    - syntax
+    - sprocket
+    - samtools
+  command: sprocket check --lint --hide-warnings samtools.wdl
+  exit_code: 0
+
+#- name: utilities sprocket syntax
+#  tags:
+#    - syntax
+#    - sprocket
+#    - utilities
+#  command: sprocket check --lint --hide-warnings utilities.wdl
+#  exit_code: 0
