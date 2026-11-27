@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "samtools"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "samtools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version | head -1
@@ -48,9 +42,9 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -63,11 +57,7 @@ task get_version {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -89,7 +79,7 @@ task sort {
 		String path_exe = "samtools"
 
 		File bam
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String suffix = ".sort"
@@ -101,24 +91,18 @@ task sort {
 		File? refFasta
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "samtools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(\.sam|\.bam|\.cram)","")
-	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.~{format}"
+	String? baseName = if defined(name) then name else sub(basename(bam),"(\\.sam|\\.bam|\\.cram)","")
+	String OutputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.~{format}"
 
 	command <<<
 
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
 		fi
 
 		~{path_exe} sort \
@@ -128,21 +112,20 @@ task sort {
 			--output-fmt ~{format} \
 			~{default="" "--reference \"" + refFasta + "\""} \
 			--threads ~{threads - 1} \
-			-m ~{memoryByThreadsMb}M \
-			-o "~{outputFile}" \
+			-m ~{memory} \
+			-o "~{OutputFile}" \
 			"~{bam}"
 
 	>>>
 
 	output {
-		File outputFile = "~{outputFile}"
+		File outputFile = "~{OutputFile}"
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{refFasta}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -159,7 +142,7 @@ task sort {
 			category: 'Output path/name option'
         }
 		name: {
-			description: 'Name to use for output file name [default: sub(basename(in),"(\.bam|\.sam|\.cram)","")]',
+			description: 'Name to use for output file name [default: sub(basename(in),"(\\.bam|\\.sam|\\.cram)","")]',
 			category: 'Tool option'
 		}
 		bam: {
@@ -195,16 +178,114 @@ task sort {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
 			description: 'Sets the apptainer image you want to use [default: samtools:1.23.1]',
 			category: 'System'
 		}
+	}
+}
+
+task bedcov {
+	meta {
+		author: "David BAUX"
+		email: "d-baux(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2023-09-04"
+	}
+
+	input {
+		String path_exe = "samtools"
+
+		String? name
+		String outputPath = "."
+		String subdir = ""
+		File intervalBedFile
+		File bam
+		File bamIndex
+		Int minCovBamQual = 20
+		String subString = "\\.(bam)(.gz)?$"
+		String subStringReplace = ""
+
+		Int threads
+		Int memory
+		String apptainer_img = "samtools:1.23.1"
+	}
+
+	String? baseName = if defined(name) then name else sub(basename(bam),subString,subStringReplace)
+	String OutputBedcov = "~{outputPath}/~{subdir}/~{baseName}_bedcov.bed"
+
+	command <<<
+
+		if [[ ! -d $(dirname ~{OutputBedcov}) ]]; then
+			mkdir -p $(dirname ~{OutputBedcov})
+		fi
+
+		~{path_exe} bedcov -Q ~{minCovBamQual} \
+		~{intervalBedFile} \
+		~{bam} \
+		> ~{OutputBedcov}
+
+	>>>
+
+	runtime {
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
+	}
+	output {
+		File outputBedcov = OutputBedcov
+	}
+}
+
+task bamReadByChromosomes {
+	meta {
+		author: "Olivier ARDOUIN"
+		email: "o-ardouin(at)chu-montpellier.fr"
+		version: "0.0.2"
+		date: "2021-10-11"
+	}
+
+	input {
+		File in
+
+		String? outputPath
+		String? name
+
+		String ext = ".readByChrom.tsv"
+
+		String samtoolsExe = "samtools"
+		String cutExe = "cut"
+		String uniqExe = "uniq"
+
+		Int threads = 1
+		Int memory
+		String apptainer_img = "samtools:1.23.1"
+	}
+
+	String? baseName = if defined(name) then name else sub(basename(in),"(.*)\\.(sam|bam|cram)$","$1")
+	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
+
+	command <<<
+		if [[ ! -d $(dirname ~{outputFile}) ]]; then
+			mkdir -p $(dirname ~{outputFile})
+		fi
+
+		~{samtoolsExe} view ~{in} \
+		| ~{cutExe} -f 3 \
+		| ~{uniqExe} -c \
+		> "~{outputFile}"
+	>>>
+
+	output {
+		File readCountByChrom = "~{outputFile}"
+	}
+
+	runtime {
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 }

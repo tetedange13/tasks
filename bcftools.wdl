@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "bcftools"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version | head -1
@@ -48,9 +42,9 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -63,11 +57,7 @@ task get_version {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -89,10 +79,10 @@ task norm {
 		String path_exe = "bcftools"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf|bcf)(\.gz)?$"
+		String subString = "\\.(vcf|bcf)(\\.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".norm"
 
@@ -118,16 +108,10 @@ task norm {
 		Int siteWin = 1000
 
 		Int threads = 12
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	Map[String,String] extType = {"v" : ".vcf", "u" : ".bcf", "z" : ".vcf.gz", "b" : ".bcf.gz"}
 	Map[String,String] idxType = {"v" : "", "u" : "csi", "z" : "tbi", "b" : "csi"}
@@ -137,7 +121,7 @@ task norm {
 	String idxFmt = idxType[outputType]
 	Boolean index = idx[outputType]
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	String multiallelics = if splitMA then "-~{multiallelicType}" else "+~{multiallelicType}"
@@ -176,10 +160,9 @@ task norm {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -200,7 +183,7 @@ task norm {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.(vcf|bcf)(\.gz)?$"]',
+			description: 'Extension to remove from the input file [default: "\\.(vcf|bcf)(\\.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -280,11 +263,7 @@ task norm {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -306,10 +285,10 @@ task view {
 		String path_exe = "bcftools"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf|bcf)(\.gz)?$"
+		String subString = "\\.(vcf|bcf)(\\.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".view"
 
@@ -326,16 +305,10 @@ task view {
 		String? include
 
 		Int threads = 12
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	Map[String,String] extType = {"v" : ".vcf", "u" : ".bcf", "z" : ".vcf.gz", "b" : ".bcf.gz"}
 	Map[String,String] idxType = {"v" : "", "u" : "csi", "z" : "tbi", "b" : "csi"}
@@ -345,7 +318,7 @@ task view {
 	String idxFmt = idxType[outputType]
 	Boolean index = idx[outputType]
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	command <<<
@@ -376,10 +349,9 @@ task view {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -400,7 +372,7 @@ task view {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.(vcf|bcf)(\.gz)?$"]',
+			description: 'Extension to remove from the input file [default: "\\.(vcf|bcf)(\\.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -448,11 +420,7 @@ task view {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -474,10 +442,10 @@ task sort {
 		String path_exe = "bcftools"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf|bcf)(\.gz)?$"
+		String subString = "\\.(vcf|bcf)(\\.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".sort"
 
@@ -490,16 +458,10 @@ task sort {
 		String outputType = "z"
 
 		Int threads = 12
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "bcftools:1.23.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	Map[String,String] extType = {"v" : ".vcf", "u" : ".bcf", "z" : ".vcf.gz", "b" : ".bcf.gz"}
 	Map[String,String] idxType = {"v" : "", "u" : "csi", "z" : "tbi", "b" : "csi"}
@@ -509,7 +471,7 @@ task sort {
 	String idxFmt = idxType[outputType]
 	Boolean index = idx[outputType]
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	command <<<
@@ -521,7 +483,6 @@ task sort {
 		~{path_exe} sort \
 			--output-type ~{outputType} \
 			~{true="-W" false="" index}~{idxFmt} \
-			-m ~{totalMem} \
 			--output ~{outputFile} \
 			~{vcf}
 
@@ -533,10 +494,9 @@ task sort {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" 
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -557,7 +517,7 @@ task sort {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.(vcf|bcf)(\.gz)?$"]',
+			description: 'Extension to remove from the input file [default: "\\.(vcf|bcf)(\\.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -577,11 +537,7 @@ task sort {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {

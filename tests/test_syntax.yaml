@@ -1,0 +1,102 @@
+# /!\ Before running tests: isolate task in 'temp.wdl'
+# /!\ For 'special' tests to work, have to use 'pytest --kwd --basetemp=/tmp'
+
+- name: bcftools WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - bcftools
+  command: womtool validate bcftools.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: bedtools WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - bedtools
+  command: womtool validate bedtools.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: deepvariant WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - deepvariant
+  command: womtool validate deepvariant.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: fastp WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - fastp
+  command: womtool validate fastp.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: gatk WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - gatk
+  command: womtool validate GATK4.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: jvarkit WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - jvarkit
+  command: womtool validate jvarkit.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: minibwa WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - minibwa
+  command: womtool validate minibwa.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: sambamba WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - sambamba
+  command: womtool validate sambamba.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: samtools WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - samtools
+  command: womtool validate samtools.wdl
+  stdout:
+    contains:
+      - "Success!"
+
+- name: utilities WDL syntax
+  tags:
+    - syntax
+    - wdl
+    - utilities
+  command: womtool validate utilities.wdl
+  stdout:
+    contains:
+      - "Success!"

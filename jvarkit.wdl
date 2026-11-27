@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "jvarkit"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "jvarkit:2026.04.30"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		echo "jvarkit $(~{path_exe} --version)"
@@ -48,9 +42,9 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -63,11 +57,7 @@ task get_version {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -89,7 +79,7 @@ task vcfpolyx {
 		String path_exe = "jvarkit"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String suffix = ".polyx"
 		String? name
@@ -106,20 +96,14 @@ task vcfpolyx {
 
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "jvarkit:2026.04.30"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String ext = if bcf then ".bcf" else ".vcf"
 
-	String baseName = if defined(name) then name else sub(basename(vcf),"\.(vcf|bcf)(.gz)?$","")
+	String? baseName = if defined(name) then name else sub(basename(vcf),"\\.(vcf|bcf)(.gz)?$","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{ext}"
 
 	command <<<
@@ -144,10 +128,9 @@ task vcfpolyx {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -172,7 +155,7 @@ task vcfpolyx {
 			category: 'Output path/name option'
 		}
 		name: {
-			description: 'Output file base name [default: sub(basename(vcf),"\.(vcf|bcf)$","")].',
+			description: 'Output file base name [default: sub(basename(vcf),"\\.(vcf|bcf)$","")].',
 			category: 'Output path/name option'
 		}
 		refFasta: {
@@ -212,11 +195,7 @@ task vcfpolyx {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {

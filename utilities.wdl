@@ -41,15 +41,9 @@ task findFiles {
 		Boolean executable = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String regexpNameOpt = if defined(regexpName) then "-name \"~{regexpName}\" " else ""
 	String regexpPathOpt = if defined(regexpPath) then "-path \"~{regexpPath}\" " else ""
@@ -74,8 +68,8 @@ task findFiles {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -124,11 +118,7 @@ task findFiles {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -151,15 +141,9 @@ task convertBedToIntervals {
 		String ext =".intervals"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String outputName = if defined(name) then name else sub(basename(in),".bed", "")
 	String outputFile = if defined(outputPath) then outputPath + "/" + outputName + ext else outputName + ext
@@ -186,8 +170,8 @@ task convertBedToIntervals {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -212,11 +196,7 @@ task convertBedToIntervals {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -233,21 +213,15 @@ task makeLink {
 	input {
 		File in
 
-		String outputPath
+		String outputPath = "."
 		String? name
 
 		Boolean softLink = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String outputName = if defined(name) then name else basename(in)
 	String outputFile = outputPath + "/" + outputName
@@ -274,8 +248,8 @@ task makeLink {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -300,11 +274,7 @@ task makeLink {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -331,24 +301,18 @@ task concatenateFiles {
 		String ext = ".gz"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	# String baseName = if defined(name) then name else sub(basename(in[0]),subString,subStringReplace)
+	# String? baseName = if defined(name) then name else sub(basename(in[0]),subString,subStringReplace)
 	# String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	String cmd_exe = if defined(exe) then exe else if gzip then "zcat" else "cat"
 	String compress = if gzip then " | gzip " else ""
 
 	String baseNameTemp = if defined(name) then name else sub(basename(in[0]),subString,subStringReplace)
-	String baseName = if gzip then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
+	String? baseName = if gzip then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -368,8 +332,8 @@ task concatenateFiles {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -406,11 +370,7 @@ task concatenateFiles {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -450,17 +410,11 @@ task wget {
 		Array[String]? repReject
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(in,subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(in,subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	Boolean extAcceptDefined = defined(extAccept)
@@ -499,8 +453,8 @@ task wget {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -589,11 +543,7 @@ task wget {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -622,18 +572,12 @@ task gzip {
 		Boolean recursive = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameTemp = if defined(name) then name else sub(basename(in),subString,subStringReplace)
-	String baseName = if decompress then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
+	String? baseName = if decompress then sub(baseNameTemp,ext,"") else "~{baseNameTemp}~{ext}"
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -656,8 +600,8 @@ task gzip {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -702,11 +646,7 @@ task gzip {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -729,17 +669,11 @@ task sortgtf {
 		String subStringReplace = ".sorted.$1"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -757,8 +691,8 @@ task sortgtf {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -787,11 +721,7 @@ task sortgtf {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -810,21 +740,15 @@ task fai2bed {
 		String in
 		String? outputPath
 		String? name
-		String subString = "\.?(fa)?(sta)?\.fai$"
+		String subString = "\\.?(fa)?(sta)?\\.fai$"
 		String subStringReplace = ".bed"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(in),subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -842,8 +766,8 @@ task fai2bed {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -860,7 +784,7 @@ task fai2bed {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to remove to create name file [default: "\.?(fa)?(sta)?\.fai$"]',
+			description: 'Substring to remove to create name file [default: "\\.?(fa)?(sta)?\\.fai$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -872,11 +796,7 @@ task fai2bed {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -894,21 +814,15 @@ task nanoVar2Bed {
 		File inputNanovar
 		String? outputPath
 		String? name
-		String subString = "\.tsv$"
+		String subString = "\\.tsv$"
 		String subStringReplace = "_igv_sorted.bed"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(inputNanovar),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(inputNanovar),subString,subStringReplace)
 	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}" else "~{baseName}"
 
 	command <<<
@@ -962,8 +876,8 @@ task nanoVar2Bed {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -980,7 +894,7 @@ task nanoVar2Bed {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to remove to create name file [default: "\.tsv$"]',
+			description: 'Substring to remove to create name file [default: "\\.tsv$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -992,11 +906,7 @@ task nanoVar2Bed {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -1014,15 +924,9 @@ task bed2Array {
 		File bed
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		awk 'BEGIN{OFS="\t"; print "chrom","start","end"}{print $1,$2,$3}' ~{bed}
@@ -1033,8 +937,8 @@ task bed2Array {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -1047,11 +951,7 @@ task bed2Array {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -1069,15 +969,9 @@ task bedPrimer2woutPrimer {
 		File bed
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		awk 'BEGIN{OFS="\t"}{print $1,$7,$8,$4,$5,$6}' ~{bed}
@@ -1088,8 +982,8 @@ task bedPrimer2woutPrimer {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -1102,11 +996,7 @@ task bedPrimer2woutPrimer {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -1135,15 +1025,9 @@ task getColumn {
 
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		awk -v reskip='~{default="\\!." reSkip}' -v rekept='~{default="." reKept}' \
@@ -1159,8 +1043,8 @@ task getColumn {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -1205,11 +1089,7 @@ task getColumn {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 	}
@@ -1230,15 +1110,9 @@ task filterBEDOnName {
 		Int? nbCol
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		python <<CODE
@@ -1263,8 +1137,8 @@ task filterBEDOnName {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -1285,345 +1159,9 @@ task filterBEDOnName {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
-			category: 'System'
-		}
-	}
-}
-
-task computePoorCoverage {
-	meta {
-		author: "Olivier ARDOUIN"
-		email: "o-ardouin(at)chu-montpellier.fr"
-		version: "0.0.2"
-		date: "2021-10-11"
-	}
-
-	input {
-		File BamFile
-		File IntervalBedFile
-		Int BedtoolsLowCoverage = 30
-		Int BedToolsSmallInterval = 20
-		String GenomeVersion = "hg19"
-
-		String? outputPath
-		String? name
-		String ext = ".LowCoverage.tsv"
-
-		String BedToolsExe = "bedtools"
-		String AwkExe = "awk"
-		String SortExe = "sort"
-
-		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
-	}
-
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
-
-	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\.(sam|bam|cram)$","$1")
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
-
-	command <<<
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
-		fi
-
-		~{BedToolsExe} genomecov -ibam ~{BamFile} -bga \
-		| ~{AwkExe} -v low_coverage="~{BedtoolsLowCoverage}" '$4<low_coverage' \
-		| ~{BedToolsExe} intersect -a ~{IntervalBedFile} -b - \
-		| ~{SortExe} -k1,1 -k2,2n -k3,3n \
-		| ~{BedToolsExe} merge -c 4 -o distinct -i - \
-		| ~{AwkExe} -v small_intervall="~{BedToolsSmallInterval}" \
-		'BEGIN {OFS="\t";print "#chr","start","end","region","size bp","type","UCSC link"} {a=($3-$2+1);if(a<small_intervall) {b="SMALL_INTERVAL"} else {b="OTHER"};url="http://genome-euro.ucsc.edu/cgi-bin/hgTracks?db='~{GenomeVersion}'&position="$1":"$2-10"-"$3+10"&highlight='~{GenomeVersion}'."$1":"$2"-"$3;print $0, a, b, url}' > "~{outputFile}"
-	>>>
-
-	output {
-		File poorCoverageFile = "~{outputFile}"
-	}
-
-	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-	}
-}
-
-task computeCoverage {
-	meta {
-		author: "Olivier ARDOUIN"
-		email: "o-ardouin(at)chu-montpellier.fr"
-		version: "0.0.2"
-		date: "2021-10-11"
-	}
-
-	input {
-
-		File BedCovFile
-
-		String? outputPath
-		String? name
-
-		String ext = ".Coverage.tsv"
-
-		String AwkExe = "awk"
-		String SortExe = "sort"
-
-		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
-	}
-
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
-
-	String baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
-
-	command <<<
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
-		fi
-
-		~{SortExe} -k1,1 -k2,2n -k3,3n ~{BedCovFile} \
-		| ~{AwkExe} 'BEGIN {OFS="\t"}{a=($3-$2+1);b=($7/a);print $1,$2,$3,$4,b,"+","+"}' \
-		> "~{outputFile}"
-	>>>
-	output {
-		File TsvCoverageFile = "~{outputFile}"
-	}
-	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-	}
-}
-
-task computePoorCoverageExtended {
-	meta {
-		author: "Thomas Guignard"
-		email: "t-guignard(at)chu-montpellier.fr"
-		version: "0.0.1"
-		date: "2021-11-15"
-	}
-
-	input {
-		String path_exe = "bedtools"
-
-		File BamFile
-		File intervalBedFile
-		String PoorCoverageFileFolder
-		File CoverageFile
-
-		Int BedtoolsLowCoverage = 10
-		Int BedToolsSmallInterval = 5
-
-		String genomeVersion = "hg19"
-
-		String? outputPath
-		String? name
-		String ext = ".PoorCoverage_extended.tsv"
-
-		String ofs = "\\t"
-		String fs = "\\t"
-
-		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
-	}
-
-	String baseName = if defined(name) then name else sub(basename(BamFile),"(.*)\.(sam|bam|cram)$","$1")
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
-
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
-
-	command <<<
-
-		~{path_exe} genomecov -ibam ~{BamFile} -bga \
-		| awk -v low_coverage="~{BedtoolsLowCoverage}" '$4<low_coverage' \
-		| ~{path_exe} intersect -wb -a ~{intervalBedFile} -b - \
-		| sort -k1,1 -k2,2n -k3,3n \
-		| ~{path_exe} merge -d 1 -c 4,10,10 -o distinct,min,max -i - \
-		| ~{path_exe} intersect -loj -c -a -  -b ~{PoorCoverageFileFolder}/*.tsv  \
-		| ~{path_exe} intersect -wb -loj -a -  -b ~{CoverageFile}  \
-		| awk -v small_intervall="~{BedToolsSmallInterval}" -v genomeVersion="~{genomeVersion}" \
-		'BEGIN {OFS="~{ofs}";print "#chr","start","end","gene","region","region_size","type","MIN_COV","MAX_COV","Occurrence","ROI_MEAN_COV","UCSC link"} {split($4,gene,":");a=($3-$2+1);if(a<small_intervall) {b="SMALL_INTERVAL"} else {b="OTHER"};url="http://genome-euro.ucsc.edu/cgi-bin/hgTracks?db='genomeVersion'&position="$1":"$2-10"-"$3+10"&highlight='genomeVersion'."$1":"$2"-"$3; print $1,$2,$3,gene[1],$4,a, b,$5,$6,$7,$12, url}' \
-		> ~{outputFile}
-
-	>>>
-
-	output {
-		File poorCoverageFile = outputFile
-	}
-
-	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-	}
-	parameter_meta {
-		path_exe: {
-			description: 'Path to the BedTools exe',
-			category: 'Required'
-		}
-		BamFile: {
-			description: 'Bam file to process',
-			category: 'Required'
-		}
-		intervalBedFile: {
-			description: 'Bed file, need to be merged',
-			category: 'Required'
-		}
-		PoorCoverageFileFolder: {
-			description: 'TSV file directory, output from computePoorCoverage, done with the same BAM and the same intervalBedFile',
-			category: 'Required'
-		}
-		CoverageFile: {
-			description: 'TSV file, output from computeCoverage, done with the same BAM and the same intervalBedFile',
-			category: 'Required'
-		}
-		BedtoolsLowCoverage: {
-			description: 'Limit value for define cow coverage target [default = 10]',
-			category: 'Optional value'
-		}
-		BedToolsSmallInterval: {
-			description: 'Limit value for define max size for tagging poor coverage area [default = 5]',
-			category: 'Optional value'
-		}
-		genomeVersion: {
-			description: 'Genome version used [default = hg19]',
-			category: 'Optional value'
-		}
-		outputPath: {
-			description: 'Path for outputFile [default = ./]',
-			category: 'Optional value'
-		}
-		name: {
-			description: 'Sample Name, if not supply infered form bam file name',
-			category: 'Optional value'
-		}
-		ext: {
-			description: 'extension for outputFile [default = .PoorCoverage_extended.tsv]',
-			category: 'Optional value'
-		}
-	}
-}
-
-task computeCoverageClamms {
-	meta {
-		author: "Olivier ARDOUIN"
-		email: "o-ardouin(at)chu-montpellier.fr"
-		version: "0.0.2"
-		date: "2021-10-11"
-	}
-
-	input {
-		File BedCovFile
-
-		String? outputPath
-		String? name
-
-		String ext = ".coverage.bed"
-
-		String AwkExe = "awk"
-		String SortExe = "sort"
-
-		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
-	}
-
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
-
-	String baseName = if defined(name) then name else sub(basename(BedCovFile),".bed","$1")
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
-
-	command <<<
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
-		fi
-
-		~{SortExe} -k1,1 -k2,2n -k3,3n ~{BedCovFile} \
-		| ~{AwkExe} '{ printf "%s\t%d\t%d\t%.6g\n", $1, $2, $3, $NF/($3-$2); }' \
-		> "~{outputFile}"
-	>>>
-	output {
-		File ClammsCoverageFile = "~{outputFile}"
-	}
-	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-	}
-}
-
-task BamReadByChromosomes {
-	meta {
-		author: "Olivier ARDOUIN"
-		email: "o-ardouin(at)chu-montpellier.fr"
-		version: "0.0.2"
-		date: "2021-10-11"
-	}
-
-	input {
-		File in
-
-		String? outputPath
-		String? name
-
-		String ext = ".readByChrom.tsv"
-
-		String samtoolsExe = "samtools"
-		String cutExe = "cut"
-		String uniqExe = "uniq"
-
-		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
-	}
-
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
-
-	String baseName = if defined(name) then name else sub(basename(in),"(.*)\.(sam|bam|cram)$","$1")
-	String outputFile = if defined(outputPath) then "~{outputPath}/~{baseName}~{ext}" else "~{baseName}~{ext}"
-
-	command <<<
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
-		fi
-
-		~{samtoolsExe} view ~{in} \
-		| ~{cutExe} -f 3 \
-		| ~{uniqExe} -c \
-		> "~{outputFile}"
-	>>>
-
-	output {
-		File ReadCountByChrom = "~{outputFile}"
-	}
-
-	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
 	}
 }
 
@@ -1642,15 +1180,9 @@ task printStringtoFile {
 		Boolean Append = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String to = if Append then ">>" else ">"
 
@@ -1668,8 +1200,8 @@ task printStringtoFile {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 }
 
@@ -1688,15 +1220,9 @@ task printSoftVersion {
 		Boolean Append = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String to = if Append then ">>" else ">"
 
@@ -1715,8 +1241,8 @@ task printSoftVersion {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 }
 
@@ -1729,10 +1255,10 @@ task mkDir {
 	}
 
 	input {
-		String outputPath
+		String outputPath = "."
 
 		Int threads = 1
-		Int memoryByThreads = 768
+		Int memory
 	}
 
 	command <<<
@@ -1746,8 +1272,8 @@ task mkDir {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreads}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -1757,10 +1283,6 @@ task mkDir {
 		}
 		threads: {
 			description: 'Sets the number of threads [default: 1]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 	}
@@ -1778,7 +1300,7 @@ task rm_files {
 		Array[String] files
 
 		Int threads = 1
-		Int memoryByThreads = 768
+		Int memory
 	}
 
 	command <<<
@@ -1793,8 +1315,8 @@ task rm_files {
 	>>>
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreads}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
 	}
 
 	parameter_meta {
@@ -1804,10 +1326,6 @@ task rm_files {
 		}
 		threads: {
 			description: 'Sets the number of threads [default: 1]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 	}
@@ -1830,16 +1348,10 @@ task suffixArray {
         String suffix
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "ubuntu:22.04"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		for knownsite in $(jq -r '.[]' ~{write_json(array)}); do
@@ -1852,9 +1364,9 @@ task suffixArray {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1868,10 +1380,6 @@ task suffixArray {
 		}
 		threads: {
 			description: 'Sets the number of threads [default: 1]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
 			category: 'System'
 		}
 	}

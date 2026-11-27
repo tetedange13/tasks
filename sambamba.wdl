@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "sambamba"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "sambamba:1.0.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version 2>&1 | head -2 | tail -1
@@ -48,9 +42,9 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -63,11 +57,7 @@ task get_version {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -89,7 +79,7 @@ task markdup {
 		String path_exe = "sambamba"
 
 		File bam
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? sample
 		String suffix = ".markdup"
@@ -104,18 +94,12 @@ task markdup {
 		Int? bufferSize
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "sambamba:1.0.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\.bam|\.sam|\.cram)","")
+	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\\.bam|\\.sam|\\.cram)","")
 	String outputBam = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam"
 	String outputBai = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam.bai"
 
@@ -144,10 +128,9 @@ task markdup {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "~{default='' ',' + tempDir}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -164,7 +147,7 @@ task markdup {
 			category: 'Output path/name option'
         }
 		sample: {
-			description: 'Sample name to use for output file name [default: sub(basename(in),"(\.bam|\.sam|\.cram)","")]',
+			description: 'Sample name to use for output file name [default: sub(basename(in),"(\\.bam|\\.sam|\\.cram)","")]',
 			category: 'Output path/name option'
 		}
 		bam: {
@@ -188,11 +171,7 @@ task markdup {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		hashTableSize: {
@@ -230,7 +209,7 @@ task sort {
 		String path_exe = "sambamba"
 
 		File bam
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? sample
 		String suffix = ".sort"
@@ -244,18 +223,12 @@ task sort {
 		String? tempDir
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "sambamba:1.0.1"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\.bam|\.sam|\.cram)","")
+	String sampleName = if defined(sample) then sample else sub(basename(bam),"(\\.bam|\\.sam|\\.cram)","")
 	String outputFile = "~{outputPath}/~{subdir}/~{sampleName}~{suffix}.bam"
 
 	command <<<
@@ -283,10 +256,9 @@ task sort {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "~{default='' ',' + tempDir}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -303,7 +275,7 @@ task sort {
 			category: 'Output path/name option'
         }
 		sample: {
-			description: 'Sample name to use for output file name [default: sub(basename(in),"(\.bam|\.sam|\.cram)","")]',
+			description: 'Sample name to use for output file name [default: sub(basename(in),"(\\.bam|\\.sam|\\.cram)","")]',
 			category: 'Output path/name option'
 		}
 		bam: {
@@ -339,11 +311,7 @@ task sort {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {

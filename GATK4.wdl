@@ -28,16 +28,10 @@ task get_version {
 		String path_exe = "gatk"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "GATK4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	command <<<
 		~{path_exe} --version | head -4 | tail -1
@@ -48,9 +42,9 @@ task get_version {
 	}
 
 	runtime {
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -63,11 +57,7 @@ task get_version {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -89,10 +79,10 @@ task splitIntervals {
 		String path_exe = "gatk"
 
 		File bed
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.([a-zA-Z]*)$"
+		String subString = "\\.([a-zA-Z]*)$"
 		String subStringReplace = "-split"
 
 		File refFasta
@@ -106,18 +96,12 @@ task splitIntervals {
 		Boolean intersectionRule = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(bed),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(bed),subString,subStringReplace)
 	String outputRep = "~{outputPath}/~{subdir}/~{baseName}"
 
 	command <<<
@@ -143,10 +127,9 @@ task splitIntervals {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{bed}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -167,11 +150,11 @@ task splitIntervals {
 			category: 'Output path/name option'
 		}
 		name: {
-			description: 'Output repertory name [default: sub(basename(in),"\.([a-zA-Z]*)$","")].',
+			description: 'Output repertory name [default: sub(basename(in),"\\.([a-zA-Z]*)$","")].',
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "\.([a-zA-Z]*)$"]',
+			description: 'Extension to remove from the input file [default: "\\.([a-zA-Z]*)$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -215,11 +198,7 @@ task splitIntervals {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -242,7 +221,7 @@ task baseRecalibrator {
 
 		File bam
 		File bai = bam + ".bai"
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		File? bed
@@ -269,21 +248,15 @@ task baseRecalibrator {
 		Boolean intersectionRule = false
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(bed) then bed else ""
 	String baseIntervals = if defined(bed) then sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"\.(sam|bam|cram)$","")
+	String? baseName = if defined(name) then name else sub(basename(bam),"\\.(sam|bam|cram)$","")
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}.~{baseIntervals}~{ext}"
 
 	command <<<
@@ -316,10 +289,9 @@ task baseRecalibrator {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + bed}" + "," + "~{sep=',' knownSites}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -352,7 +324,7 @@ task baseRecalibrator {
 			category: 'Output path/name option'
 		}
 		name: {
-			description: 'Output file base name [default: sub(basename(in),"\.(sam|bam|cram)$","")].',
+			description: 'Output file base name [default: sub(basename(in),"\\.(sam|bam|cram)$","")].',
 			category: 'Output path/name option'
 		}
 		ext: {
@@ -416,11 +388,7 @@ task baseRecalibrator {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -442,27 +410,21 @@ task gatherBQSRReports {
 		String path_exe = "gatk"
 
 		Array[File]+ reports
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "(\.[0-9]+)?\.recal$"
+		String subString = "(\\.[0-9]+)?\\.recal$"
 		String subStringReplace = ""
 		String ext = ".bqsr.report"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String firstFile = basename(reports[0])
-	String baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{ext}"
 
 	command <<<
@@ -482,10 +444,9 @@ task gatherBQSRReports {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{sep=',' reports}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -514,7 +475,7 @@ task gatherBQSRReports {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Extension to remove from the input file [default: "(\.[0-9]+)?\.recal$"]',
+			description: 'Extension to remove from the input file [default: "(\\.[0-9]+)?\\.recal$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -526,11 +487,7 @@ task gatherBQSRReports {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -557,7 +514,7 @@ task applyBQSR {
 		File? intervals
 		String subString_intervals = "([0-9]+)-scattered.interval_list"
 		String subStringReplace_intervals = "$1"
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String suffix = ".bqsr"
@@ -579,23 +536,17 @@ task applyBQSR {
 		Boolean bamMD5 = true
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String baseIntervals = if defined(intervals) then "." + sub(basename(baseNameIntervals),subString_intervals,subStringReplace_intervals) else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(.*)\.(sam|bam|cram)$","$1")
-	String ext = sub(basename(bam),"(.*)\.(sam|bam|cram)$","$2")
-	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\.~{ext}"
+	String? baseName = if defined(name) then name else sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$1")
+	String ext = sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$2")
+	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\\.~{ext}"
 	String outputBaiFile = sub(outputBamFile,"(m)$","i")
 
 	command <<<
@@ -628,10 +579,9 @@ task applyBQSR {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "," + "~{bqsrReport}" + "~{default='' ',' + intervals}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -732,11 +682,7 @@ task applyBQSR {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -759,7 +705,7 @@ task leftAlignIndels {
 
 		File bam
 		File bamIdx = sub(bam,"(m)$","i")
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String suffix = ".leftAlign"
@@ -778,23 +724,17 @@ task leftAlignIndels {
 		Boolean bamMD5 = true
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(intervals) then intervals else ""
-	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),"([0-9]+)-scattered.interval_list","\.$1") else ""
+	String baseIntervals = if defined(intervals) then sub(basename(baseNameIntervals),"([0-9]+)-scattered.interval_list","\\.$1") else ""
 
-	String baseName = if defined(name) then name else sub(basename(bam),"(\.[0-9]+)?\.(sam|bam|cram)$","")
-	String ext = sub(basename(bam),"(.*)\.(sam|bam|cram)$","$2")
-	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\.~{ext}"
+	String? baseName = if defined(name) then name else sub(basename(bam),"(\\.[0-9]+)?\\.(sam|bam|cram)$","")
+	String ext = sub(basename(bam),"(.*)\\.(sam|bam|cram)$","$2")
+	String outputBamFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}~{baseIntervals}\\.~{ext}"
 	String outputBaiFile = sub(outputBamFile,"(m)$","i")
 
 	command <<<
@@ -823,10 +763,9 @@ task leftAlignIndels {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + intervals}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -895,11 +834,7 @@ task leftAlignIndels {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -922,10 +857,10 @@ task haplotypeCaller {
 
 		Array[File] bam
 		Array[File] bai
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.(sam|bam|cram)$"
+		String subString = "\\.(sam|bam|cram)$"
 		String subStringReplace = ".haplotypeCaller.vcf"
 		String subStringIntervals = "([0-9]+)-scattered.interval_list$"
 		String subStringReplaceIntervals = ".$1"
@@ -956,22 +891,16 @@ task haplotypeCaller {
 		String smithAndWaterman = "FASTEST_AVAILABLE"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String baseNameIntervals = if defined(intervals) then intervals else ""
 	String getIntervalsBase = if defined(intervals) then sub(basename(baseNameIntervals),subStringIntervals,subStringReplaceIntervals) else ""
 
 	String bn = if length(bam) == 1 then basename(bam[0]) else "MultiSample"
-	String baseName = if defined(name) then name + getIntervalsBase + subStringReplace else sub(bn,subString,getIntervalsBase + subStringReplace)
+	String? baseName = if defined(name) then name + getIntervalsBase + subStringReplace else sub(bn,subString,getIntervalsBase + subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}"
 
 	command <<<
@@ -1006,10 +935,9 @@ task haplotypeCaller {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{baseNameIntervals}" + "," + "~{refFasta}" + "~{default='' ',' + intervals}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1030,7 +958,7 @@ task haplotypeCaller {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(sam|bam|cram)$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(sam|bam|cram)$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1114,11 +1042,7 @@ task haplotypeCaller {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1143,25 +1067,19 @@ task gatherVcfs {
 		String? outputPath
 		String subdir = ""
 		String? name
-		String subString = "([a-zA-Z0-9_-]+)(\.[0-9]{4})?(\.[0-9a-zA-Z_-]+)?\.(vcf)(.gz)?$"
+		String subString = "([a-zA-Z0-9_-]+)(\\.[0-9]{4})?(\\.[0-9a-zA-Z_-]+)?\\.(vcf)(.gz)?$"
 		String subStringReplace = "$1$3.gather"
 
 		Boolean reorder = true
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
 	String firstFile = basename(vcfs[0])
-	String baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(firstFile),subString,subStringReplace)
 	String outputFile = "~{outputPath}/~{subdir}/~{baseName}.vcf"
 
 	command <<<
@@ -1183,10 +1101,9 @@ task gatherVcfs {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcfs}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1211,7 +1128,7 @@ task gatherVcfs {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "(\.[0-9]+)?(\.[a-zA-Z_-]+)?\.(vcf)$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "(\\.[0-9]+)?(\\.[a-zA-Z_-]+)?\\.(vcf)$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1228,11 +1145,7 @@ task gatherVcfs {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1254,10 +1167,10 @@ task splitVcfs {
 		String path_exe = "gatk"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf)(.gz)?$"
+		String subString = "\\.(vcf)(.gz)?$"
 		String subStringReplace = ""
 
 		Boolean strict = true
@@ -1265,18 +1178,12 @@ task splitVcfs {
 		Int max_records  = 500000
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputIndels = "~{outputPath}/~{subdir}/~{baseName}.indels.vcf"
 	String outputSnps = "~{outputPath}/~{subdir}/~{baseName}.snps.vcf"
 
@@ -1303,10 +1210,9 @@ task splitVcfs {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1331,7 +1237,7 @@ task splitVcfs {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(vcf)(.gz)?$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(vcf)(.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1355,11 +1261,7 @@ task splitVcfs {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1381,27 +1283,21 @@ task variantFiltration  {
 		String path_exe = "gatk"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf)(.gz)?$"
+		String subString = "\\.(vcf)(.gz)?$"
 		String subStringReplace = ".filter"
 
 		Array[Pair[String, String]] filters
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcf),subString,subStringReplace)
 	String outputVcf = "~{outputPath}/~{subdir}/~{baseName}.vcf"
 
 	File pairs = write_json(filters) 
@@ -1437,10 +1333,9 @@ task variantFiltration  {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1465,7 +1360,7 @@ task variantFiltration  {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(vcf)(.gz)?$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(vcf)(.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1481,11 +1376,7 @@ task variantFiltration  {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
@@ -1507,26 +1398,20 @@ task mergeVcfs  {
 		String path_exe = "gatk"
 
 		Array[File] vcfs
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
-		String subString = "\.(vcf)(.gz)?$"
+		String subString = "\\.(vcf)(.gz)?$"
 		String subStringReplace = ""
 		String suffix = ".merge"
 
 		Int threads = 1
-		Int memoryByThreads = 768
-		String? memory
+		Int memory
 		String apptainer_img = "gatk4:4.6.2.0"
 	}
 
-	String totalMem = if defined(memory) then memory else memoryByThreads*threads + "M"
-	Boolean inGiga = (sub(totalMem,"([0-9]+)(M|G)", "$2") == "G")
-	Int memoryValue = sub(totalMem,"([0-9]+)(M|G)", "$1")
-	Int totalMemMb = if inGiga then memoryValue*1024 else memoryValue
-	Int memoryByThreadsMb = floor(totalMemMb/threads)
 
-	String baseName = if defined(name) then name else sub(basename(vcfs[0]),subString,subStringReplace)
+	String? baseName = if defined(name) then name else sub(basename(vcfs[0]),subString,subStringReplace)
 	String outputVcf = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.vcf"
 
 	command <<<
@@ -1545,10 +1430,9 @@ task mergeVcfs  {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{sep=',' vcfs}"
-		cpu: "~{threads}"
-		requested_memory_mb_per_core: "${memoryByThreadsMb}"
-		docker: "~{apptainer_img}"
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
 	}
 
 	parameter_meta {
@@ -1573,7 +1457,7 @@ task mergeVcfs  {
 			category: 'Output path/name option'
 		}
 		subString: {
-			description: 'Substring to replace (e.g. remove extension) [default: "\.(vcf)(.gz)?$"]',
+			description: 'Substring to replace (e.g. remove extension) [default: "\\.(vcf)(.gz)?$"]',
 			category: 'Output path/name option'
 		}
 		subStringReplace: {
@@ -1589,11 +1473,7 @@ task mergeVcfs  {
 			category: 'System'
 		}
 		memory: {
-			description: 'Sets the total memory to use ; with suffix M/G [default: (memoryByThreads*threads)M]',
-			category: 'System'
-		}
-		memoryByThreads: {
-			description: 'Sets the total memory to use (in M) [default: 768]',
+			description: 'Sets the total memory to use (Int in bytes)',
 			category: 'System'
 		}
 		apptainer_img: {
