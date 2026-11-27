@@ -97,12 +97,12 @@ task sort {
 
 
 	String? baseName = if defined(name) then name else sub(basename(bam),"(\\.sam|\\.bam|\\.cram)","")
-	String outputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.~{format}"
+	String OutputFile = "~{outputPath}/~{subdir}/~{baseName}~{suffix}.~{format}"
 
 	command <<<
 
-		if [[ ! -d $(dirname ~{outputFile}) ]]; then
-			mkdir -p $(dirname ~{outputFile})
+		if [[ ! -d $(dirname ~{OutputFile}) ]]; then
+			mkdir -p $(dirname ~{OutputFile})
 		fi
 
 		~{path_exe} sort \
@@ -113,13 +113,13 @@ task sort {
 			~{default="" "--reference \"" + refFasta + "\""} \
 			--threads ~{threads - 1} \
 			-m ~{memory} \
-			-o "~{outputFile}" \
+			-o "~{OutputFile}" \
 			"~{bam}"
 
 	>>>
 
 	output {
-		File outputFile = "~{outputFile}"
+		File outputFile = "~{OutputFile}"
 	}
 
 	runtime {
