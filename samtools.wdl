@@ -188,13 +188,14 @@ task sort {
 	}
 }
 
-task bedCov {
+task bedcov {
 	meta {
 		author: "David BAUX"
 		email: "d-baux(at)chu-montpellier.fr"
 		version: "0.0.1"
 		date: "2023-09-04"
 	}
+
 	input {
 		String path_exe = "samtools"
 
@@ -202,7 +203,7 @@ task bedCov {
 		String outputPath = "."
 		String subdir = ""
 		File intervalBedFile
-		File bamFile
+		File bam
 		File bamIndex
 		Int minCovBamQual = 20
 		String subString = "\\.(bam)(.gz)?$"
