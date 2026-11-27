@@ -160,7 +160,6 @@ task norm {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
@@ -350,7 +349,6 @@ task view {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" + "~{default='' ',' + regionsFile}"  + "~{default='' ',' + targetsFile}" 
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
@@ -496,7 +494,6 @@ task sort {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{vcf}" 
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"

@@ -123,7 +123,6 @@ task map {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{fasta}" + "," + "~{fastqR1}" + "," + "~{fastqR2}"
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"

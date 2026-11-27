@@ -129,7 +129,6 @@ task deepvariant {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{bam}" + "~{default='' ',' + bed}"
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"

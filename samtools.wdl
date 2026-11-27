@@ -123,7 +123,6 @@ task sort {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "," + "~{refFasta}"
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"

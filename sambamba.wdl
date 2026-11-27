@@ -128,7 +128,6 @@ task markdup {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "~{default='' ',' + tempDir}"
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
@@ -257,7 +256,6 @@ task sort {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{bam}" + "~{default='' ',' + tempDir}"
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"

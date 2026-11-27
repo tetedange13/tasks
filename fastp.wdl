@@ -126,7 +126,6 @@ task fastp {
 	}
 
 	runtime {
-        bind_opt: "~{outputPath}/~{subdir}" + "," + "~{fastqR1}" + "," + "~{fastqR2}"
 		cpu: threads
 		requested_memory_mb_per_core: memory
         container: "~{apptainer_img}"

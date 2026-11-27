@@ -128,7 +128,6 @@ task vcfpolyx {
 	}
 
 	runtime {
-		bind_opt: "~{outputPath}/~{subdir}" + "," + "~{refFasta}" + "," + "~{vcf}"
 		cpu: threads
 		requested_memory_mb_per_core: memory
 		container: "~{apptainer_img}"
