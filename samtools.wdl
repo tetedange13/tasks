@@ -188,6 +188,57 @@ task sort {
 	}
 }
 
+task bedCov {
+	meta {
+		author: "David BAUX"
+		email: "d-baux(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2023-09-04"
+	}
+	input {
+		String path_exe = "samtools"
+
+		String? name
+		String outputPath = "."
+		String subdir = ""
+		File intervalBedFile
+		File bamFile
+		File bamIndex
+		Int minCovBamQual = 20
+		String subString = "\\.(bam)(.gz)?$"
+		String subStringReplace = ""
+
+		Int threads
+		Int memory
+		String apptainer_img = "samtools:1.23.1"
+	}
+
+	String? baseName = if defined(name) then name else sub(basename(bamFile),subString,subStringReplace)
+	String OutputBedcov = "~{outputPath}/~{subdir}/~{baseName}_bedcov.bed"
+
+	command <<<
+
+		if [[ ! -d $(dirname ~{OutputBedcov}) ]]; then
+			mkdir -p $(dirname ~{OutputBedcov})
+		fi
+
+		~{path_exe} bedcov -Q ~{minCovBamQual} \
+		~{intervalBedFile} \
+		~{bamFile} \
+		> ~{OutputBedcov}
+
+	>>>
+
+	runtime {
+		cpu: threads
+		requested_memory_mb_per_core: memory
+		container: "~{apptainer_img}"
+	}
+	output {
+		File outputBedcov = OutputBedcov
+	}
+}
+
 task bamReadByChromosomes {
 	meta {
 		author: "Olivier ARDOUIN"
