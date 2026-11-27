@@ -79,7 +79,7 @@ task splitIntervals {
 		String path_exe = "gatk"
 
 		File bed
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.([a-zA-Z]*)$"
@@ -221,7 +221,7 @@ task baseRecalibrator {
 
 		File bam
 		File bai = bam + ".bai"
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		File? bed
@@ -410,7 +410,7 @@ task gatherBQSRReports {
 		String path_exe = "gatk"
 
 		Array[File]+ reports
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "(\\.[0-9]+)?\\.recal$"
@@ -514,7 +514,7 @@ task applyBQSR {
 		File? intervals
 		String subString_intervals = "([0-9]+)-scattered.interval_list"
 		String subStringReplace_intervals = "$1"
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String suffix = ".bqsr"
@@ -705,7 +705,7 @@ task leftAlignIndels {
 
 		File bam
 		File bamIdx = sub(bam,"(m)$","i")
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String suffix = ".leftAlign"
@@ -857,7 +857,7 @@ task haplotypeCaller {
 
 		Array[File] bam
 		Array[File] bai
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.(sam|bam|cram)$"
@@ -1167,7 +1167,7 @@ task splitVcfs {
 		String path_exe = "gatk"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.(vcf)(.gz)?$"
@@ -1283,7 +1283,7 @@ task variantFiltration  {
 		String path_exe = "gatk"
 
 		File vcf
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.(vcf)(.gz)?$"
@@ -1398,7 +1398,7 @@ task mergeVcfs  {
 		String path_exe = "gatk"
 
 		Array[File] vcfs
-		String outputPath
+		String outputPath = "."
 		String subdir = ""
 		String? name
 		String subString = "\\.(vcf)(.gz)?$"
