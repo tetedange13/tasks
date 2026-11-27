@@ -1,0 +1,8 @@
+{
+  "bam": "https://github.com/MobiDL/tests_dataset/raw/refs/heads/main/smallest/bam/sample.bam",
+  "bamIndex": "https://github.com/MobiDL/tests_dataset/raw/refs/heads/main/smallest/bam/sample.bam.bai",
+  "intervalBedFile": "https://github.com/MobiDL/tests_dataset/raw/refs/heads/main/smallest/bed/test.bed",
+  "apptainer_img": "quay.io/biocontainers/samtools:1.23.1--ha83d96e_0",
+  "threads": 1,
+  "memory": 2500
+}
