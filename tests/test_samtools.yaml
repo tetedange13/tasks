@@ -6,7 +6,7 @@
     - task_level
     - samtools
     - bedcov
-  command: bash -c "tsk=bedcov && miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm.cfg --input tests/samtools/${tsk}_inputs.json --task $tsk samtools.wdl"
+  command: bash -c "tsk=bedcov && miniwdl run -d out-miniwdl/. --no-cache --verbose --no-quant-check --cfg tests/slurm_apptainer.cfg --input tests/samtools/${tsk}_inputs.json --task $tsk samtools.wdl"
   files:
     - path: out-miniwdl/out/outputBedcov/sample_bedcov.bed
       md5sum: 9fdcbf1fed9252c2e90979f53647be9d
